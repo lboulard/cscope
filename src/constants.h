@@ -54,12 +54,12 @@
 /* get the next character in the cross-reference */
 /* note that blockp is assumed not to be null */
 #define	getrefchar()	(*(++blockp + 1) != '\0' ? *blockp : \
-			(readblock() != NULL ? *blockp : '\0'))
+			(read_block() != NULL ? *blockp : '\0'))
 
 /* skip the next character in the cross-reference */
 /* note that blockp is assumed not to be null and that
    this macro will always be in a statement by itself */
-#define	skiprefchar()	if (*(++blockp + 1) == '\0') (void) readblock()
+#define	skiprefchar()	if (*(++blockp + 1) == '\0') (void) read_block()
 
 #define	ESC	'\033'		/* escape character */
 #define	DEL	'\177'		/* delete character */
@@ -95,38 +95,35 @@
 #define INCLUDES	8
 #define	FIELDS		9
 
-#if (BSD || V9) && !__NetBSD__
-#define TERMINFO	0	/* no terminfo curses */
+#if (BSD || V9) && !__NetBSD__ && !__FreeBSD__
+# define TERMINFO	0	/* no terminfo curses */
 #else
-#define TERMINFO	1
+# define TERMINFO	1
 #endif
 
 
-#ifndef __FreeBSD__	/* Prevent search issues in cscope.out */
 #if !TERMINFO
-#ifndef KEY_BREAK
-#define	KEY_BREAK	0400	/* easier to define than to add #if around the use */
-#endif
-#ifndef KEY_ENTER
-#define	KEY_ENTER	0401
-#endif
-#ifndef KEY_BACKSPACE
-#define	KEY_BACKSPACE	0402
-#endif
+# ifndef KEY_BREAK
+#  define	KEY_BREAK	0400	/* easier to define than to add #if around the use */
+# endif
+# ifndef KEY_ENTER
+#  define	KEY_ENTER	0401
+# endif
+# ifndef KEY_BACKSPACE
+#  define	KEY_BACKSPACE	0402
+# endif
 
-#if !sun
-#define cbreak()	crmode()			/* name change */
-#endif
+# if !sun
+#  define cbreak()	crmode()			/* name change */
+# endif
 
-#if UNIXPC
-#define	erasechar()	(_tty.c_cc[VERASE])		/* equivalent */
-#define	killchar()	(_tty.c_cc[VKILL])		/* equivalent */
-#else
-#define	erasechar()	(_tty.sg_erase)			/* equivalent */
-#define	killchar()	(_tty.sg_kill)			/* equivalent */
-#endif	/* if UNIXPC */
-
+# if UNIXPC
+#  define erasechar() (_tty.c_cc[VERASE])		/* equivalent */
+#  define killchar()  (_tty.c_cc[VKILL])		/* equivalent */
+# else
+#  define erasechar() (_tty.sg_erase)			/* equivalent */
+#  define killchar()  (_tty.sg_kill)			/* equivalent */
+# endif /* if UNIXPC */
 #endif	/* if !TERMINFO */
-#endif	/* ifndef __FreeBSD__ */
 
 #endif /* CSCOPE_CONSTANTS_H */
