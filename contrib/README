@@ -4,3 +4,6 @@ $Id$
 ocs - wrapper for cscope providing database generation through recursive
        directory set (among other things) - docced in script itself.
         contributed from SCO osr5.
+
+webcscope - a web cgi interface to cscope. Contributed by Ragho Mahalingam,
+		using code from Dmitry Obukhovi and Steven E. Brenner.

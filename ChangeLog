@@ -1,3 +1,4 @@
+(2001/06/29 - ragho)   webcscope added to contrib 
 (2001/06/29 - broeker) Re-formatted README, and added a tip working around 
 	               buggy libcurses on HP-UX 10.
 (2001/06/29 - broeker) Oversight in packages/MSDOS/djmake.bat fixed.	
