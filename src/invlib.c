@@ -503,6 +503,29 @@ invnewterm(void)
 	return(1);
 }
 
+/* 
+ * If 'invname' ends with the 'from' substring, it is replaced inline with the
+ * 'to' substring (which must be of the exact same length), and the function
+ * returns 0. Otherwise, returns -1.  
+ */
+
+static int 
+invflipname(char * invname, const char *from, const char *to)
+{
+	char *temp, *i = NULL;
+
+	assert(strlen(from) == strlen(to));
+
+	temp = invname - 1;
+	while( (temp = strstr(temp + 1, from)))
+		i = temp;
+	if (!i || i[strlen(from)] != '\0')
+		return -1;
+	while(*to)
+		*i++ = *to++;
+	return 0;
+}
+
 int
 invopen(INVCONTROL *invcntl, char *invname, char *invpost, int stat)
 {
@@ -512,15 +535,18 @@ invopen(INVCONTROL *invcntl, char *invname, char *invpost, int stat)
 		/* If db created without '-f', but now invoked with '-f cscope.out',
 		 * we need to check for 'cscope.in.out', rather than 'cscope.out.in': 
 		 * I.e, hack around our own violation of the inverse db naming convention */
-		if (!strcmp(invname, "cscope.out.in")) {
-			if ((invcntl->invfile = vpfopen(INVNAME, ((stat == 0) ? "rb" : "r+b")))) 
+		if (!invflipname(invname, INVNAME2, INVNAME)) {
+			if ((invcntl->invfile = vpfopen(invname, ((stat == 0) ? "rb" : "r+b")))) 
 				goto openedinvname;
+			invflipname(invname, INVNAME, INVNAME2); /* change back for err msg */
+		} 
 		/* more silliness: if you create the db with '-f cscope', then try to open 
 		 * it without '-f cscope', you'll fail unless we check for 'cscope.out.in'
 		 * here. */
-		} else if (!strcmp(invname, INVNAME)) {
-			if ((invcntl->invfile = vpfopen("cscope.out.in", ((stat == 0) ? "rb" : "r+b")))) 
+		else if (!invflipname(invname, INVNAME, INVNAME2)) {
+			if ((invcntl->invfile = vpfopen(invname, ((stat == 0) ? "rb" : "r+b")))) 
 				goto openedinvname;
+			invflipname(invname, INVNAME2, INVNAME); /* change back for err msg */
 		}	
 		invcannotopen(invname);
 		return(-1);
@@ -542,12 +568,14 @@ openedinvname:
 	}
 	if ((invcntl->postfile = vpfopen(invpost, ((stat == 0) ? "rb" : "r+b"))) == NULL) {
 		/* exact same naming convention hacks as above for invname */
-		if (!strcmp(invpost, "cscope.out.po")) {
-			if ((invcntl->postfile = vpfopen(INVPOST, ((stat == 0) ? "rb" : "r+b")))) 
+		if (!invflipname(invpost, INVPOST2, INVPOST)) {
+			if ((invcntl->postfile = vpfopen(invpost, ((stat == 0) ? "rb" : "r+b")))) 
 				goto openedinvpost;
-		} else if (!strcmp(invpost, INVPOST)) {
-			if ((invcntl->postfile = vpfopen("cscope.out.po",((stat == 0)?"rb":"r+b")))) 
+			invflipname(invpost, INVPOST, INVPOST2); /* change back for err msg */
+		} else if (!invflipname(invpost, INVPOST, INVPOST2)) {
+			if ((invcntl->postfile = vpfopen(invpost,((stat == 0)?"rb":"r+b")))) 
 				goto openedinvpost;
+			invflipname(invpost, INVPOST2, INVPOST); /* change back for err msg */
 		}
 		invcannotopen(invpost);
 		goto closeinv;

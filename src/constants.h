@@ -72,6 +72,9 @@
 #define	NAMEFILE "cscope.files"	/* default list-of-files file */
 #define	INVNAME	"cscope.in.out"	/* inverted index to the database */
 #define	INVPOST	"cscope.po.out"	/* inverted index postings */
+#define	INVNAME2 "cscope.out.in"/* follows correct naming convention */
+#define	INVPOST2 "cscope.out.po"/* follows correct naming convention */
+
 #define	STMTMAX	10000		/* maximum source statement length */
 #define	READ	4		/* access(2) parameter */
 #define	WRITE	2		/* access(2) parameter */
