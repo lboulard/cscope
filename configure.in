@@ -131,7 +131,6 @@ dnl set up variable used to choose between the two lexer sources...
 	AC_DEFINE(USING_LEX)
     fi
 ])
-AM_CONDITIONAL(USING_LEX, text "x$LEX" = "xflex")
 dnl === END aclocal REPLACEMENT MACROS
 
 
@@ -144,6 +143,7 @@ dnl Checks for programs.
 AC_PROG_INSTALL
 AC_PROG_CC
 AMNU_PROG_LEX
+AM_CONDITIONAL(USING_LEX, test "x$LEX" = "xlex")
 dnl below is hack to shut automake up about things it shouldn't be checking
 if false; then
     AM_PROG_LEX

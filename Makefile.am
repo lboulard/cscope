@@ -2,4 +2,5 @@
 
 SUBDIRS = doc src contrib
 
-EXTRA_DIST = contrib/README contrib/ocs
+EXTRA_DIST = packages
+

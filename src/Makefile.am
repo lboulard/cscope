@@ -24,9 +24,8 @@ cscope_LDADD =  $(CURSES_LIBS) $(LEXLIB)
 INCLUDES = $(CURSES_INCLUDEDIR)
 
 ## Hack to clean the generated files and not include them in a "make dist".
-BUILT_SOURCES = $(LEXER_SOURCE).c egrep.c
-CLEANFILES = $(LEXER_SOURCE).c egrep.c
+CLEANFILES = scanner.c fscanner.c egrep.c
 dist-hook:
-	rm -f $(distdir)/$(LEXER_SOURCE).c $(distdir)/egrep.c
+	rm -f $(distdir)/scanner.c $(distdir)/fscanner.c $(distdir)/egrep.c
 
 EXTRA_DIST = emacs.e gmacs.ml
