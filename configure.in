@@ -111,8 +111,8 @@ dnl      AC_LINK_IFELSE([`cat $LEX_OUTPUT_ROOT.c`], ac_cv_prog_lex_yytext_pointe
     dnl
     if test $ac_cv_prog_lex_yytext_pointer = yes; then
       AC_DEFINE(YYTEXT_POINTER, 1,
-            [Define if `lex' declares `yytext' as a `char *' by default,
-             not a `char[]'.])
+            [Define if lex declares yytext as a char * by default,
+             not a char[].])
     fi
 ])# AC_DECL_YYTEXT1
 
@@ -127,14 +127,11 @@ AC_DEFUN(AMNU_PROG_LEX,[
     ACNU_PROG_LEX
     ACNU_DECL_YYTEXT
 dnl set up variable used to choose between the two lexer sources...
-    if test "x$LEX" = "xflex"; then
-	LEXER_SOURCE="fscanner"
-    else
-	LEXER_SOURCE="scanner"
+    if test "x$LEX" = "xlex" ; then
 	AC_DEFINE(USING_LEX)
     fi
-    AC_SUBST(LEXER_SOURCE)
 ])
+AM_CONDITIONAL(USING_LEX, text "x$LEX" = "xflex")
 dnl === END aclocal REPLACEMENT MACROS
 
 

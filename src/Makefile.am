@@ -2,16 +2,22 @@
 
 bin_PROGRAMS = cscope
 
+if USING_LEX
+LEXER_SOURCE=scanner
+else
+LEXER_SOURCE=fscanner
+endif
+
 cscope_SOURCES = $(LEXER_SOURCE).l egrep.y \
-		alloc.c basename.c command.c compath.c constants.h \
-		crossref.c dir.c display.c edit.c exec.c find.c \
-		global.h help.c history.c input.c invlib.c invlib.h \
-		library.h logdir.c lookup.c main.c mouse.c mygetenv.c \
-		mypopen.c version.h vp.h vpaccess.c vpfopen.c \
-		vpinit.c vpopen.c
+	alloc.c basename.c command.c compath.c constants.h crossref.c dir.c \
+	display.c edit.c exec.c find.c global.h help.c history.c input.c \
+	invlib.c invlib.h library.h logdir.c lookup.c lookup.h main.c mouse.c \
+	mygetenv.c mypopen.c scanner.h version.h vp.h vpaccess.c vpfopen.c \
+	vpinit.c vpopen.c
+
+EXTRA_cscope_SOURCES = scanner.l fscanner.l
 
 LEXLIB = @LEXLIB@
-LEXER_SOURCE = @LEXER_SOURCE@
 
 cscope_LDADD =  $(CURSES_LIBS) $(LEXLIB)
 

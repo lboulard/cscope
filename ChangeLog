@@ -1,3 +1,12 @@
+(2001/06/26 - broeker) Changed lex/flex handling in automake/autoconf setup
+	               to make 'make distcheck' work cleanly: added new
+		       files scanner.h and lookup.h to list of sources. 
+		       Made sure both scanner.l and fscanner.l end up in the
+		       distribution tarball, as they should.  Removed some
+		       quotes from definition of ACNU_DECL_YYTEXT in 
+		       configure.in which confused autoheader.
+(2001/06/25 - broeker) Change handling of tag-less enums to same method as
+	               used in fscanner.l since 2001/06/19.
 (2001/06/25 - broeker) Fix SF bug #435535: two uses of yytext[] had been left 
 	               over in fscanner.l, causing incorrect compression of
 		       keywords #define and #include.
