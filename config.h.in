@@ -111,6 +111,9 @@
 /* Define if you have the <unistd.h> header file.  */
 #undef HAVE_UNISTD_H
 
+/* Define if you have the regex library (-lregex).  */
+#undef HAVE_LIBREGEX
+
 /* Name of package */
 #undef PACKAGE
 

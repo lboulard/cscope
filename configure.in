@@ -473,6 +473,10 @@ dnl Checks for libraries.
 dnl Replace `main' with a function in -lcurses:
 dnl AC_CHECK_LIB(curses, main)
 
+dnl Cygwin is a bit peculiar: it has the regcomp() functions, but in a
+dnl separate library, so we have to check for that:
+AC_CHECK_LIB(regex, regcomp)
+
 dnl Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
