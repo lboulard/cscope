@@ -51,9 +51,9 @@
 
 static char const rcsid[] = "$Id$";
 
-static	RETSIGTYPE	(*oldsigquit)(int); /* old value of quit signal */
-static	RETSIGTYPE	(*oldsighup)(int); /* old value of hangup signal */
-static	RETSIGTYPE	(*oldsigstp)(int); /* old value of SIGTSTP */
+static	sighandler_t oldsigquit; /* old value of quit signal */
+static	sighandler_t oldsighup; /* old value of hangup signal */
+static	sighandler_t oldsigtstp; /* old value of SIGTSTP */
 
 #ifndef __MSDOS__ /* none of these is needed, there */
 static	int	join(pid_t p);
@@ -145,7 +145,7 @@ myfork(void)
 		oldsigquit = signal(SIGQUIT, SIG_IGN);
 		oldsighup = signal(SIGHUP, SIG_IGN);
 #ifdef SIGTSTP		
-		oldsigstp = signal(SIGTSTP, SIG_DFL);
+		oldsigtstp = signal(SIGTSTP, SIG_DFL);
 #endif		
 	}
 	/* so they can be used to stop the child */
@@ -181,7 +181,7 @@ join(pid_t p)
 	(void) signal(SIGQUIT, oldsigquit);
 	(void) signal(SIGHUP, oldsighup);
 #ifdef SIGTSTP
-	(void) signal(SIGTSTP, oldsigstp);
+	(void) signal(SIGTSTP, oldsigtstp);
 #endif	
 
 	/* return the child's exit code */

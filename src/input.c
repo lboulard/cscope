@@ -79,7 +79,7 @@ myungetch(int c)
 int
 mygetch(void)
 {
-	RETSIGTYPE	(*savesig)(int); /* old value of signal */
+	sighandler_t savesig; /* old value of signal */
 	int	c;
 
 	/* change an interrupt signal to a break key character */
@@ -90,11 +90,9 @@ mygetch(void)
 		if(prevchar) {
 			c = prevchar;
 			prevchar = 0;
-		}
-		else
+		} else
 			c = getch();	/* get a character from the terminal */
-	}
-	else {	/* longjmp to here from signal handler */
+	} else {	/* longjmp to here from signal handler */
 		c = KEY_BREAK;
 	}
 	(void) signal(SIGINT, savesig);

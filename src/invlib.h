@@ -51,7 +51,7 @@
 #  define	BASE		95	/* 127 - ' ' */
 #  define	PRECISION	5	/* maximum digits after converting a long */
 # else
-#  error Need a platform with 8 bits in a char value
+  #error Need a platform with 8 bits in a char value
 # endif
 #endif
 

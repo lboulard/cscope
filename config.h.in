@@ -53,6 +53,12 @@
 /* Define to 1 if you have the `setmode' function. */
 #undef HAVE_SETMODE
 
+/* Define to 1 if you have the <signal.h> header file. */
+#undef HAVE_SIGNAL_H
+
+/* Define if we have sigsetjmp(). */
+#undef HAVE_SIGSETJMP
+
 /* Define to 1 if you have the `snprintf' function. */
 #undef HAVE_SNPRINTF
 

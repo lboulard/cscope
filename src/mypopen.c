@@ -176,7 +176,7 @@ mypclose(FILE *ptr)
 	int f;
 	pid_t r;
 	int status;
-	RETSIGTYPE (*hstat)(int), (*istat)(int), (*qstat)(int);
+	sighandler_t hstat, istat, qstat;
 
 #ifdef __DJGPP__ 
 	/* HBB 20010705: This system has its own pclose(), which we

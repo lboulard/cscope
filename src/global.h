@@ -84,6 +84,10 @@ char	*memset();
 #endif
 #endif /* RETSIGTYPE */
 
+#ifndef HAVE_SIGHANDLER_T
+typedef RETSIGTYPE (*sighandler_t)(int);
+#endif
+
 /* FIXME: this testing for platforms is foolish. Stop it! */
 #if BSD
 # undef	tolower		/* BSD toupper and tolower don't test the character */

@@ -1,3 +1,45 @@
+2004-02-12  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	Fix SF bug #892731: Ctrl-C interruption of search works only once
+	per session.
+	
+	* configure.in (sigsetjmp): Added test for presence of this
+	function.
+
+	* src/display.c (sigsetjmp) [!HAVE_SIGSETJMP]: Provide fallback
+	definitions for functions sigsetjmp, siglongjmp and type
+	sigjmp_buf.
+	(search): Move call to signal() above that to setjmp().  Call
+	sigsetjmp() instead of setjmp().
+
+	* configure, config.h.in: Regenerated.
+
+	* Makefile.in, src/Makefile.in, contrib/Makefile.in,
+	doc/Makefile.in, aclocal.m4: Rebuilt by automake-1.7.9.
+	
+	
+2004-02-11  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	* configure.in (signal.h) Check added.
+	(sighandler_t): Check for this type.  Should be defined on POSIX
+	platforms, but is treated as a GNU extension sometimes.
+
+	* src/global.h (sighandler_t) [!HAVE_SIGHANDLER_T]: Provide
+	fallback definition of function pointer typedef for signal
+	handlers if <signal.h> doesn't provide it. Simplifies cscope's
+	work when working on its own source code --- function pointers
+	confuse it quite badly, so it's best to minimize their visibility.
+
+	* src/input.c (mygetch): Type of local variable savesig written
+	using sighandler_t.
+
+	* src/display.c (search): Type of local variable savesig written
+	using sighandler_t.
+
+	* src/exec.c (oldsigtstp): Renamed, from oldsigstp.
+	(oldsigtstp,oldsighup,oldsigquit): Changed from function pointer
+	type to new typedef name sighandler_t.
+
 2004-02-05  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	* src/global.h (tolower) [BSD]: Fix stupid typo in overrides for
