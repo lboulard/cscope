@@ -139,6 +139,24 @@ main(int argc, char **argv)
 	
 	/* set the options */
 	while (--argc > 0 && (*++argv)[0] == '-') {
+		/* HBB 20030814: add GNU-style --help and --version
+		 * options */
+	  	if (strequal(argv[0], "--help")
+		    || strequal(argv[0], "-h")) {
+			longusage();
+			myexit(0);
+		}
+		if (strequal(argv[0], "--version")
+		    || strequal(argv[0], "-V")) {
+#if CCS
+			displayversion = YES;
+#else
+			fprintf(stderr, "%s: version %d%s\n", argv0,
+				FILEVERSION, FIXVERSION);
+			myexit(0);
+#endif
+		}
+
 		for (s = argv[0] + 1; *s != '\0'; s++) {
 			
 			/* look for an input field number */
@@ -162,15 +180,6 @@ main(int argc, char **argv)
 				--argc;
 				++argv;
 				goto lastarg;
-			case 'V':	/* print the version number */
-#if CCS
-				displayversion = YES;
-				break;
-#else
-				(void) fprintf(stderr, "%s: version %d%s\n", argv0,
-					FILEVERSION, FIXVERSION);
-				myexit(0);
-#endif
 			case 'b':	/* only build the cross-reference */
 				buildonly = YES;
 				linemode  = YES;
@@ -188,9 +197,6 @@ main(int argc, char **argv)
 			case 'e':	/* suppress ^E prompt between files */
 				editallprompt = NO;
 				break;
-			case 'h':
-				(void) longusage();
-				myexit(1);
 			case 'k':	/* ignore DFLT_INCDIR */
 				kernelmode = YES;
 				break;
