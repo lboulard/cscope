@@ -314,8 +314,7 @@ lastarg:
 	/* XXX remove if/when clearerr() in dir.c does the right thing. */
 	if (namefile && strcmp(namefile, "-") == 0 && !buildonly)
 	{
-	    fprintf (stderr, "cscope: Must use -b if file list comes from stdin
-	    n");
+	    fprintf (stderr, "cscope: Must use -b if file list comes from stdin\n");
 	    exit(1);
 	}
 
@@ -714,11 +713,23 @@ cannotopen(char *file)
 void
 cannotwrite(char *file)
 {
+#if HAVE_SNPRINTF
 	char	msg[MSGLEN + 1];
 
 	(void) snprintf(msg, sizeof(msg),
             "Removed file %s because write failed", file);
+#else
+	char *msg = mymalloc(50+strlen(file));
+
+	(void) sprintf(msg, "Removed file %s because write failed", file);
+#endif
+
 	myperror(msg);	/* display the reason */
+
+#if !HAVE_SNPRINTF
+	free(msg);
+#endif
+
 	(void) unlink(file);
 	myexit(1);	/* calls exit(2), which closes files */
 }
