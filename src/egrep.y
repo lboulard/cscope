@@ -156,53 +156,72 @@ yyerror(char *s)
 static int
 yylex(void)
 {
-	int cclcnt, x;
-	char c, d;
-	switch(c = nextch()) {
-		case '$':
-		case '^': c = '\n';
-			goto defchar;
-		case '|': return (OR);
-		case '*': return (STAR);
-		case '+': return (PLUS);
-		case '?': return (QUEST);
-		case '(': return (c);
-		case ')': return (c);
-		case '.': return (DOT);
-		case '\0': return (0);
-		case '\n': return (OR);
-		case '[': 
-			x = CCL;
-			cclcnt = 0;
-			count = nxtchar++;
-			if ((c = nextch()) == '^') {
-				x = NCCL;
-				c = nextch();
-			}
-			do {
-				if (c == '\0') synerror();
-				if (c == '-' && cclcnt > 0 && chars[nxtchar-1] != 0) {
-					if ((d = nextch()) != 0) {
-						c = chars[nxtchar-1];
-						while ((unsigned)c < (unsigned)d) {
-							if (nxtchar >= MAXLIN) overflo();
-							chars[nxtchar++] = ++c;
-							cclcnt++;
-						}
-						continue;
-					}
-				}
-				if (nxtchar >= MAXLIN) overflo();
-				chars[nxtchar++] = c;
-				cclcnt++;
-			} while ((c = nextch()) != ']');
-			chars[count] = cclcnt;
-			return (x);
-		case '\\':
-			if ((c = nextch()) == '\0') synerror();
-		defchar:
-		default: yylval = c; return (CHAR);
+    int cclcnt, x;
+    char c, d;
+
+    switch(c = nextch()) {
+    case '|':
+	return (OR);
+    case '*':
+	return (STAR);
+    case '+':
+	return (PLUS);
+    case '?':
+	return (QUEST);
+    case '(':
+	return (c);
+    case ')':
+	return (c);
+    case '.':
+	return (DOT);
+    case '\0':
+	return (0);
+    case '\n':
+	return (OR);
+    case '[': 
+	x = CCL;
+	cclcnt = 0;
+	count = nxtchar++;
+	if ((c = nextch()) == '^') {
+	    x = NCCL;
+	    c = nextch();
 	}
+	do {
+	    if (c == '\0')
+		synerror();
+	    if (c == '-'
+		&& cclcnt > 0
+		&& chars[nxtchar-1] != 0) {
+		if ((d = nextch()) != 0) {
+		    c = chars[nxtchar-1];
+		    while ((unsigned int)c < (unsigned int)d) {
+			if (nxtchar >= MAXLIN)
+			    overflo();
+			chars[nxtchar++] = ++c;
+			cclcnt++;
+		    }
+		    continue;
+		} /* if() */
+	    } /* if() */
+	    if (nxtchar >= MAXLIN)
+		overflo();
+	    chars[nxtchar++] = c;
+	    cclcnt++;
+	} while ((c = nextch()) != ']');
+	chars[count] = cclcnt;
+	return (x);
+    case '\\':
+	if ((c = nextch()) == '\0')
+	    synerror();
+	/* not reached */
+    case '$':
+    case '^':
+	c = '\n';
+	/* fall through */
+    default:
+	yylval = c;
+	return (CHAR);
+    }
 }
 
 static void
@@ -279,98 +298,108 @@ cfoll(int v)
 static void
 cgotofn(void)
 {
-	int c, i, k;
-	int n, s;
-	char symbol[NCHARS];
-	int j, pc, pos;
-	unsigned nc;
-	int curpos, num;
-	int number, newpos;
-	count = 0;
-	for (n=3; n<=line; n++) tmpstat[n] = 0;
-	if (cstate(line-1)==0) {
-		tmpstat[line] = 1;
-		count++;
-		out[0] = 1;
-	}
-	for (n=3; n<=line; n++) initstat[n] = tmpstat[n];
-	count--;		/*leave out position 1 */
-	icount = count;
-	tmpstat[1] = 0;
-	add(state, 0);
-	n = 0;
-	for (s=0; s<=n; s++)  {
-		if (out[s] == 1) continue;
-		for (i=0; i<NCHARS; i++) symbol[i] = 0;
-		num = positions[state[s]];
+    int c, i, k;
+    int n, s;
+    char symbol[NCHARS];
+    int j, pc, pos;
+    unsigned int nc;
+    int curpos, num;
+    int number, newpos;
+
+    count = 0;
+    for (n=3; n<=line; n++)
+	tmpstat[n] = 0;
+    if (cstate(line-1)==0) {
+	tmpstat[line] = 1;
+	count++;
+	out[0] = 1;
+    }
+    for (n=3; n<=line; n++)
+	initstat[n] = tmpstat[n];
+    count--;		/*leave out position 1 */
+    icount = count;
+    tmpstat[1] = 0;
+    add(state, 0);
+    n = 0;
+    for (s=0; s<=n; s++)  {
+	if (out[s] == 1)
+	    continue;
+	for (i=0; i<NCHARS; i++)
+	    symbol[i] = 0;
+	num = positions[state[s]];
+	count = icount;
+	for (i=3; i<=line; i++)
+	    tmpstat[i] = initstat[i];
+	pos = state[s] + 1;
+	for (i=0; i<num; i++) {
+	    curpos = positions[pos];
+	    if ((c = name[curpos]) >= 0) {
+		if (c < NCHARS) {
+		    symbol[c] = 1;
+		} else if (c == DOT) {
+		    for (k=0; k<NCHARS; k++)
+			if (k!='\n')
+			    symbol[k] = 1;
+		} else if (c == CCL) {
+		    nc = chars[right[curpos]];
+		    pc = right[curpos] + 1;
+		    for (k=0; k<nc; k++)
+			symbol[(unsigned int)(chars[pc++])] = 1;
+		} else if (c == NCCL) {
+		    nc = chars[right[curpos]];
+		    for (j = 0; j < NCHARS; j++) {
+			pc = right[curpos] + 1;
+			for (k = 0; k < nc; k++)
+			    if (j==(unsigned int)(chars[pc++]))
+				goto cont;
+			if (j!='\n')
+			    symbol[j] = 1;
+		    cont:;
+		    }
+		}
+	    }
+	    pos++;
+	} /* for (i) */
+	for (c=0; c<NCHARS; c++) {
+	    if (symbol[c] == 1) {
+		/* nextstate(s,c) */
 		count = icount;
-		for (i=3; i<=line; i++) tmpstat[i] = initstat[i];
+		for (i=3; i <= line; i++)
+		    tmpstat[i] = initstat[i];
 		pos = state[s] + 1;
 		for (i=0; i<num; i++) {
-			curpos = positions[pos];
-			if ((c = name[curpos]) >= 0) {
-				if (c < NCHARS) symbol[c] = 1;
-				else if (c == DOT) {
-					for (k=0; k<NCHARS; k++)
-						if (k!='\n') symbol[k] = 1;
+		    curpos = positions[pos];
+		    if ((k = name[curpos]) >= 0)
+			if ((k == c)
+			    || (k == DOT)
+			    || (k == CCL && member(c, right[curpos], 1))
+			    || (k == NCCL && member(c, right[curpos], 0))
+			    ) {
+			    number = positions[foll[curpos]];
+			    newpos = foll[curpos] + 1;
+			    for (k = 0; k < number; k++) {
+				if (tmpstat[positions[newpos]] != 1) {
+				    tmpstat[positions[newpos]] = 1;
+				    count++;
 				}
-				else if (c == CCL) {
-					nc = chars[right[curpos]];
-					pc = right[curpos] + 1;
-					for (k=0; k<nc; k++)
-						symbol[(unsigned)(chars[pc++])] = 1;
-				}
-				else if (c == NCCL) {
-					nc = chars[right[curpos]];
-					for (j = 0; j < NCHARS; j++) {
-						pc = right[curpos] + 1;
-						for (k = 0; k < nc; k++)
-							if (j==(unsigned)(chars[pc++])) goto cont;
-						if (j!='\n') symbol[j] = 1;
-						cont:;
-					}
-				}
+				newpos++;
+			    }
 			}
-			pos++;
+		    pos++;
+		} /* end nextstate */
+		if (notin(n)) {
+		    if (n >= NSTATES)
+			overflo();
+		    add(state, ++n);
+		    if (tmpstat[line] == 1)
+			out[n] = 1;
+		    gotofn[s][c] = n;
+		} else {
+		    gotofn[s][c] = xstate;
 		}
-		for (c=0; c<NCHARS; c++) {
-			if (symbol[c] == 1) { /* nextstate(s,c) */
-				count = icount;
-				for (i=3; i <= line; i++) tmpstat[i] = initstat[i];
-				pos = state[s] + 1;
-				for (i=0; i<num; i++) {
-					curpos = positions[pos];
-					if ((k = name[curpos]) >= 0)
-						if (
-							(k == c)
-							|| (k == DOT)
-							|| (k == CCL && member(c, right[curpos], 1))
-							|| (k == NCCL && member(c, right[curpos], 0))
-						) {
-							number = positions[foll[curpos]];
-							newpos = foll[curpos] + 1;
-							for (k=0; k<number; k++) {
-								if (tmpstat[positions[newpos]] != 1) {
-									tmpstat[positions[newpos]] = 1;
-									count++;
-								}
-								newpos++;
-							}
-						}
-					pos++;
-				} /* end nextstate */
-				if (notin(n)) {
-					if (n >= NSTATES) overflo();
-					add(state, ++n);
-					if (tmpstat[line] == 1) out[n] = 1;
-					gotofn[s][c] = n;
-				}
-				else {
-					gotofn[s][c] = xstate;
-				}
-			}
-		}
-	}
+	    } /* if (symbol) */
+	} /* for(c) */
+    } /* for(s) */
 }
 
 static int
@@ -403,12 +432,14 @@ cstate(int v)
 static int
 member(int symb, int set, int torf)
 {
-	int i, num, pos;
-	num = chars[set];
-	pos = set + 1;
-	for (i=0; i<(unsigned)num; i++)
-		if (symb == (unsigned)(chars[pos++])) return (torf);
-	return (!torf);
+    int i, num, pos;
+
+    num = chars[set];
+    pos = set + 1;
+    for (i=0; i<(unsigned int)num; i++)
+	if (symb == (unsigned int)(chars[pos++]))
+	    return (torf);
+    return (!torf);
 }
 
 static int
@@ -509,98 +540,100 @@ egrepinit(char *egreppat)
 int
 egrep(char *file, FILE *output, char *format)
 {
-	char *p;
-	unsigned cstat;
-	int ccount;
-	char buf[2*BUFSIZ];
-	char *nlp;
-	unsigned int istat;
-	int in_line;
-	FILE	*fptr;
+    char *p;
+    unsigned int cstat;
+    int ccount;
+    char buf[2*BUFSIZ];
+    char *nlp;
+    unsigned int istat;
+    int in_line;
+    FILE *fptr;
 
-	if ((fptr = myfopen(file, "r")) == NULL) {
-		return(-1);
-	}
-	ccount = 0;
-	lnum = 1;
-	in_line = 0;
-	p = buf;
-	nlp = p;
-	if ((ccount = fread(p, sizeof(char), BUFSIZ, fptr)) <= 0) goto done;
-	in_line = 1;
-	istat = cstat = (unsigned)gotofn[0]['\n'];
-	if (out[cstat]) goto found;
-	for (;;) {
-		if (!iflag)
-			cstat = (unsigned)gotofn[cstat][(unsigned)*p&0377];
-			/* all input chars made positive */
-		else
-			cstat = (unsigned)gotofn[cstat][tolower((int)*p&0377)];
-			/* for -i option*/
-		if (out[cstat]) {
-		found:	for(;;) {
-				if (*p++ == '\n') {
-					in_line = 0;
-				succeed:
-					(void) fprintf(output, format, file, lnum);
-					if (p <= nlp) {
-						while (nlp < &buf[2*BUFSIZ]) (void) putc(*nlp++, output);
-						nlp = buf;
-					}
-					while (nlp < p) (void) putc(*nlp++, output);
-					lnum++;
-					nlp = p;
-					if ((out[(cstat=istat)]) == 0) goto brk2;
-				}
-				cfound:
-				if (--ccount <= 0) {
-					if (p <= &buf[BUFSIZ]) {
-						ccount = fread(p, sizeof(char), BUFSIZ, fptr);
-					}
-					else if (p == &buf[2*BUFSIZ]) {
-						p = buf;
-						ccount = fread(p, sizeof(char), BUFSIZ, fptr);
-					}
-					else {
-						ccount = fread(p, sizeof(char), &buf[2*BUFSIZ] - p, fptr);
-					}
-					if (ccount <= 0) {
-						if (in_line) {
-							in_line = 0;
-							goto succeed;
-						}
-						goto done;
-					}
-				}
-				in_line = 1;
-			}
-		}
+    if ((fptr = myfopen(file, "r")) == NULL) 
+	return(-1);
+
+    ccount = 0;
+    lnum = 1;
+    in_line = 0;
+    p = buf;
+    nlp = p;
+    if ((ccount = fread(p, sizeof(char), BUFSIZ, fptr)) <= 0)
+	goto done;
+    in_line = 1;
+    istat = cstat = (unsigned int) gotofn[0]['\n'];
+    if (out[cstat])
+	goto found;
+    for (;;) {
+	if (!iflag)
+	    cstat = (unsigned int) gotofn[cstat][(unsigned int)*p&0377];
+	/* all input chars made positive */
+	else
+	    cstat = (unsigned int) gotofn[cstat][tolower((int)*p&0377)];
+	/* for -i option*/
+	if (out[cstat]) {
+	found:
+	    for(;;) {
 		if (*p++ == '\n') {
-			in_line = 0;
-			lnum++;
-			nlp = p;
-			if (out[(cstat=istat)]) goto cfound;
-		}
-		brk2:
+		    in_line = 0;
+		succeed:
+		    (void) fprintf(output, format, file, lnum);
+		    if (p <= nlp) {
+			while (nlp < &buf[2*BUFSIZ]) (void) putc(*nlp++, output);
+			nlp = buf;
+		    }
+		    while (nlp < p)
+			(void) putc(*nlp++, output);
+		    lnum++;
+		    nlp = p;
+		    if ((out[(cstat=istat)]) == 0)
+			goto brk2;
+		} /* if (p++ == \n) */
+	    cfound:
 		if (--ccount <= 0) {
-			if (p <= &buf[BUFSIZ]) {
-				ccount = fread(p, sizeof(char), BUFSIZ, fptr);
+		    if (p <= &buf[BUFSIZ]) {
+			ccount = fread(p, sizeof(char), BUFSIZ, fptr);
+		    } else if (p == &buf[2*BUFSIZ]) {
+			p = buf;
+			ccount = fread(p, sizeof(char), BUFSIZ, fptr);
+		    } else {
+			ccount = fread(p, sizeof(char), &buf[2*BUFSIZ] - p, fptr);
+		    }
+		    if (ccount <= 0) {
+			if (in_line) {
+			    in_line = 0;
+			    goto succeed;
 			}
-			else if (p == &buf[2*BUFSIZ]) {
-				p = buf;
-				ccount = fread(p, sizeof(char), BUFSIZ, fptr);
-			}
-			else {
-				ccount = fread(p, sizeof(char), &buf[2*BUFSIZ] - p, fptr);
-			}
-			if (ccount <= 0) {
-				break;
-			}
-		}
+			goto done;
+		    }
+		} /* if(ccount <= 0) */
 		in_line = 1;
+	    } /* for(ever) */
+	} /* if(out[cstat]) */
+	if (*p++ == '\n') {
+	    in_line = 0;
+	    lnum++;
+	    nlp = p;
+	    if (out[(cstat=istat)])
+		goto cfound;
 	}
-done:	(void) fclose(fptr);
-	return(0);
+    brk2:
+	if (--ccount <= 0) {
+	    if (p <= &buf[BUFSIZ]) {
+		ccount = fread(p, sizeof(char), BUFSIZ, fptr);
+	    } else if (p == &buf[2*BUFSIZ]) {
+		p = buf;
+		ccount = fread(p, sizeof(char), BUFSIZ, fptr);
+	    } else {
+		ccount = fread(p, sizeof(char), &buf[2*BUFSIZ] - p, fptr);
+	    }
+	    if (ccount <= 0) 
+		break;
+	}
+	in_line = 1;
+    }
+done:
+    (void) fclose(fptr);
+    return(0);
 }
 
 /* FIXME HBB: should export this to a separate file and use
