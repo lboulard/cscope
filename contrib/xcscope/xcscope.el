@@ -6,7 +6,7 @@
 ; Description:  cscope interface for (X)Emacs
 ; Author:       Darryl Okahata
 ; Created:      Wed Apr 19 17:03:38 2000
-; Modified:     Tue Mar 13 11:48:17 2001 (Darryl Okahata) darrylo@soco.agilent.com
+; Modified:     Wed Jun 27 20:59:17 2001
 ; Language:     Emacs-Lisp
 ; Package:      N/A
 ; Status:       Experimental
@@ -18,7 +18,7 @@
 ;         Steven Elliott <selliott4@austin.rr.com>
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ALPHA VERSION 0.94
+;; ALPHA VERSION 0.95
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; This program is free software; you can redistribute it and/or modify
@@ -678,6 +678,27 @@ The current syntax table should really be used for this."
   :group 'cscope)
 
 
+(defcustom cscope-allow-arrow-overlays t
+  "*If non-nil, use an arrow overlay to show target lines.
+Arrow overlays are only used when the following functions are used:
+
+    cscope-show-entry-other-window
+    cscope-show-next-entry-other-window
+    cscope-show-prev-entry-other-window
+
+The arrow overlay is removed when other cscope functions are used.
+Note that the arrow overlay is not an actual part of the text, and can
+be removed by quitting the cscope buffer."
+  :type 'boolean
+  :group 'cscope)
+
+
+(defcustom cscope-overlay-arrow-string "=>"
+  "*The overlay string to use when displaying arrow overlays."
+  :type 'string
+  :group 'cscope)
+
+
 (defvar cscope-minor-mode-hooks nil
   "List of hooks to call when entering cscope-minor-mode.")
 
@@ -766,9 +787,10 @@ Must end with a newline.")
   (define-key cscope-list-entry-keymap "o" 'cscope-select-entry-one-window)
   (define-key cscope-list-entry-keymap "n" 'cscope-show-next-entry-other-window)
   (define-key cscope-list-entry-keymap "p" 'cscope-show-prev-entry-other-window)
-  (define-key cscope-list-entry-keymap "q" 'bury-buffer)
+  (define-key cscope-list-entry-keymap "q" 'cscope-bury-buffer)
   (define-key cscope-list-entry-keymap "Q" 'cscope-quit)
   (define-key cscope-list-entry-keymap "h" 'cscope-help)
+  (define-key cscope-list-entry-keymap "?" 'cscope-help)
   (define-key cscope-list-entry-keymap "s" 'cscope-find-this-symbol)
   (define-key cscope-list-entry-keymap "g" 'cscope-find-global-definition)
   (define-key cscope-list-entry-keymap "c" 'cscope-find-functions-calling-this-function)
@@ -798,7 +820,7 @@ Must end with a newline.")
   (setq buffer-read-only t
 	mode-name "cscope"
 	major-mode 'cscope-list-entry-mode
-	overlay-arrow-string "=>")
+	overlay-arrow-string cscope-overlay-arrow-string)
   (or overlay-arrow-position
       (setq overlay-arrow-position (make-marker)))
   (run-hooks 'cscope-list-entry-hook))
@@ -969,13 +991,13 @@ specified by the cscope database.")
 						(not cscope-index-recursively))
 		      :style toggle :selected cscope-index-recursively ]
 		    [ "Suppress empty matches" (setq cscope-suppress-empty-matches
-						 (not cscope-suppress-empty-matches))
+						     (not cscope-suppress-empty-matches))
 		      :style toggle :selected cscope-suppress-empty-matches ]
 		    [ "Use relative paths" (setq cscope-use-relative-paths
 						 (not cscope-use-relative-paths))
 		      :style toggle :selected cscope-use-relative-paths ]
 		    [ "No mouse prompts" (setq cscope-no-mouse-prompts
-						 (not cscope-no-mouse-prompts))
+					       (not cscope-no-mouse-prompts))
 		      :style toggle :selected cscope-no-mouse-prompts ]
 		    ))
 
@@ -1003,7 +1025,7 @@ The text properties to be added:
     (setq end (point)
 	  plist (plist-put plist 'cscope-file filename))
     (if line-number
-		     (progn
+	(progn
 	  (if (stringp line-number)
 	      (setq line-number (string-to-number line-number)))
 	  (setq plist (plist-put plist 'cscope-line-number line-number))
@@ -1030,7 +1052,7 @@ The text properties to be added:
       (if (windowp window)
 	  (select-window window))
       (recenter n)))
-		       )
+  )
 
 
 (defun cscope-show-entry-internal (file line-number 
@@ -1100,7 +1122,7 @@ Returns the window displaying BUFFER."
 		      (setq new-point (point)))
 		  (setq new-point old-point))
 		(set-window-point window new-point)
-		(if arrow-p
+		(if (and cscope-allow-arrow-overlays arrow-p)
 		    (set-marker overlay-arrow-position (point))
 		  (set-marker overlay-arrow-position nil))
 		(or (not save-mark-p)
@@ -1140,7 +1162,7 @@ Push current point on mark ring and select the entry window."
 	(progn
 	  (select-window window)
 	  (sit-for 0)	;; Redisplay hack to allow delete-other-windows
-	  		;; to continue displaying the correct location.
+			;; to continue displaying the correct location.
 	  (delete-other-windows window)
 	  ))
     ))
@@ -1206,21 +1228,33 @@ Point is not saved on mark ring."
 	   "Quit"
 	   "Help")))
 
+
+(defun cscope-bury-buffer ()
+  "Clean up cscope, if necessary, and bury the buffer."
+  (interactive)
+  (let ()
+    (if overlay-arrow-position
+	(set-marker overlay-arrow-position nil))
+    (setq overlay-arrow-position nil
+	  overlay-arrow-string nil)
+    (bury-buffer (get-buffer cscope-output-buffer-name))
+    ))
+
+
 (defun cscope-quit ()
   (interactive)
+  (cscope-bury-buffer)
   (kill-buffer cscope-output-buffer-name)
-  (setq overlay-arrow-position nil
-	overlay-arrow-string nil)
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun cscope-canonicalize-directory (dir)
   (or dir
-	(setq dir default-directory))
-    (setq dir (file-name-as-directory
-	       (expand-file-name (substitute-in-file-name dir))))
-    dir
+      (setq dir default-directory))
+  (setq dir (file-name-as-directory
+	     (expand-file-name (substitute-in-file-name dir))))
+  dir
   )
 
 
@@ -1287,7 +1321,7 @@ the current directory will be used."
 
       ;; Should we add any more places to look?
 
-      )	;; end catch
+      )		;; end catch
     (if (not info)
 	(setq info (list (list top-directory))))
     info
@@ -1312,7 +1346,7 @@ the current directory will be used."
 	  (setq end (length str)
 		beg (- end (length line)))
 	  (put-text-property beg end 'face 'cscope-line-face str)
-    ))
+	  ))
     str))
 
 
@@ -1366,17 +1400,17 @@ using the mouse."
 			      line (substring line (match-beginning 4)
 					      (match-end 4))
 			      )
-		      ;; If the current file is not the same as the previous
-		      ;; one ...
-		      (if (not (and cscope-last-file
-				    (string= file cscope-last-file)))
-			  (progn
-			    ;; The current file is different.
+			;; If the current file is not the same as the previous
+			;; one ...
+			(if (not (and cscope-last-file
+				      (string= file cscope-last-file)))
+			    (progn
+			      ;; The current file is different.
 
-			    ;; Insert a separating blank line if
-			    ;; necessary.
+			      ;; Insert a separating blank line if
+			      ;; necessary.
 			      (if cscope-last-file (insert "\n"))
-			    ;; Insert the file name
+			      ;; Insert the file name
 			      (setq str (concat "*** " file ":"))
 			      (if cscope-use-face
 				  (put-text-property 0 (length str)
@@ -1384,29 +1418,29 @@ using the mouse."
 						     str))
 			      (cscope-insert-with-text-properties
 			       str
-			     (expand-file-name file)
-			     ;; Yes, -1 is intentional
-			     -1)
+			       (expand-file-name file)
+			       ;; Yes, -1 is intentional
+			       -1)
 			      (insert "\n")
-			    ))
-		      (if (not cscope-first-match)
-			  (setq cscope-first-match-point (point)))
-		      ;; ... and insert the line, with the
-		      ;; appropriate indentation.
+			      ))
+			(if (not cscope-first-match)
+			    (setq cscope-first-match-point (point)))
+			;; ... and insert the line, with the
+			;; appropriate indentation.
 			(cscope-insert-with-text-properties
 			 (cscope-make-entry-line function-name
 						 line-number
-			       line)
+						 line)
 			 (expand-file-name file)
 			 line-number)
 			(insert "\n")
-		      (setq cscope-last-file file)
-		      (if cscope-first-match
-			  (setq cscope-matched-multiple t)
-			(setq cscope-first-match
-			      (cons (expand-file-name file)
-				    (string-to-number line-number))))
-		    ))
+			(setq cscope-last-file file)
+			(if cscope-first-match
+			    (setq cscope-matched-multiple t)
+			  (setq cscope-first-match
+				(cons (expand-file-name file)
+				      (string-to-number line-number))))
+			))
 		  (insert line "\n")
 		  ))
 	      (set-marker (process-mark process) (point))
@@ -1563,15 +1597,14 @@ using the mouse."
 		    (apply 'start-process "cscope" outbuf
 			   cscope-program options))
 	      (set-process-filter cscope-process cscope-filter-func)
-;;	      (set-process-sentinel cscope-process 'cscope-process-sentinel)
 	      (set-process-sentinel cscope-process cscope-sentinel-func)
 	      (set-marker (process-mark cscope-process) (point))
 	      (process-kill-without-query cscope-process)
 	      (if cscope-running-in-xemacs
 		  (setq modeline-process ": Searching ..."))
 	      (setq buffer-read-only t)
-		    )
-	    (apply 'call-process cscope-program nil outbuf t options)
+	      )
+	  (apply 'call-process cscope-program nil outbuf t options)
 	  )
 	t
 	))
@@ -1835,7 +1868,7 @@ file."
 	 (skip-chars-forward symbol-chars)
 	 (point)
 	 )))
-      ))
+    ))
 
 
 (defun cscope-prompt-for-symbol (prompt extract-filename)
