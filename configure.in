@@ -350,7 +350,7 @@ AC_TYPE_SIZE_T
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
-AC_CHECK_FUNCS(getcwd regcmp regcomp strerror)
+AC_CHECK_FUNCS(getcwd regcmp regcomp strerror vsnprintf)
 
 case "$host_os" in
 	linux*)

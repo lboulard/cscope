@@ -573,7 +573,11 @@ progress(const char *fmt, ...)
 		} else {		/* Arguments, print custom message */
 			va_start(ap, fmt);
 			start = now;
+#ifdef HAVE_VSNPRINTF
 			(void) vsnprintf(msg, MSGLEN + 1, fmt, ap);
+#else
+			(void) vsprintf(msg, fmt, ap);
+#endif
 			if (linemode == NO) postmsg(msg);
 			va_end(ap);
 		}

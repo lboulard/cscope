@@ -65,6 +65,9 @@
 /* Define if you have the strerror function.  */
 #undef HAVE_STRERROR
 
+/* Define if you have the vsnprintf function.  */
+#undef HAVE_VSNPRINTF
+
 /* Define if you have the <dirent.h> header file.  */
 #undef HAVE_DIRENT_H
 

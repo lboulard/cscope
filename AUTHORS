@@ -8,4 +8,5 @@ Joshua Uziel <uzi@linuxcare.com>  - code clean up, -h and -k options, and lots m
 Mike Hopkirk <hops@sco.com> - osr5 build, ocs
 Darrylo Okahata <darrylo@users.sourceforge.net> - code quality improvements
 Brent Verner <brent@linux1.org> - -R option to recurse sub directories
+Hans-Bernhard Broeker <broeker@physik.rwth-aachen.de> - autoconf, memory leaks
 

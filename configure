@@ -2328,7 +2328,7 @@ cat >> confdefs.h <<EOF
 EOF
 
 
-for ac_func in getcwd regcmp regcomp strerror
+for ac_func in getcwd regcmp regcomp strerror vsnprintf
 do
 echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
 echo "configure:2335: checking for $ac_func" >&5
