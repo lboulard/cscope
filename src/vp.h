@@ -47,17 +47,6 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
-/* In view of DOS portability, we may need the vale of the O_BINARY
- * bit mask. On Unix platforms, it's not defined, nor is it needed -->
- * set it to a no-op value */
-#ifndef O_BINARY
-# ifdef _O_BINARY
-#  define O_BINARY _O_BINARY
-# else
-#  define O_BINARY 0x00
-# endif
-#endif 
-
 #if !NOMALLOC
 extern	char	**vpdirs;	/* directories (including current) in view path */
 #else

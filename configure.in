@@ -480,7 +480,7 @@ AC_CHECK_LIB(regex, regcomp)
 dnl Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
-AC_CHECK_FUNCS(strchr memcpy memset)
+AC_CHECK_FUNCS(strchr memcpy memset setmode _setmode)
 AC_CHECK_HEADERS(fcntl.h sys/window.h sys/termios.h unistd.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.

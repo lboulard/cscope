@@ -42,6 +42,10 @@
 #define	RDR	0
 #define	WTR	1
 
+#if !defined(HAVE_SETMODE) && defined(HAVE__SETMODE)
+# define setmode _setmode
+#endif
+
 /* HBB 20010312: make this a bit safer --- don't blindly assume it's 1 */
 #ifdef FD_CLOEXEC
 # define CLOSE_ON_EXEC FD_CLOEXEC
@@ -60,6 +64,13 @@ myopen(char *path, int flag, int mode)
 	/* opens a file descriptor and then sets close-on-exec for the file */
 	int fd;
 
+	/* 20020103: if file is not explicitly in Binary mode, make
+	 * sure we override silly Cygwin behaviour of automatic binary
+	 * mode for files in "binary mounted" paths */
+#if O_BINARY != O_TEXT
+	if (! (flag | O_BINARY))
+		flag |= O_TEXT;
+#endif
 	if(mode)
 		fd = open(path, flag, mode);
 	else
@@ -96,6 +107,12 @@ myfopen(char *path, char *mode)
 
 	fp = fopen(path, mode);
 
+#if HAVE_SETMODE
+	if (! strchr(mode, 'b')) {
+		setmode(fileno(fp), O_TEXT);
+	}
+#endif /* HAVE_SETMODE */
+	
 #ifdef __DJGPP__ /* FIXME: test feature, not platform */
 	/* HBB 20010312: DOS GCC doesn't have FD_CLOEXEC (yet), so it 
 	 * always fails this call. Have to skip that step */
@@ -105,7 +122,8 @@ myfopen(char *path, char *mode)
 #endif
 		return(fp);
 
-	else return(NULL);
+	else
+		return(NULL);
 }
 
 FILE *

@@ -57,6 +57,9 @@
  * it's flex or some other */
 #undef USING_LEX
 
+/* Define if you have the _setmode function.  */
+#undef HAVE__SETMODE
+
 /* Define if you have the fixkeypad function.  */
 #undef HAVE_FIXKEYPAD
 
@@ -74,6 +77,9 @@
 
 /* Define if you have the regcomp function.  */
 #undef HAVE_REGCOMP
+
+/* Define if you have the setmode function.  */
+#undef HAVE_SETMODE
 
 /* Define if you have the snprintf function.  */
 #undef HAVE_SNPRINTF
