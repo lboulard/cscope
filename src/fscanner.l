@@ -222,7 +222,7 @@ whitespace	[ \t\n]|{comment}
 			/* NOTREACHED */
 		}
 
-\#[ \t]*endif([ \t].*)?		{	/* #endif */
+\#[ \t]*endif(([ \t]|{comment}).*)?		{	/* #endif */
 			/* delay treatment of #endif depending on whether an
 			 * #if comes right after it, or not */
 			BEGIN(WAS_ENDIF);
