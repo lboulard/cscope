@@ -81,6 +81,10 @@ static	long lnum;
 static	int iflag;
 static	jmp_buf	env;	/* setjmp/longjmp buffer */
 static	char *message;	/* error message */
+
+/* Internal prototypes: */
+static	void cfoll(int v);
+static	void cgotofn(void);
 static	int cstate(int v);
 static	int member(int symb, int set, int torf);
 static	int notin(int n);
@@ -201,7 +205,7 @@ yylex(void)
 	}
 }
 
-void
+static void
 synerror(void)
 {
 	yyerror("Syntax error");
