@@ -6,7 +6,7 @@
 ; Description:  cscope interface for XEmacs
 ; Author:       Darryl Okahata
 ; Created:      Wed Apr 19 17:03:38 2000
-; Modified:     Wed May 31 14:11:44 2000 (Darryl Okahata) darrylo@soco.agilent.com
+; Modified:     Tue Jun 13 14:58:13 2000 (Darryl Okahata) darrylo@soco.agilent.com
 ; Language:     Emacs-Lisp
 ; Package:      N/A
 ; Status:       Experimental
@@ -14,7 +14,7 @@
 ; (C) Copyright 2000, Darryl Okahata, all rights reserved.
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ALPHA VERSION 0.85
+;; ALPHA VERSION 0.90
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; This is a cscope interface for XEmacs.
@@ -284,42 +284,106 @@
 ;;      maintenance.
 ;;
 ;; "cscope-database-regexps"
-;;      List to force directory-to-cscope-database mappings.
-;;      This is a list of `(REGEXP DIRECTORY OPTIONS)' triplets, where:
-;;      
-;;      REGEXP is a regular expression matched against the current
-;;      buffer's current directory.  The current buffer is typically
-;;      some source file, and you're probably searching for some
-;;      symbol in or related to this file.  Basically, this regexp is
-;;      used to relate the current directory to a cscope database.
-;;      
-;;      DIRECTORY is the name of the corresponding directory
-;;      containing (or will contain, if creating) the cscope database
-;;      files.
-;;      
-;;      OPTIONS is a string listing any additional options (e.g.,
-;;      "-d") to pass to the cscope executable.  Normally, this
-;;      string is empty.
-;;      
-;;      All of the above are strings.
-;;      
-;;      This variable is generally not used, as the normal
-;;      hierarchical database search is sufficient for placing and/or
-;;      locating the cscope databases.  However, there may be cases
-;;      where it makes sense to place the cscope databases away from
-;;      where the source files are kept; in this case, this variable
-;;      is used to determine the mapping.
-;;      
-;;      This module searches for the cscope databases by first using
-;;      this variable; if a database location cannot be found using
-;;      this variable, then the current directory is searched, then
-;;      the parent, then the parent's parent, until a cscope database
-;;      directory is found, or the root directory is reached.  If the
-;;      root directory is reached, the current directory will be used.
-;;      
-;;      A cscope database directory is one in which EITHER a cscope
-;;      database file (e.g., "cscope.out") OR a cscope file list
-;;      (e.g., "cscope.files") exists.
+;; 	List to force directory-to-cscope-database mappings.
+;; 	This is a list of `(REGEXP DBLIST [ DBLIST ... ])', where:
+;;
+;; 	REGEXP is a regular expression matched against the current buffer's
+;; 	current directory.  The current buffer is typically some source file,
+;; 	and you're probably searching for some symbol in or related to this
+;; 	file.  Basically, this regexp is used to relate the current directory
+;; 	to a cscope database.  You need to start REGEXP with "^" if you want
+;; 	to match from the beginning of the current directory.
+;;
+;; 	DBLIST is a list that contains one or more of:
+;;
+;; 	    ( DBDIR )
+;; 	    ( DBDIR ( OPTIONS ) )
+;; 	    ( t )
+;; 	    t
+;;
+;; 	Here, DBDIR is a directory that contains a cscope database.  If only
+;; 	DBDIR is specified, then that cscope database will be searched without
+;; 	any additional cscope command-line options.  If OPTIONS is given, then
+;; 	OPTIONS is a list of strings, where each string is a separate cscope
+;; 	command-line option.
+;;
+;; 	In the case of "( t )", this specifies that the search is to use the
+;; 	normal hierarchical database search.  This option is used to
+;; 	explicitly search using the hierarchical database search either before
+;; 	or after other cscope database directories.
+;;
+;; 	If "t" is specified (not inside a list), this tells the searching
+;; 	mechanism to stop searching if a match has been found (at the point
+;; 	where "t" is encountered).  This is useful for those projects that
+;; 	consist of many subprojects.  You can specify the most-used
+;; 	subprojects first, followed by a "t", and then followed by a master
+;; 	cscope database directory that covers all subprojects.  This will
+;; 	cause the most-used subprojects to be searched first (hopefully
+;; 	quickly), and the search will then stop if a match was found.  If not,
+;; 	the search will continue using the master cscope database directory.
+;;
+;; 	Here, `cscope-database-regexps' is generally not used, as the normal
+;; 	hierarchical database search is sufficient for placing and/or locating
+;; 	the cscope databases.  However, there may be cases where it makes
+;; 	sense to place the cscope databases away from where the source files
+;; 	are kept; in this case, this variable is used to determine the
+;; 	mapping.
+;;
+;; 	This module searches for the cscope databases by first using this
+;; 	variable; if a database location cannot be found using this variable,
+;; 	then the current directory is searched, then the parent, then the
+;; 	parent's parent, until a cscope database directory is found, or the
+;; 	root directory is reached.  If the root directory is reached, the
+;; 	current directory will be used.
+;;
+;; 	A cscope database directory is one in which EITHER a cscope database
+;; 	file (e.g., "cscope.out") OR a cscope file list (e.g., "cscope.files")
+;; 	exists.
+;;
+;; 	Here is an example of `cscope-database-regexps':
+;;
+;;		(setq cscope-database-regexps
+;;		      '(
+;;			( "^/users/jdoe/sources/proj1"
+;;			  ( t )
+;;			  ( "/users/jdoe/sources/proj2")
+;;			  ( "/users/jdoe/sources/proj3")
+;;			  t
+;;			  ( "/some/master/directory" ("-d" "-I/usr/local/include") )
+;;			  )
+;;			( "^/users/jdoe/sources/gnome/"
+;;			  ( "/master/gnome/database" ("-d") )
+;;			  )
+;;			))
+;;
+;; 	If the current buffer's directory matches the regexp,
+;; 	"^/users/jdoe/sources/proj1", then the following search will be
+;; 	done:
+;;
+;; 	    1. First, the normal hierarchical database search will be used to
+;;	       locate a cscope database.
+;;
+;; 	    2. Next, searches will be done using the cscope database
+;;	       directories, "/users/jdoe/sources/proj2" and
+;;	       "/users/jdoe/sources/proj3".
+;;
+;; 	    3. If a match was found, searching will stop.
+;;
+;; 	    4. If a match was not found, searching will be done using
+;;	       "/some/master/directory", and the command-line options "-d"
+;;	       and "-I/usr/local/include" will be passed to cscope.
+;;
+;; 	If the current buffer's directory matches the regexp,
+;; 	"^/users/jdoe/sources/gnome", then the following search will be
+;; 	done:
+;;
+;; 	    The search will be done only using the directory,
+;; 	    "/master/gnome/database".  The "-d" option will be passed to
+;; 	    cscope.
+;;
+;; 	If the current buffer's directory does not match any of the above
+;; 	regexps, then only the normal hierarchical database search will be
+;; 	done.
 ;;
 ;;
 ;; * Other notes:
@@ -371,27 +435,49 @@ creation, updating, and maintenance."
 
 (defcustom cscope-database-regexps nil
   "*List to force directory-to-cscope-database mappings.
-This is a list of `(REGEXP DIRECTORY OPTIONS)' triplets, where:
+This is a list of `(REGEXP DBLIST [ DBLIST ... ])', where:
 
 REGEXP is a regular expression matched against the current buffer's
 current directory.  The current buffer is typically some source file,
 and you're probably searching for some symbol in or related to this
 file.  Basically, this regexp is used to relate the current directory
-to a cscope database.
+to a cscope database.  You need to start REGEXP with \"^\" if you want
+to match from the beginning of the current directory.
 
-DIRECTORY is the name of the corresponding directory containing (or will
-contain, if creating) the cscope database files.
+DBLIST is a list that contains one or more of:
 
-OPTIONS is a string listing any additional options (e.g., \"-d\") to pass
-to the cscope executable.  Normally, this string is empty.
+    ( DBDIR )
+    ( DBDIR ( OPTIONS ) )
+    ( t )
+    t
 
-All of the above are strings.
+Here, DBDIR is a directory that contains a cscope database.  If only
+DBDIR is specified, then that cscope database will be searched without
+any additional cscope command-line options.  If OPTIONS is given, then
+OPTIONS is a list of strings, where each string is a separate cscope
+command-line option.
 
-This variable is generally not used, as the normal hierarchical
-database search is sufficient for placing and/or locating the cscope
-databases.  However, there may be cases where it makes sense to place
-the cscope databases away from where the source files are kept; in
-this case, this variable is used to determine the mapping.
+In the case of \"( t )\", this specifies that the search is to use the
+normal hierarchical database search.  This option is used to
+explicitly search using the hierarchical database search either before
+or after other cscope database directories.
+
+If \"t\" is specified (not inside a list), this tells the searching
+mechanism to stop searching if a match has been found (at the point
+where \"t\" is encountered).  This is useful for those projects that
+consist of many subprojects.  You can specify the most-used
+subprojects first, followed by a \"t\", and then followed by a master
+cscope database directory that covers all subprojects.  This will
+cause the most-used subprojects to be searched first (hopefully
+quickly), and the search will then stop if a match was found.  If not,
+the search will continue using the master cscope database directory.
+
+Here, `cscope-database-regexps' is generally not used, as the normal
+hierarchical database search is sufficient for placing and/or locating
+the cscope databases.  However, there may be cases where it makes
+sense to place the cscope databases away from where the source files
+are kept; in this case, this variable is used to determine the
+mapping.
 
 This module searches for the cscope databases by first using this
 variable; if a database location cannot be found using this variable,
@@ -403,6 +489,52 @@ current directory will be used.
 A cscope database directory is one in which EITHER a cscope database
 file (e.g., \"cscope.out\") OR a cscope file list (e.g., \"cscope.files\")
 exists.
+
+Here is an example of `cscope-database-regexps':
+
+        (setq cscope-database-regexps
+              '(
+                ( \"^/users/jdoe/sources/proj1\"
+                  ( t )
+                  ( \"/users/jdoe/sources/proj2\")
+                  ( \"/users/jdoe/sources/proj3\")
+                  t
+                  ( \"/some/master/directory\" (\"-d\" \"-I/usr/local/include\") )
+                  )
+                ( \"^/users/jdoe/sources/gnome/\"
+                  ( \"/master/gnome/database\" (\"-d\") )
+                  )
+                ))
+
+If the current buffer's directory matches the regexp,
+\"^/users/jdoe/sources/proj1\", then the following search will be
+done:
+
+    1. First, the normal hierarchical database search will be used to
+       locate a cscope database.
+
+    2. Next, searches will be done using the cscope database
+       directories, \"/users/jdoe/sources/proj2\" and
+       \"/users/jdoe/sources/proj3\".
+
+    3. If a match was found, searching will stop.
+
+    4. If a match was not found, searching will be done using
+       \"/some/master/directory\", and the command-line options \"-d\"
+       and \"-I/usr/local/include\" will be passed to cscope.
+
+If the current buffer's directory matches the regexp,
+\"^/users/jdoe/sources/gnome\", then the following search will be
+done:
+
+    The search will be done only using the directory,
+    \"/master/gnome/database\".  The \"-d\" option will be passed to
+    cscope.
+
+If the current buffer's directory does not match any of the above
+regexps, then only the normal hierarchical database search will be
+done.
+
 "
   :type '(repeat (list :format "%v"
 		       (choice :value ""
@@ -1191,7 +1323,7 @@ subdirectories are indexed."
   (interactive "DIndex files in directory: ")
   (let ()
     (cscope-unix-index-files-internal
-     top-directory 
+     top-directory
      (format "Creating cscope index `%s' in:\n\t%s\n\n%s"
 	     cscope-database-file top-directory cscope-separator-line)
      nil)
