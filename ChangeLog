@@ -1,8 +1,15 @@
-2004-12-08  Neil Horman		   <nhorman@gmail.com>
+2005-01-30  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	* src/mypopen.c (mypopen): Make closing argument to execlp() a
+	manifest null pointer, not just a zero.
+
+2004-12-08  Neil Horman	 <nhorman@gmail.com>
+	
 	* src/dir.c: Fix to dissallow unreadable files from 
 	srcfiles list (sourceforge bug number 1040690)
 
-2004-12-06  Neil Horman		   <nhorman@gmail.com>
+2004-12-06  Neil Horman	 <nhorman@gmail.com>
+	
 	* src/main.c: Fix for temp file security bug (sourceforge 
 	bug number 1062807 / CAN-2004-0970)
 
