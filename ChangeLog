@@ -1,3 +1,6 @@
+(2001/07/05 - broeker) Renamed pclose() function to mypclose(), in order not to
+	               cause a conflict with system function having the same
+		       name.
 (2001/07/05 - broeker) Centralisation of BSDism configuration stuff. Removal of
 	               some remaining external prototypes from .c files, where
 		       they should never be. Added multiple inclusion guards
