@@ -1,35 +1,24 @@
-Cscope is a text screen based source browsing tool.
+Cscope is a text screen based source browsing tool.  Although it is
+primarily designed to search C code (including lex and yacc files), it
+can also be used for C++ code.
 
-It has been released by The Santa Cruz Operation, Inc as Open Source under
-the BSD license. Please look at COPYING for a detailed description of the
-license.
+Using cscope, you can easily search for where symbols are used and
+defined.  Cscope is designed to answer questions like:
 
-BUILDING:
-Try:
+        Where is this variable used?
+        What is the value of this preprocessor symbol?
+        Where is this function in the source files?
+        What functions call this function?
+        What functions are called by this function?
+        Where does the message "out of space" come from?
+        Where is this source file in the directory structure?
+        What files include this header file?
 
-./configure
-make
+It has been released by The Santa Cruz Operation, Inc as Open Source
+under the BSD license.  Please look at COPYING for a detailed
+description of the license.
 
-If the build fails contact petr@users.sourceforge.net
-
-TIPS:
-
-- Try to use flex as the lexical analyzer. There may be some problems
-  with using the native lex (due to some problems). The has been
-  reported as a problem on Solaris.
-
-- On Linux systems (and possibly others) configure may fail if lex is
-  a synomyn for flex. To fix, do the following:
-
-	make distclean
-	./configure --with-flex
-	make
-
-- On HP-UX 10.*, the default version of curses was observed to be broken. 
-  Get their "cumulative patches" and then compile like this, to work
-  around that bug:
-
-	make CURSES_LIBS=-lHcurses
-
+For instructions on how to build and install cscope, see the file,
+"INSTALL".
 
 Browse to http://cscope.sourceforge.net for more current information
