@@ -1,3 +1,4 @@
+(2000/05/01 - petr) Updated configure.in (and configure) to handle UW7
 (2000/04/28 - petr) Fixed another -q failure on large data
 (2000/04/28 - petr) Fixed -q failure
 (2000/04/27 - brent) Add support for 3 letter suffixes (currently .tcc)

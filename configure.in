@@ -261,7 +261,7 @@ AC_DEFUN(AC_SEARCH_NCURSES, [
     dnl
     if $search_ncurses 
     then
-        AC_EGREP_HEADER(init_color, /usr/include/curses.h,
+        AC_EGREP_HEADER(init_color, curses.h,
 	    AC_USE_SYSV_CURSES)
 	AC_EGREP_CPP(USE_NCURSES,[
 #include <curses.h>
