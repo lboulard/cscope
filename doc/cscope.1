@@ -359,16 +359,28 @@ cscope will quit when it detects end-of-file, or when the first
 character of an input line is ``^d'' or ``q''.
 .PP   
 .SH "ENVIRONMENT VARIABLES"
+.TP
 .B CSCOPE_EDITOR
-Overrides the EDITOR and VIEWER variables. To be used when the EDITOR
-or VIEWER value is not compatible when called from cscope.
+Overrides the EDITOR and VIEWER variables. Use this if you wish to use
+a different editor with cscope than that specified by your
+EDITOR/VIEWER variables.
 .TP
 .B CSCOPE_LINEFLAG
-Options to the editor.
+Format of the line number flag for your editor. By default, cscope
+invokes your editor via the equivalent of ``editor +N file'', where
+``N'' is the line number that the editor should jump to. This format
+is used by both emacs and vi. If your editor needs something
+different, specify it in this variable, with ``%s'' as a placeholder
+for the line number.  Ex: if your editor needs to be invoked as
+``editor -#103 file'' to go to line 103, set this variable to
+``-#%s''.
 .TP
 .B CSCOPE_LINEFLAG_AFTER_FILE
-Options to the editor that are required after the name of the
-file to be edited.
+Set this variable to ``yes'' if your editor needs to be invoked with
+the line number option after the filename to be edited. To continue
+the example from CSCOPE_LINEFLAG, above: if your editor needs to see
+``editor file -#number'', set this environment variable. Users of most
+standard editors (vi, emacs) do not need to set this variable.
 .TP
 .B EDITOR
 Preferred editor, which defaults to vi.
@@ -409,6 +421,7 @@ searches for source files in the directories specified; if it
 is not set, cscope searches only in the current directory.
 .PP
 .SH FILES
+.TP
 .B cscope.files
 Default files containing -I, -p, -q, and -T options and the
 list of source files (overridden by the -i option).
