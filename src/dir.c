@@ -129,6 +129,8 @@ sourcedir(char *dirlist)
 	/* parse the directory list */
 	dir = strtok(dirlist, DIRSEPS);
 	while (dir != NULL) {
+		int dir_len = strlen(dir);
+
 		addsrcdir(dir);
 
 		/* if it isn't a full path name and there is a 
@@ -137,7 +139,9 @@ sourcedir(char *dirlist)
 			
 			/* compute its path from higher view path source dirs */
 			for (i = 1; i < nvpsrcdirs; ++i) {
-				(void) sprintf(path, "%s/%s", srcdirs[i], dir);
+				(void) sprintf(path, "%.*s/%s",
+					       PATHLEN - 2 - dir_len,
+					       srcdirs[i], dir);
 				addsrcdir(path);
 			}
 		}
@@ -193,6 +197,8 @@ includedir(char *dirlist)
 	/* parse the directory list */
 	dir = strtok(dirlist, DIRSEPS);
 	while (dir != NULL) {
+		int dir_len = strlen(dir);
+
 		addincdir(dir, dir);
 
 		/* if it isn't a full path name and there is a 
@@ -201,8 +207,9 @@ includedir(char *dirlist)
 			
 			/* compute its path from higher view path source dirs */
 			for (i = 1; i < nvpsrcdirs; ++i) {
-				(void) snprintf(path, PATHLEN+1,
-						"%s/%s", srcdirs[i], dir);
+				(void) sprintf(path, "%.*s/%s", 
+					       PATHLEN - 2 - dir_len,
+					       srcdirs[i], dir);
 				addincdir(dir, path);
 			}
 		}
@@ -276,7 +283,7 @@ makefilelist(void)
 			file = fileargv[i];
 			if (infilelist(file) == NO) {
 				if ((s = inviewpath(file)) != NULL) {
-					addsrcfile(file, s);
+					addsrcfile(s);
 				}
 				else {
 					(void) fprintf(stderr, "cscope: cannot find file %s\n",
@@ -345,7 +352,7 @@ makefilelist(void)
 				}
 			}
 			else if ((s = inviewpath(path)) != NULL) {
-				addsrcfile(path, s);
+				addsrcfile(s);
 			}
 			else {
 				(void) fprintf(stderr, "cscope: cannot find file %s\n",
@@ -368,26 +375,32 @@ makefilelist(void)
 
 /* scan a directory (recursively?) for source files */
 static void
-scan_dir(const char *adir, BOOL recurse_dir) {
-	DIR	*dirfile;       
+scan_dir(const char *adir, BOOL recurse_dir)
+{
+	DIR	*dirfile;
+	int adir_len = strlen(adir);
 
-	if( (dirfile = opendir(adir)) != NULL ) {
+	/* FIXME: no guards against adir_len > PATHLEN, yet */
+
+	if ((dirfile = opendir(adir)) != NULL) {
 		struct dirent *entry;
 		char	path[PATHLEN + 1];
 		char	*file;
 
-		while( (entry = readdir(dirfile)) != NULL ) { 
-			if( (strcmp(".",entry->d_name) != 0)
-				&& (strcmp("..",entry->d_name) != 0) ) {
+		while ((entry = readdir(dirfile)) != NULL) { 
+			if ((strcmp(".",entry->d_name) != 0)
+			    && (strcmp("..",entry->d_name) != 0)) {
 				struct stat buf;
 
-				sprintf(path,"%s/%s",adir,entry->d_name);
+				sprintf(path,"%s/%.*s", adir,
+					PATHLEN - 2 - adir_len,
+					entry->d_name);
 
-				if(lstat(path,&buf) == 0) {
+				if (lstat(path,&buf) == 0) {
 					file = entry->d_name;
-					if( recurse_dir 
+					if (recurse_dir 
                                             && (buf.st_mode & S_IFDIR) ) {
-					  scan_dir(path, recurse_dir);
+						scan_dir(path, recurse_dir);
 					}
 					else if (
 #ifdef __DJGPP__ /* FIXME: should test for feature, not platform */
@@ -397,7 +410,7 @@ scan_dir(const char *adir, BOOL recurse_dir) {
 #endif
 						 && issrcfile(path)
 						 && infilelist(path) == NO) {
-					  addsrcfile(file, path);
+					  addsrcfile(path);
 					}
 				}
 			}
@@ -487,21 +500,27 @@ incfile(char *file, char *type)
 	}
 	/* look in current directory if it was #include "file" */
 	if (type[0] == '"' && (s = inviewpath(file)) != NULL) {
-		addsrcfile(file, s);
+		addsrcfile(s);
 	}
 	else {
+		int file_len = strlen(file);
+
 		/* search for the file in the #include directory list */
 		for (i = 0; i < nincdirs; ++i) {
 			
 			/* don't include the file from two directories */
-			(void) sprintf(name, "%s/%s", incnames[i], file);
+			(void) sprintf(name, "%.*s/%s",
+				       PATHLEN - 2 - file_len, incnames[i],
+				       file);
 			if (infilelist(name) == YES) {
 				break;
 			}
 			/* make sure it exists and is readable */
-			(void) sprintf(path, "%s/%s", incdirs[i], file);
+			(void) sprintf(path, "%.*s/%s",
+				       PATHLEN - 2 - file_len, incdirs[i],
+				       file);
 			if (access(compath(path), READ) == 0) {
-				addsrcfile(name, path);
+				addsrcfile(path);
 				break;
 			}
 		}
@@ -537,10 +556,13 @@ inviewpath(char *file)
 	}
 	/* if it isn't a full path name and there is a multi-directory view path */
 	if (*file != '/' && vpndirs > 1) {
+		int file_len = strlen(file);
 
 		/* compute its path from higher view path source dirs */
 		for (i = 1; i < nvpsrcdirs; ++i) {
-			(void) sprintf(path, "%s/%s", srcdirs[i], file);
+			(void) sprintf(path, "%.*s/%s",
+				       PATHLEN - 2 - file_len, srcdirs[i],
+				       file);
 			if (access(compath(path), READ) == 0) {
 				return(path);
 			}
@@ -551,13 +573,8 @@ inviewpath(char *file)
 
 /* add a source file to the list */
 
-/* TODO:-=db=-: remove the name parameter. it is not used
- * any longer, since we're now using path to check for
- * existence of file in srcfiles[]
- */
-
 void
-addsrcfile(char *name, char *path)
+addsrcfile(char *path)
 {
 	struct	listitem *p;
 	int	i;

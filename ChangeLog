@@ -1,3 +1,7 @@
+(2001/10/10 - broeker) Remove unused argument 'name' of addsrcfile() function.
+	               Alternative buffer overflow protection scheme, using
+		       "%.*s" format specifiers in ordinary sprintf(); now used
+		       throughout dir.c.
 (2001/10/09 - valentin) Prevention of a possible buffer overflow.
 (2001/09/27 - broeker) Added autoconf test to use Cygwin's separate
                        -lregex. The regcomp() in libc is not what we want.
