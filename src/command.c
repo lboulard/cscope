@@ -64,9 +64,6 @@ void	clearprompt(void);
 void	mark(int i);
 void	scrollbar(MOUSE *p);
 static	void	countrefs(void);
-extern	void	editall(void);
-extern	void	editref(int);
-extern	void	help(void);
 
 /* execute the command */
 

@@ -37,7 +37,7 @@
  *	global type, data, and function definitions
  */
 
-#include <config.h>
+#include "config.h"
 #include <unistd.h>
 #include <sys/types.h>
 #include <ctype.h>	/* isalpha, isdigit, etc. */
@@ -56,6 +56,8 @@
 #define RETSIGTYPE void
 #endif
 #endif /* RETSIGTYPE */
+
+
 
 typedef	enum	{		/* boolean data type */
 	NO,
@@ -104,7 +106,6 @@ extern	int	fileargc;	/* file argument count */
 extern	char	**fileargv;	/* file argument values */
 extern	int	fileversion;	/* cross-reference file version */
 extern	BOOL	incurses;	/* in curses */
-extern	INVCONTROL invcontrol;	/* inverted file control structured */
 extern	BOOL	invertedindex;	/* the database has an inverted index */
 extern	BOOL	isuptodate;	/* consider the crossref up-to-date */
 extern	BOOL	kernelmode;	/* don't use DFLT_INCDIR - bad for kernels */
@@ -195,18 +196,28 @@ extern	int	last;		/* buffer index for last char of symbol */
 extern	int	lineno;		/* symbol line number */
 extern	FILE	*yyin;		/* input file descriptor */
 extern	int	yyleng;		/* input line length */
-extern	int	yylineno;	/* input line number */
+extern	int	myylineno;	/* input line number */
 extern	char	yytext[];	/* input line text */
 
 /* cscope functions called from more than one function or between files */ 
+
 char	*filepath(char *file);
+char	*findcalledby(char *pattern);
+char	*findcalling(char *pattern);
+char	*findallfcns(char *dummy);
+char	*finddef(char *pattern);
+char	*findfile(char *dummy);
+char	*findinclude(char *pattern);
+char	*findsymbol(char *pattern);
 char	*findregexp(char *egreppat);
+char	*findstring(char *pattern);
 char	*inviewpath(char *file);
 char	*lookup(char *ident);
 char	*mygetenv(char *variable, char *deflt);
 char	*pathcomponents(char *path, int components);
 char	*readblock(void);
 char	*scanpast(char c);
+
 
 void	addcmd(int f, char *s);
 void	addsrcfile(char *name, char *path);
@@ -221,6 +232,8 @@ void    dispinit(void);
 void	display(void);
 void	drawscrollbar(int top, int bot);
 void	edit(char *file, char *linenum);
+void	editall(void);
+void	editref(int);
 void	entercurses(void);
 void	exitcurses(void);
 void	findcleanup(void);
@@ -228,6 +241,7 @@ void    freesrclist(void);
 void    freeinclist(void);
 void    freecrossref(void);
 void	freefilelist(void);
+void	help(void);
 void	incfile(char *file, char *type);
 void    includedir(char *dirname);
 void	initscanner(char *srcfile);
@@ -263,7 +277,7 @@ BOOL	search(void);
 BOOL	writerefsfound(void);
 
 FILE	*myfopen(char *path, char *mode);
-FINDINIT findinit(void);
+FINDINIT findinit(char *pattern);
 MOUSE	*getmouseaction(char leading_char);
 struct	cmd *currentcmd(void);
 struct	cmd *prevcmd(void);
@@ -271,8 +285,6 @@ struct	cmd *nextcmd(void);
 
 int	egrep(char *file, FILE *output, char *format);
 int	getline(char s[], unsigned size, int firstchar, BOOL iscaseless);
-int	invforward(INVCONTROL *invcntl);
-int	invopen(INVCONTROL *invcntl, char *invname, char *invpost, int stat);
 int	mygetch(void);
 int	myopen(char *path, int flag, int mode);
 int	vpopen(char *path, int oflag);
@@ -281,7 +293,6 @@ int	hash(char *ss);
 int	execute(char *a, ...);
 int 	yylex(void);
 long	dbseek(long offset);
-long	invterm(INVCONTROL *invcntl, char *term);
 
 /*
 extern int atoi(const char *nptr);

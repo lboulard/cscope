@@ -41,7 +41,6 @@
 
 static char const rcsid[] = "$Id$";
 
-extern	int	myylineno;
 
 /* convert long to a string */
 #define	ltobase(value)	n = value; \

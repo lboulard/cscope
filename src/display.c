@@ -76,38 +76,28 @@ static	char	helpstring[] = "Press the ? key for help";
 static	char	selprompt[] = 
 	"Select lines to change (press the ? key for help): ";
 
-#if BSD	/* compiler bug workaround */
-#define	Void	char *
-#else
-#define	Void	void
-#endif
+typedef char * (*FP)(char *);	/* pointer to function returning a character pointer */
 
-extern	BOOL	findcalledby(void);
-extern	char	*findstring(void);
-extern	Void	findcalling(void);
-extern	Void	findallfcns(void);
-extern	Void	finddef(void);
-extern	Void	findfile(void);
-extern	Void	findinclude(void);
-extern	Void	findsymbol(void);
-
-typedef char *(*FP)();	/* pointer to function returning a character pointer */
-
+/* HBB 2000/05/05: I removed the casts to function pointer type. It is
+ * fundamentally unsafe to call a function through a pointer of a
+ * different type ('undefined behaviour' in the words of the ANSI/ISO
+ * C standard).  Instead, I made all the find...() functions adhere to
+ * the same function type, by changing argument passing a bit. */
 static	struct	{		/* text of input fields */
 	char	*text1;
 	char	*text2;
 	FP	findfcn;
 } fields[FIELDS + 1] = {	/* samuel has a search that is not part of the cscope display */
-	{"Find this", "C symbol",			(FP) findsymbol},
-	{"Find this", "global definition",		(FP) finddef},
-	{"Find", "functions called by this function",	(FP) findcalledby},
-	{"Find", "functions calling this function",	(FP) findcalling},
+	{"Find this", "C symbol",			findsymbol},
+	{"Find this", "global definition",		finddef},
+	{"Find", "functions called by this function",	findcalledby},
+	{"Find", "functions calling this function",	findcalling},
 	{"Find this", "text string",			findstring},
 	{"Change this", "text string",			findstring},
 	{"Find this", "egrep pattern",			findregexp},
-	{"Find this", "file",				(FP) findfile},
-	{"Find", "files #including this file",		(FP) findinclude},
-	{"Find all", "function definitions",		(FP) findallfcns},	/* samuel only */
+	{"Find this", "file",				findfile},
+	{"Find", "files #including this file",		findinclude},
+	{"Find all", "function definitions",		findallfcns},	/* samuel only */
 };
 
 /* initialize display parameters */
@@ -409,10 +399,10 @@ search(void)
 	char	file[PATHLEN + 1];	/* file name */
 	char	function[PATLEN + 1];	/* function name */
 	char	linenum[NUMLEN + 1];	/* line number */
-	char	*egreperror = NULL;	/* egrep error message */
+	char	*findresult = NULL;	/* find function output */
 	BOOL	funcexist = YES;		/* find "function" error */
 	FINDINIT rc = NOERROR;		/* findinit return code */
-	RETSIGTYPE	(*savesig)();		/* old value of signal */
+	RETSIGTYPE	(*savesig)(int);		/* old value of signal */
 	FP	f;			/* searching function */
 	int	c, i;
 	
@@ -429,17 +419,18 @@ search(void)
 		savesig = signal(SIGINT, jumpback);
 		f = fields[field].findfcn;
 		if (f == findregexp || f == findstring) {
-			egreperror = (*f)(pattern);
+			findresult = (*f)(pattern);
 		}
 		else {
 			if ((nonglobalrefs = myfopen(temp2, "w")) == NULL) {
 				cannotopen(temp2);
 				return(NO);
 			}
-			if ((rc = findinit()) == NOERROR) {
+			if ((rc = findinit(pattern)) == NOERROR) {
 				(void) dbseek(0L); /* read the first block */
-				if (f == (FP) findcalledby) funcexist = (BOOL)(*f)();
-				else (*f)();
+				findresult = (*f)(pattern);
+				if (f == findcalledby) 
+					funcexist = (*findresult == 'y');
 				findcleanup();
 
 				/* append the non-global references */
@@ -463,9 +454,9 @@ search(void)
 	
 	/* see if it is empty */
 	if ((c = getc(refsfound)) == EOF) {
-		if (egreperror != NULL) {
+		if (findresult != NULL) {
 			(void) sprintf(lastmsg, "Egrep %s in this pattern: %s", 
-				egreperror, pattern);
+				findresult, pattern);
 		}
 		else if (rc == NOTSYMBOL) {
 			(void) sprintf(lastmsg, "This is not a C symbol: %s", 
@@ -533,14 +524,13 @@ progress(char *what, long current, long max)
 	static	long	start;
 	long	now;
 	char	msg[MSGLEN + 1];
-	long	time();
 	int	i;
 
 	/* save the start time */
 	if (searchcount == 0) {
 		start = time(NULL);
 	}
-	if ((now = time((long *) NULL)) - start >= 1)
+	if ((now = time(NULL)) - start >= 1)
 	{
 		if (linemode == NO)
 		{
