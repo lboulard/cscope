@@ -53,6 +53,7 @@
 # include <fcntl.h>		/* needed for O_... open flags */
 #endif
 
+#include <sys/types.h>
 #include <sys/stat.h>
 
 #if !NOMALLOC
