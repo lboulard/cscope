@@ -1,3 +1,8 @@
+(2001/03/27 - broeker) Remove 'extern' declaration of yylval from
+                       egrep.y:yylex(). It's not needed, as this is inside the
+	               Yacc source itself, where the definition of yylval is
+	               directly visible, and it causes problems by incompatible
+	               redefinition on Alpha/DigitalUnix using yacc.
 (2001/03/12 - broeker) Some minor changes for compiling cscope with DJGPP, the
 	               MSDOG port of GCC. Mainly non-availability of some
 		       Unix features like CLOSE_ON_EXEC for files, and SIGTSTP.

@@ -166,7 +166,9 @@ yyerror(char *s)
 static int
 yylex(void)
 {
-	extern int yylval;
+	/* HBB 20010327: shouldn't be needed: we're inside the Yacc
+	 * source itself */
+	/* extern int yylval; */ 
 	int cclcnt, x;
 	char c, d;
 	switch(c = nextch()) {
