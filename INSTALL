@@ -30,28 +30,10 @@ Please report build problems at:
 	./configure --with-flex
 	make
 
-- On HP-UX 10.20, the default version of curses was observed to be
-  broken.  Get their "cumulative libHcurses patch" (patch PHCO_10947)
-  and then compile like this, to work around that bug:
+- On HP-UX several problems exist when using configure. Try the following
+  to solve this:
 
-	make CURSES_LIBS=-lHcurses
-
-  Also on other versions of HP-UX, if the build fails at link time with
-  errors like:
-
-	/usr/ccs/bin/ld: Unsatisfied symbols:
-	initscr (code)
-	wstandend (code)
-	...
-
-  you should delete the file, "config.cache", and re-run configure with
-  the option "--with-vcurses"; for example:
-
-	./configure --with-vcurses
-
-  Note, however, that you should never see this if you build using
-  "make CURSES_LIBS=-lHcurses".
-
+	CFLAGS='-Ae -DYYCHAR_ARRAY' CURSES_LIBS=-lHcurses ./configure
 
 - On Tru64, formerly known as Digital Unix, formerly known as DEC OSF/1,
   the system-supplied libcurses causes cscope to terminate itself

@@ -1,3 +1,4 @@
+(2001/07/12 - dixon)   Updated INSTALL with new configure info for HP-UX.
 (2001/07/11 - broeker) Fixed #if syntax glitch in cohrs' SUNOS change.
 (2001/07/09 - petrs)   Substituted lstat() for stat() to prevent core
                        dumps on looping symbolic references.
