@@ -1,6 +1,6 @@
 (2000/04/21 - hops) Changes for osr5 and uw7 builds, add contrib dir
 (2000/04/21 - petr) Created new build directory with system specific makefiles
-(2000/04/20 - Joshua) -k kernel option and code clean up
+(2000/04/20 - uzi) -k kernel option and code clean up (from K&R C to ANSI C)
 (2000/04/20 - edgar) prevention of cscope.out corruption and correct dboffset calulation
 (2000/04/20 - martin) Use 'env LC_ALL=C sort' rather than 'LC_ALL=C sort' for sorting
 (2000/04/19 - petr) Added README/NEWS/AUTHORS files
