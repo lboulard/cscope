@@ -1,3 +1,4 @@
+(2000/04/21 - petr) Changed CVS verstion to 15.0bl1 (build level 1)
 (2000/04/21 - petr) Created new build directory with system specific makefiles
 (2000/04/20 - Joshua) -k kernel option and code clean up
 (2000/04/20 - edgar) prevention of cscope.out corruption and correct dboffset calulation
