@@ -4,10 +4,142 @@ AM_INIT_AUTOMAKE(cscope, 15.0bl2)
 AM_CONFIG_HEADER(config.h:config.h.in)
 AC_CANONICAL_HOST
 
+dnl check if user specified lexer as arg and set LEX accordingly
+AC_DEFUN(AC_CHECK_LEXER,[
+        AC_MSG_CHECKING(user specification of lexer)
+	AC_ARG_WITH(flex,
+	  [  --with-flex             Use this to specify explicit use of flex],[
+	  if test x$withval = xyes; then
+		LEX=flex
+	  fi
+        ])
+
+	AC_ARG_WITH(lex,
+	  [  --with-lex              Use this to specify explicit use of lex],[
+	  if test x$withval = xyes; then
+		LEX=lex
+	  fi
+	])
+        AC_MSG_RESULT($LEX)
+])
+
+dnl check if user specified yacc program  as arg and set YACC accordingly
+AC_DEFUN(AC_CHECK_YACC,[
+    AC_MSG_CHECKING(user specification of yacc)
+    AC_ARG_WITH(yacc,
+	  [  --with-yacc             Use this to specify explicit use of yacc],[
+	  if test x$withval = xyes; then
+		YACC=yacc
+	  fi
+        ])
+    AC_ARG_WITH(byacc,
+	  [  --with-byacc            Use this to specify explicit use of byacc],[
+	  if test x$withval = xyes; then
+		YACC=byacc
+	  fi
+        ])
+    AC_ARG_WITH(bison,
+	  [  --with-bison            Use this to specify explicit use of bison],[
+	  if test x$withval = xyes; then
+		YACC='bison -y'
+	  fi
+        ])
+    AC_MSG_RESULT($YACC)
+])
+
+
+dnl === BEGIN aclocal REPLACEMENT MACROS
+dnl 
+# ACNU_PROG_LEX fm AC_PROG_LEX 
+# -----------  
+dnl chg: probes for lib in /usr/local/lib
+dnl sheesh you'd have thought that this was obvious enough to be done anyway
+AC_DEFUN(ACNU_PROG_LEX,[
+    AH_CHECK_LIB(fl)dnl
+    AH_CHECK_LIB(l)dnl
+    AC_CHECK_PROG(LEX, flex, flex, lex)
+    if test -z "$LEXLIB"
+    then
+      case "$LEX" in
+      flex*) ac_lib=fl ;;
+      *) ac_lib=l ;;
+      esac
+      LDFLAGS='-L/usr/local/lib'
+      AC_CHECK_LIB($ac_lib, yywrap, LEXLIB="-L/usr/local/lib -l$ac_lib")
+      LDFLAGS=
+    fi
+    AC_SUBST(LEXLIB)
+])
+
+dnl ACNU_DECL_YYTEXT fm AC_DECL_YYTEXT
+# --------------  
+# chg: has requirement on ACNU_PROG_LEX instead of  AC_PROG_LEX
+# Check if lex declares yytext as a char * by default, not a char[].
+AC_DEFUN([ACNU_DECL_YYTEXT],[
+    AC_REQUIRE_CPP()dnl
+    AC_REQUIRE([ACNU_PROG_LEX])dnl
+    AC_CACHE_CHECK(lex output file root, ac_cv_prog_lex_root,
+    [# The minimal lex program is just a single line: %%.  But some broken lexes
+    # (Solaris, I think it was) want two %% lines, so accommodate them.
+    echo '%%
+    %%' | $LEX
+    if test -f lex.yy.c; then
+      ac_cv_prog_lex_root=lex.yy
+    elif test -f lexyy.c; then
+      ac_cv_prog_lex_root=lexyy
+    else
+      AC_MSG_ERROR(cannot find output from $LEX; giving up)
+    fi])
+    LEX_OUTPUT_ROOT=$ac_cv_prog_lex_root
+    AC_SUBST(LEX_OUTPUT_ROOT)dnl
+
+    AC_CACHE_CHECK(whether yytext is a pointer, ac_cv_prog_lex_yytext_pointer,
+    [# POSIX says lex can declare yytext either as a pointer or an array; the 
+      # default is implementation-dependent. Figure out which it is, since
+      # not all implementations provide the %pointer and %array declarations.
+      ac_cv_prog_lex_yytext_pointer=no
+      echo 'extern char *yytext;' >>$LEX_OUTPUT_ROOT.c
+      ac_save_LIBS=$LIBS
+      LIBS="$LIBS $LEXLIB"
+      AC_LINK_IFELSE([`cat $LEX_OUTPUT_ROOT.c`], ac_cv_prog_lex_yytext_pointer=yes)
+      LIBS=$ac_save_LIBS
+      rm -f "${LEX_OUTPUT_ROOT}.c"
+    ])
+    dnl
+    if test $ac_cv_prog_lex_yytext_pointer = yes; then
+      AC_DEFINE(YYTEXT_POINTER, 1,
+            [Define if `lex' declares `yytext' as a `char *' by default,
+             not a `char[]'.])
+    fi
+])# AC_DECL_YYTEXT1
+
+
+dnl AMNU_PROG_LEX fm  AM_PROG_LEX
+dnl --------------
+dnl chg: uses submacros (above) that look in /usr/local/lib
+dnl Look for flex, lex or missing, then run ACNU_PROG_LEX and ACNU_DECL_YYTEXT
+AC_DEFUN(AMNU_PROG_LEX,[
+    missing_dir=ifelse([$1],,`cd $ac_aux_dir && pwd`,$1)
+    AC_CHECK_PROGS(LEX, flex lex, "$missing_dir/missing flex")
+    ACNU_PROG_LEX
+    ACNU_DECL_YYTEXT
+])
+dnl === END aclocal REPLACEMENT MACROS
+
+
+dnl User specification of lexer
+AC_CHECK_LEXER
+dnl User specification of yacc
+AC_CHECK_YACC
+
 dnl Checks for programs.
 AC_PROG_INSTALL
 AC_PROG_CC
-AM_PROG_LEX
+AMNU_PROG_LEX
+dnl below is hack to shut automake up about things it shouldn't be checking
+if false; then
+    AM_PROG_LEX
+fi
 AC_PROG_YACC
 
 if test "x$LEX" = "xflex"; then

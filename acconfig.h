@@ -1,6 +1,9 @@
 /* Defines that autoheader needs a kick in the rump about.
-   Leave the blank lines in. */
+   Leave the blank lines in.  */
 
+
+#define PACKAGE cscope
+#define VERSION 15.0bl2
 
 /* OS Definitions */
 #undef Linux

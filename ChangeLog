@@ -1,3 +1,5 @@
+(2000/05/04 - hops) configure: find flex libs in /usr/local, 
+                    cmdline args to specify use of flex/lex, yacc/byacc/bison
 (2000/06/03 - broeker) some code cleanup
 (2000/05/03 - broeker) more code cleanup and -Wall warnings removal
 (2000/05/03 - broeker) major code cleanup and fixing of memory leaks

@@ -63,6 +63,7 @@ CC = @CC@
 CURSES_INCLUDEDIR = @CURSES_INCLUDEDIR@
 CURSES_LIBS = @CURSES_LIBS@
 LEX = @LEX@
+LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
 MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
@@ -75,7 +76,7 @@ cscope_SOURCES = scanner.l egrep.y 		alloc.c basename.c command.c compath.c cons
 
 LEXLIB = @LEXLIB@
 
-cscope_LDADD = $(LEXLIB) $(CURSES_LIBS)
+cscope_LDADD = $(CURSES_LIBS) $(LEXLIB)
 
 INCLUDES = $(CURSES_INCLUDEDIR)
 
@@ -99,7 +100,6 @@ history.o input.o invlib.o logdir.o lookup.o main.o mouse.o mygetenv.o \
 mypopen.o vpaccess.o vpfopen.o vpinit.o vpopen.o
 cscope_DEPENDENCIES = 
 cscope_LDFLAGS = 
-LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -219,7 +219,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$d/$$file $(distdir)/$$file; \
+	    cp -pr $$/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \

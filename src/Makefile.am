@@ -12,7 +12,7 @@ cscope_SOURCES = scanner.l egrep.y \
 
 LEXLIB = @LEXLIB@
 
-cscope_LDADD = $(LEXLIB) $(CURSES_LIBS)
+cscope_LDADD =  $(CURSES_LIBS) $(LEXLIB)
 
 INCLUDES = $(CURSES_INCLUDEDIR)
 
