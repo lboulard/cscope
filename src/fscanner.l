@@ -130,8 +130,9 @@ number		\.?[0-9][.0-9a-fA-FlLuUxX]*
 comment		"/*"([^*]*("*"+[^/])?)*"*/"
 whitespace	[ \t\n]|{comment}
 
-/* flex-only: stack of start conditions */
+/* flex options: stack of start conditions, and don't use yywrap() */
 %option stack
+%option noyywrap
 
 %start SDL
 %a 4000
