@@ -1,4 +1,6 @@
-Petr Sorfa - Maintainer
+Petr Sorfa <petr@users.sourceforge.net> - Maintainer
 Simon Cozens - autoconf setup
 garp@digi.com - .cc .hh support
 jens persson <cscope@persson.cx> - new man page
+Edgar Toernig - cscope stability
+
