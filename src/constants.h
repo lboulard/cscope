@@ -37,17 +37,16 @@
  *	preprocessor macro and constant definitions
  */
 
+#ifndef CSCOPE_CONSTANTS_H
+#define CSCOPE_CONSTANTS_H
+
 #include "config.h"		/* Get OS defines */
 
 #define ctrl(x)	(x & 037)	/* control character macro */
 
 /* database output macros that update its offset */
 #define	dbputc(c)	(++dboffset, (void) putc(c, newrefs))
-#if __DJGPP__ || Linux || BSD && !sun
 #define	dbfputs(s)	(dboffset += strlen(s), fputs(s, newrefs))
-#else
-#define	dbfputs(s)	(dboffset += fputs(s, newrefs))
-#endif
 
 /* fast string equality tests (avoids most strcmp() calls) */
 #define	strequal(s1, s2)	(*(s1) == *(s2) && strcmp(s1, s2) == 0)
@@ -131,3 +130,5 @@
 
 #endif	/* if !TERMINFO */
 #endif	/* ifndef __FreeBSD__ */
+
+#endif /* CSCOPE_CONSTANTS_H */

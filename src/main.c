@@ -134,6 +134,10 @@ static	void	build(void);
 static	void	usage(void);
 static	void	longusage(void);
 
+#ifdef HAVE_FIXKEYPAD
+	void	fixkeypad();
+#endif
+
 int
 main(int argc, char **argv)
 {
@@ -145,9 +149,6 @@ main(int argc, char **argv)
 	int	c, i;
 	pid_t	pid;
 	struct stat	stat_buf;
-#if SVR2 && !BSD && !V9 && !u3b2 && !sun
-	void	fixkeypad();
-#endif
 	
 	yyin = stdin;
 	yyout = stdout;
@@ -380,7 +381,7 @@ lastarg:
 		entercurses();
 #if TERMINFO
 		(void) keypad(stdscr, TRUE);	/* enable the keypad */
-#if SVR2 && !BSD && !V9 && !u3b2 && !sun
+#ifdef HAVE_FIXKEYPAD
 		fixkeypad();	/* fix for getch() intermittently returning garbage */
 #endif
 #endif
@@ -1146,9 +1147,8 @@ putheader(char *dir)
 	}
 
 	dboffset += fprintf(newrefs, " %.10ld\n", traileroffset);
-
-#if BSD && !sun
-	dboffset = ftell(newrefs); /* fprintf doesn't return chars written */
+#ifdef PRINTF_RETVAL_BROKEN
+	dboffset = ftell(newrefs); 
 #endif
 }
 

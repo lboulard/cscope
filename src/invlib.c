@@ -40,12 +40,6 @@
 #include <sys/shm.h>
 #define ERR  -1
 #endif
-#if BSD
-#define	strchr	index
-char	*strchr();
-#else
-#include <string.h>
-#endif
 #include "invlib.h"
 #include "global.h"
 
@@ -564,7 +558,7 @@ openedinvpost:
 	invcntl->iindex = NULL;
 #if SHARE
 	if (invcntl->param.share == 1) {
-		key_t ftok(), shm_key;
+		key_t shm_key;
 		struct shmid_ds shm_buf;
 		int	shm_id;
 

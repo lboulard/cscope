@@ -39,6 +39,9 @@
  *		Embedded blanks are considered part of the path.
  */
 
+#ifndef CSCOPE_VP_H
+#define CSCOPE_VP_H
+
 #define MAXPATH	200		/* max length for entire name */
 
 #include <fcntl.h>
@@ -67,3 +70,5 @@ extern	int	vpndirs;	/* number of directories in view path */
 void	vpinit(char *currentdir);
 int	vpopen(char *path, int oflag);
 int	vpaccess(char *path, mode_t amode);
+
+#endif /* CSCOPE_VP_H */

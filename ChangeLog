@@ -1,3 +1,8 @@
+(2001/07/05 - broeker) Centralisation of BSDism configuration stuff. Removal of
+	               some remaining external prototypes from .c files, where
+		       they should never be. Added multiple inclusion guards
+		       to all headers. Ask for feature instead of testing a 
+		       list of platform-#defines, wherever possible.
 (2001/07/05 - broeker) Some post-last-minute DOS/DJGPP build fixes.
 (2001/07/03 - petrs)   Updated the version strings to 16.0a.
 (2001/07/02 - petrs)   Updated the contrib/README to include xcscope.

@@ -57,8 +57,17 @@
  * it's flex or some other */
 #undef USING_LEX
 
+/* Define if you have the fixkeypad function.  */
+#undef HAVE_FIXKEYPAD
+
 /* Define if you have the getcwd function.  */
 #undef HAVE_GETCWD
+
+/* Define if you have the memcpy function.  */
+#undef HAVE_MEMCPY
+
+/* Define if you have the memset function.  */
+#undef HAVE_MEMSET
 
 /* Define if you have the regcmp function.  */
 #undef HAVE_REGCMP
@@ -68,6 +77,9 @@
 
 /* Define if you have the snprintf function.  */
 #undef HAVE_SNPRINTF
+
+/* Define if you have the strchr function.  */
+#undef HAVE_STRCHR
 
 /* Define if you have the strerror function.  */
 #undef HAVE_STRERROR

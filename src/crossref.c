@@ -232,7 +232,7 @@ putcrossref(void)
 	/* output the source line */
 	lineoffset = dboffset;
 	dboffset += fprintf(newrefs, "%d ", lineno);
-#if BSD && !sun && !__FreeBSD__
+#ifdef PRINTF_RETVAL_BROKEN
 	dboffset = ftell(newrefs); /* fprintf doesn't return chars written */
 #endif
 

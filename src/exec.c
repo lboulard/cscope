@@ -73,7 +73,6 @@ execute(char *a, ...)	/* note: "exec" is already defined on u370 */
 	int	exitcode = -1;	/* initialize, to avoid warning */
 	char	*argv[BUFSIZ];
 	pid_t	p;
-	pid_t	myfork();
 
 	/* fork and exec the program or shell script */
 	endwin();	/* restore the terminal modes */

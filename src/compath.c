@@ -44,13 +44,10 @@
  *		 and stored in global structures.
  */
 
-#include <string.h>
-
 static char const rcsid[] = "$Id$";
 
-#if BSD
-#define	strchr	index
-#endif
+#include "global.h"
+
 #ifndef NULL
 #define	NULL	0
 #endif

@@ -88,7 +88,6 @@ void
 mouseinit(void)
 {
 	char	*term;
-	char	*mygetenv();
 
 	/* see if this is emacsterm or viterm */
 	term = mygetenv("TERM", "");

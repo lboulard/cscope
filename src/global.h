@@ -37,6 +37,9 @@
  *	global type, data, and function definitions
  */
 
+#ifndef CSCOPE_GLOBAL_H
+#define CSCOPE_GLOBAL_H
+
 #include "config.h"
 #include <unistd.h>
 #include <sys/types.h>
@@ -44,11 +47,35 @@
 #include <signal.h>	/* SIGINT and SIGQUIT */
 #include <stdio.h>	/* standard I/O package */
 #include <stdlib.h>     /* standard library functions */
-#include <string.h>	/* string functions */
+
+/* Replace most of the #if BSD stuff. Taken straight from the autoconf
+ * manual, with an extension for handling memset(). */
+#if STDC_HEADERS
+# include <string.h>	/* string functions */
+#else
+# ifndef HAVE_STRCHR
+#  define strchr index
+#  define strrchr rindex
+# endif
+char *strchr (), *strrchr ();
+# ifndef HAVE_MEMCPY
+#  define memcpy(d, s, n) bcopy ((s), (d), (n))
+#  define memmove(d, s, n) bcopy ((s), (d), (n))
+# endif
+# ifndef HAVE_MEMSET
+#  ifndef HAVE_MEMORY_H
+char	*memset();
+#  else 
+#   include <memory.h>	/* memset */
+#  endif /*V9*/
+# endif /* HAVE_MEMSET */
+#endif /* STDC_HEADERS */
+
 #include "constants.h"	/* misc. constants */
 #include "invlib.h"	/* inverted index library */
 #include "library.h"	/* library function return values */
 
+/* Fallback, in case 'configure' failed to do its part of the job */
 #ifndef RETSIGTYPE
 #if SVR2 || BSD && !sun
 #define RETSIGTYPE int
@@ -57,7 +84,27 @@
 #endif
 #endif /* RETSIGTYPE */
 
+#if BSD
+# undef	tolower		/* BSD toupper and tolower don't test the character */
+# undef	toupper
+# define	tolower(c)	(islower(c) ? (c) : (c) - 'A' + 'a')	
+# define	toupper(c)	(isupper(c) ? (c) : (c) - 'a' + 'A')	
+# if !sun 
+#  if !__FreeBSD__
+/* in traditional BSD, *printf() doesn't return the number of bytes
+ * written */
+#   define PRINTF_RETVAL_BROKEN 1
+#  endif /* !FreeBSD */
+# endif /* !sun */
+#endif
 
+
+/* Just in case autoconf didn't correctly flag HAVE_FIXKEYPAD */
+#ifndef HAVE_FIXKEYPAD 
+# if SVR2 && !BSD && !V9 && !u3b2 && !sun
+#  define HAVE_FIXKEYPAD
+# endif
+#endif
 
 typedef	enum	{		/* boolean data type */
 	NO,
@@ -296,3 +343,4 @@ int	execute(char *a, ...);
 long	dbseek(long offset);
 
 
+#endif /* CSCOPE_GLOBAL_H */
