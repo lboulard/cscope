@@ -75,7 +75,7 @@ BOOL	issrcfile(char *file);
 void	addsrcdir(char *dir);
 void	addincdir(char *name, char *path);
 
-static void	scan_dir(const char* dirfile, BOOL recurse);
+static void	scan_dir(const char *dirfile, BOOL recurse);
 				/* make the source file list */
 
 /* make the view source directory list */
@@ -361,13 +361,13 @@ makefilelist(void)
 
 /* scan a directory (recursively?) for source files */
 static void
-scan_dir(const char* adir, BOOL recurse_dir) {
+scan_dir(const char *adir, BOOL recurse_dir) {
 	DIR	*dirfile;       
 
 	if( (dirfile = opendir(adir)) != NULL ) {
-		struct dirent* entry;
-		char  path[PATHLEN + 1];
-		char* file;
+		struct dirent *entry;
+		char	path[PATHLEN + 1];
+		char	*file;
 
 		while( (entry = readdir(dirfile)) != NULL ) { 
 			if( (strcmp(".",entry->d_name) != 0)
@@ -378,21 +378,21 @@ scan_dir(const char* adir, BOOL recurse_dir) {
 
 				if(stat(path,&buf) == 0) {
 					file = entry->d_name;
-
-					if( recurse_dir
-						&& (buf.st_mode & S_IFDIR) ) {
-						scan_dir(path, recurse_dir);
+					if( recurse_dir 
+                                            && (buf.st_mode & S_IFDIR) ) {
+					  scan_dir(path, recurse_dir);
 					}
 					else if (entry->d_ino != 0
-						&& issrcfile(path)
-						&& infilelist(file) == NO) {
-						addsrcfile(file, path);
+					        && issrcfile(path)
+					        && infilelist(path) == NO) {
+					  addsrcfile(file, path);
 					}
 				}
 			}
 		}
 		closedir(dirfile);
 	}
+        return;
 }
 
 /* see if this is a source file */
@@ -499,12 +499,12 @@ incfile(char *file, char *type)
 /* see if the file is already in the list */
 
 BOOL
-infilelist(char *file)
+infilelist(char *path)
 {
 	struct	listitem *p;
-	
-	for (p = srcnames[hash(compath(file)) % HASHMOD]; p != NULL; p = p->next) {
-		if (strequal(file, p->text)) {
+
+	for (p = srcnames[hash(compath(path)) % HASHMOD]; p != NULL; p = p->next) {
+		if (strequal(path, p->text)) {
 			return(YES);
 		}
 	}
@@ -539,6 +539,11 @@ inviewpath(char *file)
 
 /* add a source file to the list */
 
+/* TODO:-=db=-: remove the name parameter. it is not used
+ * any longer, since we're now using path to check for
+ * existence of file in srcfiles[]
+ */
+
 void
 addsrcfile(char *name, char *path)
 {
@@ -553,7 +558,7 @@ addsrcfile(char *name, char *path)
 	/* add the file to the list */
 	srcfiles[nsrcfiles++] = stralloc(compath(path));
 	p = mymalloc(sizeof(struct listitem));
-	p->text = stralloc(compath(name));
+	p->text = stralloc(compath(path));
 	i = hash(p->text) % HASHMOD;
 	p->next = srcnames[i];
 	srcnames[i] = p;
