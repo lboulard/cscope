@@ -1,3 +1,4 @@
+(2000/04/26 - darrylo) minor fixs in crossref.c and scanner.l
 (2000/04/26 - petr) changed spelling of psuedo to pseudo in scanner.l
 (2000/04/26 - uzi) Changes in preparation of autoconf/automake setup
 (2000/04/26 - uzi) Added k to terse args in cscope man page
