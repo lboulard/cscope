@@ -254,7 +254,7 @@ display(void)
 					}
 					else {
 						printw("0%c",
-							disprefs - 19 + 'a');
+							disprefs - 19 + 'A');
 					}
 				}
 			}
