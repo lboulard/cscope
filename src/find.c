@@ -658,7 +658,7 @@ findinit(char *pattern)
 			s[8] = '\0';
 		}
 		/* must be an exact match */
-		/* note: regcmp doesn't recognize ^*keypad$ as a syntax error
+		/* note: regcomp doesn't recognize ^*keypad$ as a syntax error
 		         unless it is given as a single arg */
 		(void) sprintf(buf, "^%s$", s);
 		if (regcomp (&regexp, buf, REG_EXTENDED | REG_NOSUB) != 0) {

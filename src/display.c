@@ -482,7 +482,7 @@ search(void)
 				pattern);
 		}
 		else if (rc == REGCMPERROR) {
-			(void) sprintf(lastmsg, "Error in this regcmp(3X) regular expression: %s", 
+			(void) sprintf(lastmsg, "Error in this regcomp(3) regular expression: %s", 
 				pattern);
 			
 		}

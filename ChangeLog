@@ -1,3 +1,6 @@
+(2002/03/13 - broeker) Replace all references to manpage 'regcmp(3X)' in
+	               messages and comments by regcomp(3), which is what 
+		       cscope actually uses.
 (2002/03/08 - broeker) Fix completely broken handling of filenames with blanks
 	               in namelist files.  Use fgets + sscanf, not fscanf, and
 		       don't split at whitespace inside "" quotes.

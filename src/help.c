@@ -61,7 +61,7 @@ help(void)
 		if (mouse) {
 			*tp++ = "Point with the mouse and click button 1 to move to the desired input field,\n";
 			*tp++ = "type the pattern to search for, and then press the RETURN key.  For the first 4\n";
-			*tp++ = "and last 2 input fields, the pattern can be a regcmp(3X) regular expression.\n";
+			*tp++ = "and last 2 input fields, the pattern can be a regcomp(3) regular expression.\n";
 			*tp++ = "If the search is successful, you can edit the file containing a displayed line\n";
 			*tp++ = "by pointing with the mouse and clicking button 1.\n";
 			*tp++ = "\nYou can either use the button 2 menu or these single-character commands:\n\n";
@@ -69,7 +69,7 @@ help(void)
 		else {
 			*tp++ = "Press the RETURN key repeatedly to move to the desired input field, type the\n";
 			*tp++ = "pattern to search for, and then press the RETURN key.  For the first 4 and\n";
-			*tp++ = "last 2 input fields, the pattern can be a regcmp(3X) regular expression.\n";
+			*tp++ = "last 2 input fields, the pattern can be a regcomp(3) regular expression.\n";
 			*tp++ = "If the search is successful, you can use these single-character commands:\n\n";
 			*tp++ = "0-9a-zA-Z\tEdit the file containing the displayed line.\n";
 		}
