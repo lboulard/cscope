@@ -47,6 +47,9 @@ char	*strchr();
 #include <string.h>
 #endif
 #include "invlib.h"
+#include "global.h"
+
+#include <assert.h>
 
 #define	DEBUG		0	/* debugging code and realloc messages */
 #define BLOCKSIZE	2 * BUFSIZ	/* logical block size */
@@ -62,10 +65,8 @@ char	*strchr();
 
 static char const rcsid[] = "$Id$";
 
-extern	char	*argv0;	/* command name (must be set in main function) */
 int	invbreak;
 
-void	boolclear(void);
 static	int	boolready(void);
 static	int	invnewterm(void);
 static	void	invstep(INVCONTROL *invcntl);
@@ -90,10 +91,11 @@ static	POSTING	*POST, *postptr;
 static	unsigned long	*SUPINT, *supint, nextsupfing;
 static	char	*SUPFING, *supfing;
 static	char	thisterm[TERMMAX];
-static	union {
+typedef union logicalblk {
 	long	invblk[BLOCKSIZE / sizeof(long)];
 	char	chrblk[BLOCKSIZE];
-} logicalblk;
+} t_logicalblk;
+static t_logicalblk logicalblk;
 
 #if DEBUG || STATS
 static	long	totpost;
@@ -143,11 +145,12 @@ invmake(char *invname, char *invpost, FILE *infile)
 	}
 	postptr = POST;
 	/* get space for the superfinger (superindex) */
-	if ((SUPFING = (char *)malloc(supersize)) == NULL) {
+	if ((SUPFING = malloc(supersize)) == NULL) {
 		invcannotalloc(supersize);
 		return(0);
 	}
 	supfing = SUPFING;
+	/* FIXME HBB: magic number alert (40) */
 	supintsize = supersize / 40;
 	/* also for the superfinger index */
 	if ((SUPINT = malloc(supintsize * sizeof(long))) == NULL) {
@@ -169,10 +172,11 @@ invmake(char *invname, char *invpost, FILE *infile)
 	numpost = 1;
 
 	/* set up as though a block had come and gone, i.e., set up for new block  */
+	/* FIXME HBB: magic number alert (16) */
 	amtused = 16; /* leave no space - init 3 words + one for luck */
 	numinvitems = 0;
 	numlogblk = 0;
-	lastinblk = BLOCKSIZE;
+	lastinblk = sizeof(t_logicalblk);
 
 	/* now loop as long as more to read (till eof)  */
 	while (fgets(line, LINEMAX, infile) != NULL) {
@@ -258,12 +262,12 @@ invmake(char *invname, char *invpost, FILE *infile)
 	/* loops pointer around to start */
 	logicalblk.invblk[1] = 0;
 	logicalblk.invblk[2] = numlogblk - 1;
-	if (fwrite(&logicalblk, BLOCKSIZE, 1, outfile) == 0) {
+	if (fwrite(&logicalblk, sizeof(t_logicalblk), 1, outfile) == 0) {
 		goto cannotwrite;
 	}
 	numlogblk++;
 	/* write out block to save space. what in it doesn't matter */
-	if (fwrite(&logicalblk, BLOCKSIZE, 1, outfile) == 0) {
+	if (fwrite(&logicalblk, sizeof(t_logicalblk), 1, outfile) == 0) {
 		goto cannotwrite;
 	}
 	/* finish up the super finger */
@@ -283,9 +287,9 @@ invmake(char *invname, char *invpost, FILE *infile)
 	/* make sure the file ends at a logical block boundary.  This is 
 	necessary for invinsert to correctly create extended blocks 
 	 */
-	i = nextsupfing % BLOCKSIZE;
+	i = nextsupfing % sizeof(t_logicalblk);
 	/* write out junk to fill log blk */
-	if (fwrite(temp, BLOCKSIZE - i, 1, outfile) == 0 ||
+	if (fwrite(temp, sizeof(t_logicalblk) - i, 1, outfile) == 0 ||
 	    fflush(outfile) == EOF) {	/* rewind doesn't check for write failure */
 		goto cannotwrite;
 	}
@@ -293,8 +297,8 @@ invmake(char *invname, char *invpost, FILE *infile)
 	rewind(outfile);
 	param.version = FMTVERSION;
 	param.filestat = 0;
-	param.sizeblk = BLOCKSIZE;
-	param.startbyte = (numlogblk + 1) * BLOCKSIZE + BUFSIZ;;
+	param.sizeblk = sizeof(t_logicalblk);
+	param.startbyte = (numlogblk + 1) * sizeof(t_logicalblk) + BUFSIZ;;
 	param.supsize = nextsupfing;
 	param.cntlsize = BUFSIZ;
 	param.share = 0;
@@ -371,7 +375,7 @@ invnewterm(void)
 	wdlen = (len + (sizeof(long) - 1)) / sizeof(long);
 	numwilluse = (wdlen + 3) * sizeof(long);
 	/* new block if at least 1 item in block */
-	if (numinvitems && numwilluse + amtused > BLOCKSIZE) {
+	if (numinvitems && numwilluse + amtused > sizeof(t_logicalblk)) {
 		/* set up new block */
 		if (supfing + 500 > SUPFING + supersize) {
 			i = supfing - SUPFING;
@@ -387,6 +391,7 @@ invnewterm(void)
 #endif
 		}
 		/* check that room for the offset as well */
+		/* FIXME HBB: magic number alert (10) */
 		if ((numlogblk + 10) > supintsize) {
 			i = supint - SUPINT;
 			supintsize += SUPERINC;
@@ -426,7 +431,7 @@ invnewterm(void)
 		logicalblk.invblk[1] = numlogblk + 1; 
 		/* set back pointer to last block */
 		logicalblk.invblk[2] = numlogblk - 1;
-		if (fwrite(logicalblk.chrblk, 1, BLOCKSIZE, outfile) == 0) {
+		if (fwrite(logicalblk.chrblk, 1, sizeof(t_logicalblk), outfile) == 0) {
 			invcannotwrite(indexfile);
 			return(0);
 		}
@@ -455,7 +460,7 @@ invnewterm(void)
 			supfing += strlen(supfing) + 1;
 			/* now fix up the logical block */
 			tptr = logicalblk.chrblk + lastinblk;
-			lastinblk = BLOCKSIZE;
+			lastinblk = sizeof(t_logicalblk);
 			tptr2 = logicalblk.chrblk + lastinblk;
 			j = tptr3 - tptr;
 			while (tptr3 > tptr)
@@ -470,7 +475,7 @@ invnewterm(void)
 			numinvitems = backupflag;
 		} else { /* no backup needed */
 			numinvitems = 0;
-			lastinblk = BLOCKSIZE;
+			lastinblk = sizeof(t_logicalblk);
 			/* add new term to superindex */
 			(void) strcpy(supfing, thisterm);
 			supfing += strlen(thisterm) + 1;
@@ -515,6 +520,8 @@ invopen(INVCONTROL *invcntl, char *invname, char *invpost, int stat)
 		(void) fprintf(stderr, "%s: cannot read old index format; use -U option to force database to rebuild\n", argv0);
 		goto closeinv;
 	}
+	assert(invcntl->param.sizeblk == sizeof(t_logicalblk));
+
 	if (stat == 0 && invcntl->param.filestat == INVALONE) {
 		(void) fprintf(stderr, "%s: inverted file is locked\n", argv0);
 		goto closeinv;
@@ -535,7 +542,6 @@ invopen(INVCONTROL *invcntl, char *invname, char *invpost, int stat)
 	if (invcntl->param.share == 1) {
 		key_t ftok(), shm_key;
 		struct shmid_ds shm_buf;
-		char	*shmat();
 		int	shm_id;
 
 		/* see if the shared segment exists */
@@ -561,7 +567,9 @@ invopen(INVCONTROL *invcntl, char *invname, char *invpost, int stat)
 	}
 #endif
 	if (invcntl->iindex == NULL)
-		invcntl->iindex = malloc((unsigned) invcntl->param.supsize + 16);
+	        /* FIXME HBB: magic number alert (4) */
+		invcntl->iindex = malloc((unsigned) invcntl->param.supsize
+					 + 4 *sizeof(long));
 	if (invcntl->iindex == NULL) {
 		invcannotalloc((unsigned) invcntl->param.supsize);
 		free(invcntl->logblk);
@@ -622,13 +630,13 @@ invclose(INVCONTROL *invcntl)
 static void
 invstep(INVCONTROL *invcntl)
 {
-	if (invcntl->keypnt < (*(int *)invcntl->logblk - 1)) {
+	if (invcntl->keypnt < (invcntl->logblk->invblk[0] - 1)) {
 		invcntl->keypnt++; 
 		return;
 	}
 
 	/* move forward a block else wrap */
-	invcntl->numblk = *(int *)(invcntl->logblk + sizeof(long)); 
+	invcntl->numblk = invcntl->logblk->invblk[1]; /* was: *(int *)(invcntl->logblk + sizeof(long))*/                           
 
 	/* now read in the block  */
 	(void) fseek(invcntl->invfile, invcntl->numblk * invcntl->param.sizeblk + invcntl->param.cntlsize, 0); 
@@ -642,7 +650,8 @@ invforward(INVCONTROL *invcntl)
 {
 	invstep(invcntl); 
 	/* skip things with 0 postings */
-	while (((ENTRY * )(invcntl->logblk + 12) + invcntl->keypnt)->post == 0) {
+	/* FIXME HBB: magic number alert! (3) */
+	while (((ENTRY * )(invcntl->logblk->invblk + 3) + invcntl->keypnt)->post == 0) {
 		invstep(invcntl); 
 	}
 	/* Check for having wrapped - reached start of inverted file! */
@@ -657,8 +666,10 @@ invterm(INVCONTROL *invcntl, char *term)
 {
 	ENTRY * entryptr;
 
-	entryptr = (ENTRY * )(invcntl->logblk + 12) + invcntl->keypnt;
-	(void) strncpy(term, entryptr->offset + invcntl->logblk, (int) entryptr->size);
+	/* FIXME HBB: magic number alert! (3) */
+	entryptr = (ENTRY *)(invcntl->logblk->invblk + 3) + invcntl->keypnt;
+	(void) strncpy(term, invcntl->logblk->chrblk + entryptr->offset,
+		       (int) entryptr->size);
 	*(term + entryptr->size) = '\0';
 	return(entryptr->post);
 }
@@ -708,7 +719,7 @@ invfind(INVCONTROL *invcntl, char *searchterm) /* term being searched for  */
 
 srch_ext:
 	/* now find the term in this block. tricky this  */
-	intptr = (unsigned long *)invcntl->logblk;
+	intptr = (unsigned long *) invcntl->logblk->invblk;
 
 	ilow = 0;
 	ihigh = *intptr - 1;
@@ -716,8 +727,8 @@ srch_ext:
 	num = 0;
 	while (ilow <= ihigh) {
 		imid = (ilow + ihigh) / 2;
-		entryptr = (ENTRY * )intptr + imid;
-		i = strncmp(searchterm, (invcntl->logblk + entryptr->offset),
+		entryptr = (ENTRY *)intptr + imid;
+		i = strncmp(searchterm, invcntl->logblk->chrblk + entryptr->offset,
 		    (int) entryptr->size );
 		if (i == 0)
 			i = strlen(searchterm) - entryptr->size;
@@ -731,8 +742,8 @@ srch_ext:
 		}
 	}
 	/* be careful about case where searchterm is after last in this block  */
-	if (imid >= *(long *)invcntl->logblk) {
-		invcntl->keypnt = *(long *)invcntl->logblk;
+	if (imid >= invcntl->logblk->invblk[0]) {
+		invcntl->keypnt = invcntl->logblk->invblk[0];
 		invstep(invcntl);
 		/* note if this happens the term could be in extended block */
 		if (invcntl->param.startbyte < invcntl->numblk * invcntl->param.sizeblk)
@@ -772,15 +783,16 @@ invdump(INVCONTROL *invcntl, char *term)
 		(void) fread(invcntl->logblk, (int) invcntl->param.sizeblk, 1, invcntl->invfile);
 	} else
 		i = abs((int) invfind(invcntl, term));
-	longptr = (long *)invcntl->logblk;
+	longptr = invcntl->logblk->invblk;
 	n = *longptr++;
 	(void) printf("Entry term to invdump=%s, postings=%ld, forwrd ptr=%ld, back ptr=%ld\n"
 	    , term, i, *(longptr), *(longptr + 1));
-	entryptr = (ENTRY * )(invcntl->logblk + 12);
+	/* FIXME HBB: magic number alert! (3) */
+	entryptr = (ENTRY *) (invcntl->logblk->invblk + 3);
 	(void) printf("%ld terms in this block, block=%ld\n", n, invcntl->numblk);
 	(void) printf("\tterm\t\t\tposts\tsize\toffset\tspace\t1st word\n");
 	for (j = 0; j < n && invbreak == 0; j++) {
-		ptr = invcntl->logblk + entryptr->offset;
+		ptr = invcntl->logblk->chrblk + entryptr->offset;
 		(void) strncpy(temp, ptr, (int) entryptr->size);
 		temp[entryptr->size] = '\0';
 		ptr += (sizeof(long) * (long)((entryptr->size + (sizeof(long) - 1)) / sizeof(long)));
@@ -828,7 +840,7 @@ boolfile(INVCONTROL *invcntl, long *num, int boolarg)
 {
 	ENTRY	*entryptr;
 	FILE	*file;
-	char	*ptr;
+	void	*ptr;
 	unsigned long	*ptr2;
 	POSTING	*newitem = NULL; /* initialize, to avoid warning */
 	POSTING	posting;
@@ -836,8 +848,9 @@ boolfile(INVCONTROL *invcntl, long *num, int boolarg)
 	POSTING *newsetp = NULL, *set1p;
 	long	newsetc, set1c, set2c;
 
-	entryptr = (ENTRY *) (invcntl->logblk + 12) + invcntl->keypnt;
-	ptr = invcntl->logblk + entryptr->offset;
+	/* FIXME HBB: magic number alert! (3) */
+	entryptr = (ENTRY *) (invcntl->logblk->invblk + 3) + invcntl->keypnt;
+	ptr = invcntl->logblk->chrblk + entryptr->offset;
 	ptr2 = ((unsigned long *) ptr) + (entryptr->size + (sizeof(long) - 1)) / sizeof(long);
 	*num = entryptr->post;
 	switch (boolarg) {

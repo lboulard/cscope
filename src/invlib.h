@@ -33,9 +33,13 @@
 /* $Id$ */
 
 
+#ifndef CSCOPE_INVLIB_H
+#define CSCOPE_INVLIB_H
+
 /* inverted index definitions */
 
 /* postings temporary file long number coding into characters */
+/* FIXME HBB: where would these definitions come from ? */
 #if u3b || u3b2 || u3b5 || u3b15 || uts
 #define	BASE		223	/* 255 - ' ' */
 #define	PRECISION	4	/* maximum digits after converting a long */
@@ -71,7 +75,7 @@ typedef	struct {
 	FILE	*postfile;	/* posting file ptr */
 	PARAM	param;		/* control parameters for the file */
 	char	*iindex;	/* ptr to space for superindex */
-	char	*logblk;	/* ptr to space for a logical block */
+	union logicalblk *logblk;	/* ptr to space for a logical block */
 	long	numblk;		/* number of block presently at *logblk */
 	long	keypnt;		/* number item in present block found */
 } INVCONTROL;
@@ -98,8 +102,15 @@ POSTING	*boolinfo();
 POSTING	*boolmem();
 POSTING	*boolsave();
 */
+extern	void	boolclear(void);
 POSTING	*boolfile(INVCONTROL *invcntl, long *num, int boolarg);
 void	invclose(INVCONTROL *invcntl);
 void	invdump(INVCONTROL *invcntl, char *term);
 long	invfind(INVCONTROL *invcntl, char *searchterm);
+int	invforward(INVCONTROL *invcntl);
+int	invopen(INVCONTROL *invcntl, char *invname, char *invpost, int stat);
 long	invmake(char *invname, char *invpost, FILE *infile);
+long	invterm(INVCONTROL *invcntl, char *term);
+INVCONTROL invcontrol;	/* inverted file control structured */
+
+#endif /* CSCOPE_INVLIB_H */
