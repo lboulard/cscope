@@ -41,7 +41,9 @@ static char const rcsid[] = "$Id$";
 
 static	void	*alloctest(void *p);
 
-#ifdef __STDC__
+/* let autoconf find out if <stdlib.h> is available. This test will
+ * succeed more reliably than the defined(__STDC__) one I replaced */
+#if STDC_HEADERS
 #include <stdlib.h>
 # else
 char	*calloc(), *malloc(), *realloc(), *strcpy();
