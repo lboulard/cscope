@@ -138,7 +138,7 @@ whitespace	[ \t\n]|{comment}
 %o 7000
 
 /* exclusive start conditions. not available in AT&T lex -> use flex! */
-%x WAS_ENDIF WAS_IDENTIFIER WAS_ESU IN_DQUOTE IN_SQUOTE COMMENT
+%x IN_PREPROC WAS_ENDIF WAS_IDENTIFIER WAS_ESU IN_DQUOTE IN_SQUOTE COMMENT
 
 %%
 
@@ -222,9 +222,25 @@ whitespace	[ \t\n]|{comment}
 			/* NOTREACHED */
 		}
 
-\#[ \t]*endif(([ \t]|{comment}).*)?		{	/* #endif */
+\#[ \t]*	{ /* start a preprocessor line */
+			if (rules == NO)		/* don't consider CPP for lex/yacc rules */
+				BEGIN(IN_PREPROC);
+			yyleng = 1;	/* get rid of the blanks, if any */
+			goto more;
+			/* NOTREACHED */
+		}
+<IN_PREPROC>.|\n			|
+<IN_PREPROC>{identifier}	{   /* unknown preprocessor line */
+			BEGIN(INITIAL);
+			goto more;
+			/* NOTREACHED */
+		}
+
+<IN_PREPROC>endif([^a-zA-Z0-9_$\n].*)?	{	/* #endif */
 			/* delay treatment of #endif depending on whether an
 			 * #if comes right after it, or not */
+			/* HBB 20010619: new pattern allows trailing garbage
+			 * after the #endif */
 			BEGIN(WAS_ENDIF);
 			goto more;
 			/* NOTREACHED */
@@ -266,9 +282,9 @@ whitespace	[ \t\n]|{comment}
 			/* NOTREACHED */
 		}
 
-\#[ \t]*ifndef[ \t]+	|
-\#[ \t]*ifdef[ \t]+		|
-\#[ \t]*if[ \t]+		{ /* #if directive */
+<IN_PREPROC>ifndef[ \t]+	|
+<IN_PREPROC>ifdef[ \t]+		|
+<IN_PREPROC>if[ \t]+		{ /* #if directive */
 			elseelif = NO;
 			if (pseudoelif == YES) {
 				pseudoelif = NO;
@@ -284,10 +300,11 @@ whitespace	[ \t\n]|{comment}
 			/* push the current brace count */
 			preifbraces[iflevel] = braces;
 			maxifbraces[iflevel++] = 0;
+			BEGIN(INITIAL);
 			goto more;
 			/* NOTREACHED */
 		}
-\#[ \t]*else([ \t].*)?	{ /* #else --- eat up whole line */
+<IN_PREPROC>else([ \t].*)?	{ /* #else --- eat up whole line */
 			elseelif = YES;
 			if (iflevel > 0) {
 				
@@ -298,10 +315,11 @@ whitespace	[ \t\n]|{comment}
 				/* restore the brace count to before the #if */
 				braces = preifbraces[iflevel - 1];
 			}
+			BEGIN(INITIAL);
 			goto more;
 			/* NOTREACHED */
 		}
-\#[ \t]*elif[ \t]+	{ /* #elif */
+<IN_PREPROC>elif[ \t]+	{ /* #elif */
 			/* elseelif = YES; --- HBB I doubt this is correct */
 		elif:
 			if (iflevel > 0) {
@@ -313,7 +331,28 @@ whitespace	[ \t\n]|{comment}
 				/* restore the brace count to before the #if */
 				braces = preifbraces[iflevel - 1];
 			}
+			BEGIN(INITIAL);
 			goto more;
+			/* NOTREACHED */
+		}
+
+<IN_PREPROC>include[ \t]*\"[^"\n]+\" |
+<IN_PREPROC>include[ \t]*<[^>\n]+> 	{ /* #include file */
+			char	*s;
+			char remember = yytext[yyleng-1];
+			
+			my_yymore();
+			s = strpbrk(my_yytext, "\"<");
+			my_yytext[my_yyleng-1] = '\0';
+			incfile(s + 1, s);
+			my_yytext[my_yyleng-1] = remember;
+			first = s - my_yytext;
+			last = my_yyleng - 1;
+			if (compress == YES) {
+				yytext[0] = '\2';	/* compress the keyword */
+			}
+			BEGIN(INITIAL);
+			return(INCLUDE);
 			/* NOTREACHED */
 		}
 
@@ -405,7 +444,7 @@ whitespace	[ \t\n]|{comment}
 			goto more;
 			/* NOTREACHED */
 		}
-\#[ \t]*define[ \t]+{identifier}	{
+<IN_PREPROC>define[ \t]+{identifier}	{
 				
 			/* preprocessor macro or constant definition */
 			ppdefine = YES;
@@ -424,6 +463,7 @@ whitespace	[ \t\n]|{comment}
 			}
 			++first;
 			last = my_yyleng;
+			BEGIN(INITIAL);
 			goto definition;
 			/* NOTREACHED */
 		}
@@ -442,10 +482,21 @@ class{whitespace}+{identifier}({whitespace}|{identifier}|[():])*\{	{	/* class de
 			goto more;
 		}
 <WAS_ESU>{
-({whitespace}+{identifier})?{whitespace}*\{		{ /* e/s/u definition */
+({whitespace}+{identifier}){whitespace}*\{		{ /* e/s/u definition */
 			tagdef = my_yytext[ident_start];
 			BEGIN(WAS_IDENTIFIER);
 			goto ident;
+		}
+{whitespace}*\{		{ /* e/s/u definition without a tag */
+			tagdef = my_yytext[ident_start];
+			BEGIN(INITIAL);
+			if (braces == 0) {
+				esudef = YES;
+			}
+			last = first;
+			yyless(0);  /* re-scan all this as normal text */
+			tagdef = '\0';
+			goto more;
 		}
 ({whitespace}+{identifier})?{whitespace}* 	|   
 .|\n										{   /* e/s/u usage */
@@ -466,6 +517,7 @@ if{whitespace}*\(	{ 	/* ignore 'if' */
 			goto more;
 			/* NOTREACHED */
 		}
+
 <WAS_IDENTIFIER>{       
 [ \t]*\(({whitespace}|{identifier}|[*&[\]=,.])*\)([()]|{whitespace})*[:a-zA-Z_#{]	{
 			/* a function definition */
@@ -725,24 +777,9 @@ if{whitespace}*\(	{ 	/* ignore 'if' */
 ^[ \t\f]+	{	/* don't save leading white space */
 		}
 
-\#[ \t]*include[ \t]*\"[^"\n]+\" |
-\#[ \t]*include[ \t]*<[^>\n]+> 	{ /* #include file */
-			char	*s;
-			char remember = yytext[yyleng-1];
-			
-			my_yymore();
-			s = strpbrk(my_yytext, "\"<");
-			my_yytext[my_yyleng-1] = '\0';
-			incfile(s + 1, s);
-			my_yytext[my_yyleng-1] = remember;
-			first = s - my_yytext;
-			last = my_yyleng - 1;
-			if (compress == YES) {
-				yytext[0] = '\2';	/* compress the keyword */
-			}
-			return(INCLUDE);
-			/* NOTREACHED */
-		}
+[ \t]{2,}	{   /* compress sequential whitespace here, not in putcrossref() */
+			unput(' ');
+ 		}
 
 "/*"					yy_push_state(COMMENT);
 <COMMENT>{
@@ -765,13 +802,13 @@ if{whitespace}*\(	{ 	/* ignore 'if' */
 }		
 
 "//".*\n?		{
+			/* C++-style one-line comment */
 			goto eol;
 			/* NOTREACHED */
 		}
 
 {number}				|	/* number */
 <SDL>STATE[ \t]+		|   /* ... and other syntax error catchers... */
-\#[ \t]*{identifier}	|   /* unknown preprocessor line */
 .						{	/* punctuation and operators */
 						more:	
 							my_yymore();
@@ -824,7 +861,7 @@ initscanner(char *srcfile)
 		*my_yytext = '\0';
 	my_yyleng = 0;
 	
-	BEGIN 0;
+	BEGIN(INITIAL);
 
 	/* if this is not a C file */
 	if ((s = strrchr(srcfile, '.')) != NULL) {
@@ -843,7 +880,7 @@ initscanner(char *srcfile)
 		case 's':
 			if (strcmp(s, "sd") == 0) {	/* sdl */
 				sdl = YES;
-				BEGIN SDL;
+				BEGIN(SDL);
 			}
 			break;
 		case 'y':

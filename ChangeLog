@@ -1,3 +1,13 @@
+(2001/06/19 - broeker) More bugfixes and changes to flex scanner. Handling
+	               of preprocessing directives treats whitespace and
+		       garbage after the keyword more gently. It also avoids
+		       treating lex patterns as preprocessing directives. And 
+		       enum/struct/union definitions without a tag are no
+		       longer written out to the database, which should help
+		       to get rid of 'cannot get sourceline' error messages.
+		       Also a new rule to compress whitespace sequences by
+		       means of a flex rule (should to be faster than 
+		       hand-coding).
 (2001/06/15 - broeker) Bugfix to flex scanner: comments after an #endif, 
 	               without any whitespace in between, would be dumped
 		       to stdout.
