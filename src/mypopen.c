@@ -34,6 +34,8 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "global.h"	/* pid_t, SIGTYPE, shell, and basename() */
 
 #define	tst(a,b) (*mode == 'r'? (b) : (a))

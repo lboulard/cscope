@@ -38,6 +38,7 @@
 
 #include "global.h"
 #include "version.h"	/* FILEVERSION and FIXVERSION */
+#include <stdlib.h>	/* atoi */
 #include <curses.h>	/* stdscr and TRUE */
 #include <fcntl.h>	/* O_RDONLY */
 #include <sys/types.h>	/* needed by stat.h */
@@ -81,8 +82,8 @@ BOOL	kernelmode;		/* don't use DFLT_INCDIR - bad for kernels */
 BOOL	linemode;		/* use line oriented user interface */
 BOOL	recurse_dir = NO;	/* recurse dirs when searching for src files */
 char	*namefile;		/* file of file names */
-char	*newinvname;		/* new inverted index file name */
-char	*newinvpost;		/* new inverted index postings file name */
+static char *newinvname;	/* new inverted index file name */
+static char *newinvpost;	/* new inverted index postings file name */
 char	*newreffile;		/* new cross-reference file name */
 FILE	*newrefs;		/* new cross-reference */
 BOOL	ogs;			/* display OGS book and subsystem names */
@@ -109,7 +110,7 @@ static	BOOL	unconditional;		/* unconditionally build database */
 
 BOOL	samelist(FILE *oldrefs, char **names, int count);
 char	*getoldfile(void);
-int	compare(char **s1, char **s2);		/* needed for qsort call */
+int	compare(const void *s1, const void *s2); /* needed for qsort call */
 void	copydata(void);
 void	copyinverted(void);
 void	initcompress(void);
@@ -390,7 +391,7 @@ lastarg:
 			initcompress();
 
 			/* seek to the trailer */
-			if (fscanf(oldrefs, "%d", &traileroffset) != 1) {
+			if (fscanf(oldrefs, "%ld", &traileroffset) != 1) {
 				(void) fprintf(stderr, "cscope: cannot read trailer offset from file %s\n", reffile);
 				exit(1);
 			}
@@ -435,8 +436,8 @@ lastarg:
 				++s;
 			}
 			/* if there is a file of source file names */
-			if (namefile != NULL && (names = vpfopen(namefile, "r")) != NULL ||
-			    (names = vpfopen(NAMEFILE, "r")) != NULL) {
+			if ((namefile != NULL && (names = vpfopen(namefile, "r")) != NULL)
+			    || (names = vpfopen(NAMEFILE, "r")) != NULL) {
 	
 				/* read any -p option from it */
 				while (fscanf(names, "%s", path) == 1 && *path == '-') {
@@ -515,7 +516,7 @@ lastarg:
 		initcompress();
 		build();
 		if (buildonly == YES) {
-			exit(0);
+			myexit(0);
 		}
 	}
 	opendatabase();
@@ -839,7 +840,7 @@ build(void)
 				goto outofdate;
 			}
 			/* seek to the trailer */
-			if (fscanf(oldrefs, "%d", &traileroffset) != 1 ||
+			if (fscanf(oldrefs, "%ld", &traileroffset) != 1 ||
 			    fseek(oldrefs, traileroffset, SEEK_SET) == -1) {
 				(void) fprintf(stderr, "cscope: incorrect symbol database file format\n");
 				goto force;
@@ -1044,8 +1045,11 @@ build(void)
 /* string comparison function for qsort */
 
 int
-compare(char **s1, char **s2)
+compare(const void *arg_s1, const void *arg_s2)
 {
+	const char **s1 = (const char **) arg_s1;
+	const char **s2 = (const char **) arg_s2;
+			
 	return(strcmp(*s1, *s2));
 }
 
@@ -1087,7 +1091,7 @@ putheader(char *dir)
 	else {	/* leave space so if the header is overwritten without -q
 		   because writing the inverted index failed, the header is the
 		   same length */
-		dboffset += fprintf(newrefs, "              ", totalterms);
+		dboffset += fprintf(newrefs, "              ");
 	}
 	if (trun_syms == YES) {
 		dboffset += fprintf(newrefs, " -T");
@@ -1403,5 +1407,14 @@ myexit(int sig)
 	if (sig == SIGQUIT) {
 		(void) abort();
 	}
+	/* HBB 20000421: be nice: free allocated data */
+	freefilelist();
+	freeinclist();
+	freesrclist();
+	freecrossref();
+	free(newinvname);
+	free(newinvpost);
+	free(newreffile);
+		
 	exit(sig);
 }

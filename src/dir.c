@@ -36,6 +36,7 @@
  *	directory searching functions
  */
 
+#include <stdlib.h>
 #include <dirent.h>
 #include <sys/types.h>	/* needed by stat.h */
 #include <sys/stat.h>	/* stat */
@@ -140,6 +141,7 @@ sourcedir(char *dirlist)
 		}
 		dir = strtok((char *) NULL, DIRSEPS);
 	}
+	free(dirlist);		/* HBB 20000421: avoid memory leaks */
 }
 
 /* add a source directory to the list */
@@ -160,6 +162,18 @@ addsrcdir(char *dir)
 		}
 		srcdirs[nsrcdirs++] = stralloc(dir);
 	}
+}
+
+/* HBB 20000421: new function, for avoiding leaks */
+/* free list of src directories */
+void
+freesrclist()
+{
+	if (!srcdirs)
+		return;
+	while(nsrcdirs>1)
+		free(srcdirs[--nsrcdirs]);
+	free(srcdirs);
 }
 
 /* add a #include directory to the list for each view path source directory */
@@ -191,6 +205,7 @@ includedir(char *dirlist)
 		}
 		dir = strtok((char *) NULL, DIRSEPS);
 	}
+	free(dirlist);			/* HBB 20000421: avoid leaks */
 }
 
 /* add a #include directory to the list */
@@ -217,6 +232,22 @@ addincdir(char *name, char *path)
 		incdirs[nincdirs] = stralloc(path);
 		incnames[nincdirs++] = stralloc(name);
 	}
+}
+
+/* HBB 2000421: new function, for avoiding memory leaks */
+/* free the list of include files, if wanted */
+
+void
+freeinclist()
+{
+	if (!incdirs)	
+		return;
+	while(nincdirs>0) {
+		free(incdirs[--nincdirs]);
+		free(incnames[nincdirs]);
+	}
+	free(incdirs);
+	free(incnames);
 }
 
 /* make the source file list */
@@ -535,12 +566,27 @@ freefilelist(void)
 {
 	struct	listitem *p, *nextp;
 	int	i;
-	
-	while (nsrcfiles > 0) {
-		free(srcfiles[--nsrcfiles]);
+
+	/* if '-d' option is used a string space block is allocated */	
+	if (isuptodate == NO) {
+		while (nsrcfiles > 0) {
+			free (srcfiles[--nsrcfiles]);
+		}
 	}
+	else {
+		/* for '-d' option free the string space block */
+		free (srcfiles[0]);
+		nsrcfiles = 0;
+	}
+
+	free (srcfiles);     /* HBB 20000421: avoid leak */
+	msrcfiles = 0;
+	srcfiles=0;
+	
 	for (i = 0; i < HASHMOD; ++i) {
 		for (p = srcnames[i]; p != NULL; p = nextp) {
+			/* HBB 20000421: avoid memory leak */
+			free(p->text);
 			nextp = p->next;
 			free((char *) p);
 		}

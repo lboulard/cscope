@@ -970,6 +970,7 @@ findcalledby(void)
 			break;
 		}
 	}
+	return NO;
 }
 
 /* find this term, which can be a regular expression */

@@ -53,26 +53,26 @@ typedef	struct {			/* menu */
 } MENU;
 
 static	MENU	mainmenu[] = {		/* main menu */
-	"Send",		"##\033s##\r",
-	"Repeat",	"\031",
-	"Edit All",	"\05",
-	"Rebuild",	"\022",
-	"Shell",	"!",
-	"Redraw",	"\f",
-	"Help",		"?",
-	"Exit",		"\04",
-	NULL,		NULL
+	{"Send",	"##\033s##\r"},
+	{"Repeat",	"\031"},
+	{"Edit All",	"\05"},
+	{"Rebuild",	"\022"},
+	{"Shell",	"!"},
+	{"Redraw",	"\f"},
+	{"Help",	"?"},
+	{"Exit",	"\04"},
+	{NULL,		NULL}
 };
 
 static	MENU	changemenu[] = {	/* change mode menu */
-	"Mark Screen",	"*",
-	"Mark All",	"a",
-	"Change",	"\04",
-	"No Change",	"\033",
-	"Shell",	"!",
-	"Redraw",	"\f",
-	"Help",		"?",
-	NULL,		NULL
+	{"Mark Screen",	"*"},
+	{"Mark All",	"a"},
+	{"Change",	"\04"},
+	{"No Change",	"\033"},
+	{"Shell",	"!"},
+	{"Redraw",	"\f"},
+	{"Help",	"?"},
+	{NULL,		NULL}
 };
 
 static	MENU	*loaded;		/* menu loaded */

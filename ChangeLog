@@ -1,3 +1,4 @@
+(2000/05/03 - broeker) major code cleanup and fixing of memory leaks
 (2000/05/03 - broeker) configure checks for vsnprintf
 (2000/05/03 - petr) More than 9 select lines displays selection in uppercase
 (2000/05/02 - petr) Added support for more than 9 select lines (up to 45)

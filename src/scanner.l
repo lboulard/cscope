@@ -86,8 +86,10 @@ static	int	templateparens;		/* function template outer parentheses count */
 static	int	typedefbraces = -1;	/* initial typedef brace count */
 static	int	token;			/* token found */
 
+
 void	multicharconstant(char terminator);
 int	skipcomment_input(void);
+int	comment(void);
 
 #ifdef FLEX_SCANNER
 #define YY_INPUT(buf,result,max_size) \

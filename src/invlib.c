@@ -497,6 +497,7 @@ invnewterm(void)
 	return(1);
 }
 
+int
 invopen(INVCONTROL *invcntl, char *invname, char *invpost, int stat)
 {
 	int	read_index;
@@ -635,6 +636,7 @@ invstep(INVCONTROL *invcntl)
 }
 
 /** invforward moves forward one term in the inverted file  **/
+int
 invforward(INVCONTROL *invcntl)
 {
 	invstep(invcntl); 
@@ -649,6 +651,7 @@ invforward(INVCONTROL *invcntl)
 }
 
 /**  invterm gets the present term from the present logical block  **/
+int
 invterm(INVCONTROL *invcntl, char *term)
 {
 	ENTRY * entryptr;

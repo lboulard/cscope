@@ -39,17 +39,21 @@
  *	storage allocation.
  */
 
+#include "global.h"
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
-#define	BUFSIZ	160
+
+#ifndef BUFSIZ
+# define BUFSIZ	160
+#endif
 
 static char const rcsid[] = "$Id$";
 
 static char line[BUFSIZ+1];
 
 static char *
-field(char *p)
+next_field(char *p)
 {
 	while (*p && *p != ':')
 		++p;
@@ -80,18 +84,18 @@ logdir(char *name)
 			return(0);
 		line[++j] = 0;			/* terminate the line */
 		(void) lseek(pwf, (long) (j - i), 1);	/* point at the next line */
-		p = field(line);		/* get the logname */
+		p = next_field(line);		/* get the logname */
 	} while (*name != *line ||	/* fast pretest */
 	    strcmp(name, line) != 0);
 	(void) close(pwf);
 	
 	/* skip the intervening fields */
-	p = field(p);
-	p = field(p);
-	p = field(p);
-	p = field(p);
+	p = next_field(p);
+	p = next_field(p);
+	p = next_field(p);
+	p = next_field(p);
 	
 	/* return the login directory */
-	(void) field(p);
+	(void) next_field(p);
 	return(p);
 }

@@ -205,19 +205,30 @@ char	*pathcomponents(char *path, int components);
 char	*readblock(void);
 char	*scanpast(char c);
 
+void	addcmd(int f, char *s);
 void	addsrcfile(char *name, char *path);
 void	askforchar(void);
 void	askforreturn(void);
 void	atfield(void);
+void	cannotwrite(char *file);
 void	cannotopen(char *file);
 void	clearmsg2(void);
+void	crossref(char *srcfile);
+void    dispinit(void);
 void	display(void);
 void	drawscrollbar(int top, int bot);
 void	edit(char *file, char *linenum);
 void	entercurses(void);
+void	exitcurses(void);
 void	findcleanup(void);
+void    freesrclist(void);
+void    freeinclist(void);
+void    freecrossref(void);
 void	freefilelist(void);
 void	incfile(char *file, char *type);
+void    includedir(char *dirname);
+void	initscanner(char *srcfile);
+void    initsymtab(void);
 void	makefilelist(void);
 void	mousecleanup(void);
 void	mousemenu(void);
@@ -233,14 +244,18 @@ void	postmsg2(char *msg);
 void	putposting(char *term, int type);
 void	putstring(char *s);
 void	rebuild(void);
+void	resetcmd(void);
 void	seekline(int line);
 void	setfield(void);
 void	shellpath(char *out, int limit, char *in);
+void    sourcedir(char *dirlist);
 void	myungetch(int c);
 void	warning(char *text);
 void	writestring(char *s);
 
+BOOL	command(int commandc);
 BOOL	infilelist(char *file);
+BOOL	readrefs(char *filename);
 BOOL	search(void);
 BOOL	writerefsfound(void);
 
@@ -251,12 +266,18 @@ struct	cmd *currentcmd(void);
 struct	cmd *prevcmd(void);
 struct	cmd *nextcmd(void);
 
+int	egrep(char *file, FILE *output, char *format);
 int	getline(char s[], unsigned size, int firstchar, BOOL iscaseless);
+int	invforward(INVCONTROL *invcntl);
+int	invopen(INVCONTROL *invcntl, char *invname, char *invpost, int stat);
+int	invterm(INVCONTROL *invcntl, char *term);
 int	mygetch(void);
 int	myopen(char *path, int flag, int mode);
+int	vpopen(char *path, int oflag);
 int	vpaccess(char *path, mode_t amode);
 int	hash(char *ss);
 int	execute(char *a, ...);
+int 	yylex(void);
 long	dbseek(long offset);
 
 /*

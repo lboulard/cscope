@@ -36,6 +36,7 @@
  */
 
 #include "global.h"
+#include <stdlib.h>
 #include <curses.h>	/* KEY_.* */
 #include <fcntl.h>	/* O_RDONLY */
 #include <ctype.h>
@@ -57,7 +58,6 @@ void	atchange(void);
 BOOL	changestring(void);
 void	clearprompt(void);
 void	mark(int i);
-BOOL	readrefs(char *filename);
 void	scrollbar(MOUSE *p);
 static	void	countrefs(void);
 extern	void	editall(void);

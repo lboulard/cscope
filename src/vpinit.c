@@ -33,7 +33,9 @@
 /* vpinit - initialize vpdirs or update vpdirs based on currentdir */
 
 #include <stdio.h>	/* stderr */
+#include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "vp.h"
 #include "library.h"
 #include "constants.h"

@@ -37,6 +37,7 @@
  */
 
 #include "global.h"
+#include <stdlib.h>
 
 static char const rcsid[] = "$Id$";
 
@@ -70,13 +71,14 @@ static	char	*filename;	/* file name for warning messages */
 static	long	fcnoffset;	/* function name database offset */
 static	long	macrooffset;	/* macro name database offset */
 static	int	msymbols = SYMBOLINC;	/* maximum number of symbols */
-static	struct	symbol {	/* symbol data */
+struct	symbol {	/* symbol data */
 	int	type;		/* type */
 	int	first;		/* index of first character in text */
 	int	last;		/* index of last+1 character in text */
 	int	length;		/* symbol length */
 	int	fcn_level;	/* function level of the symbol */
-} *symbol;
+};
+static struct symbol *symbol;
 
 void	putcrossref(void);
 static	void	savesymbol(int token, int num);
@@ -321,6 +323,17 @@ putcrossref(void)
 		dbputc('\n');	/* mark beginning of next source line */
 		macrooffset = 0;
 	}
+	symbols = 0;
+}
+
+/* HBB 20000421: new function, for avoiding memory leaks */
+/* free the cross reference symbol table */
+void
+freecrossref()
+{
+	if (symbol)
+		free(symbol);
+	symbol = NULL;
 	symbols = 0;
 }
 

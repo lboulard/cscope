@@ -400,7 +400,7 @@ cstate(int v)
 	}
 }
 
-static
+static int
 member(int symb, int set, int torf)
 {
 	int i, num, pos;
@@ -411,7 +411,7 @@ member(int symb, int set, int torf)
 	return (!torf);
 }
 
-static
+static int
 notin(int n)
 {
 	int i, j, pos;

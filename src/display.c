@@ -96,16 +96,16 @@ static	struct	{		/* text of input fields */
 	char	*text2;
 	FP	findfcn;
 } fields[FIELDS + 1] = {	/* samuel has a search that is not part of the cscope display */
-	"Find this", "C symbol",			(FP) findsymbol,
-	"Find this", "global definition",		(FP) finddef,
-	"Find", "functions called by this function",	(FP) findcalledby,
-	"Find", "functions calling this function",	(FP) findcalling,
-	"Find this", "text string",			findstring,
-	"Change this", "text string",			findstring,
-	"Find this", "egrep pattern",			findregexp,
-	"Find this", "file",				(FP) findfile,
-	"Find", "files #including this file",		(FP) findinclude,
-	"Find all", "function definitions",		(FP) findallfcns,	/* samuel only */
+	{"Find this", "C symbol",			(FP) findsymbol},
+	{"Find this", "global definition",		(FP) finddef},
+	{"Find", "functions called by this function",	(FP) findcalledby},
+	{"Find", "functions calling this function",	(FP) findcalling},
+	{"Find this", "text string",			findstring},
+	{"Change this", "text string",			findstring},
+	{"Find this", "egrep pattern",			findregexp},
+	{"Find this", "file",				(FP) findfile},
+	{"Find", "files #including this file",		(FP) findinclude},
+	{"Find all", "function definitions",		(FP) findallfcns},	/* samuel only */
 };
 
 /* initialize display parameters */
@@ -420,7 +420,7 @@ atchange(void)
 
 /*ARGSUSED*/
 SIGTYPE
-jumpback(sig)
+jumpback(int sig)
 {
 	longjmp(env, 1);
 }
