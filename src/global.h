@@ -262,7 +262,7 @@ void	progress(char *what, long current, long max);
 void	putfilename(char *srcfile);
 void	postmsg(char *msg);
 void	postmsg2(char *msg);
-void	posterr(char *msg);
+void	posterr(char *msg,...);
 void	putposting(char *term, int type);
 void	putstring(char *s);
 void	rebuild(void);

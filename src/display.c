@@ -45,7 +45,8 @@
 #include <setjmp.h>	/* jmp_buf */
 #include <stdarg.h>	/* va_list stuff */
 #include <time.h>
-#include <errno.h>      /* sys_errlist 18-Apr-2000 hops */
+#include <errno.h>
+#include <stdarg.h>
 
 static char const rcsid[] = "$Id$";
 
@@ -629,14 +630,25 @@ postmsg2(char *msg)
 
 /* display an error mesg - stdout or on second msg line */
 void
-posterr(char *msg) 
+posterr(char *msg, ...) 
 {
-	if (linemode == YES || incurses == NO)
-        {
-	    (void) fprintf(stderr, "%s\n", msg);
-	}
-	else
-            postmsg2(msg);
+    va_list ap;
+    char errbuf[MSGLEN];
+    
+    va_start(ap, msg);
+    if (linemode == YES || incurses == NO)
+    {
+        (void) vfprintf(stderr, msg, ap); 
+    }
+    else
+    {
+#if HAVE_VSNPRINTF
+        vsnprintf(errbuf, sizeof(errbuf), msg, ap);
+#else
+        vsprintf(errbuf, msg, ap);
+#endif
+        postmsg2(errbuf); 
+    }
 }
 
 
