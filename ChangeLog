@@ -1,3 +1,17 @@
+2004-04-30  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	* src/input.c (mygetline): New function.  Poor-man's readline
+	imitation.
+
+	* src/global.h (mygetline): Prototype added.
+
+	* src/command.c (command): Use mygetline() instead of letting
+	ncsurses doing it all.  Make Ctrl-B/F special hotkeys that are
+	handled here instead of in mygetline(), to preserve their meaning.
+
+	* packages/cscope.spec: Updated by SF patch #920586 to be more
+	compatible with current expectations.
+
 2004-02-24  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	* configure.in (AC_CHECK_HEADERS): Added check for NSK-Tandem
