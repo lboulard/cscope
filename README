@@ -4,6 +4,14 @@ It has been released by The Santa Cruz Operation, Inc as Open Source under
 the BSD license. Please look at COPYING for a detailed description of the
 license.
 
+BUILDING:
+- In the build directory, copy the appropriate makefile to Makefile
+- If there is no appropriate makefile for your system, copy one of the 
+  closest ones and try that. Any changes/additions will be much appreciated
+  if you could pass them onto the cscope maintainer at
+  petr@users.sourceforge.net
+- type make
+
 TIPS:
 - Try to use flex as the lexical analyzer. There may be some problems with using the native lex (due to some problems). The has been reported as a problem on Solaris.
 

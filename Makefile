@@ -32,16 +32,23 @@
 
 # $Id$
 
-CPU=i386
+BUILD=./build
 
-all:
-	cd $(CPU) ; $(MAKE) all
+all: build/Makefile
+	cd $(BUILD) ; $(MAKE) all
 
-install:
-	cd $(CPU) ; $(MAKE) install 
+install: build/Makefile
+	cd $(BUILD) ; $(MAKE) install 
 
-clean:
-	cd $(CPU) ; $(MAKE) clean
+clean: build/Makefile
+	cd $(BUILD) ; $(MAKE) clean
 
-clobber:
-	cd $(CPU) ; $(MAKE) clobber
+clobber: build/Makefile
+	cd $(BUILD) ; $(MAKE) clobber
+
+build/Makefile:
+	@echo ================================================================
+	@echo ERROR: Please copy the relevant makefile for your operating
+	@echo        system in the build directory to build/Makefile
+	@echo ================================================================
+	@exit 1
