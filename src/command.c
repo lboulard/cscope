@@ -410,7 +410,7 @@ command(int commandc)
 		askforreturn();
 		entercurses();
 		break;
-
+#ifdef KEY_RESIZE
 	case KEY_RESIZE:
 		exitcurses();
 		initscr();
@@ -429,7 +429,7 @@ command(int commandc)
 		postmsg("");	/* clear any build progress message */
 		display();	/* display the version number and input fields */
 		break;
-
+#endif
 	case ctrl('L'):	/* redraw screen */
 #ifdef KEY_CLEAR
 	case KEY_CLEAR:

@@ -1,3 +1,14 @@
+2005-02-16  Neil Horman  <nhorman@gmail.com>
+
+	* src/command.c (command): Added ifdef KEY_RESIZE around
+	KEY_RESIZE case in switch statement to allow curses
+	libraries which don't support resize events to build
+
+	* src/main.c (main): Added ifdef KEY_RESIZE around 
+	SIGWINCH handler and signal registration logic to
+	remove resize code from cscope when building with
+	curses libraries that don't support resize events
+
 2005-02-04  Neil Horman  <nhorman@gmail.com>
 
 	* src/command.c (command): Added KEY_RESIZE event case to 

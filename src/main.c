@@ -122,10 +122,12 @@ static	void	usage(void);
 void	fixkeypad();
 #endif
 
+#ifdef KEY_RESIZE
 void sigwinch_handler(int sig, siginfo_t *info, void *unused)
 {
 	ungetch(KEY_RESIZE);
 }
+#endif
 
 int
 main(int argc, char **argv)
@@ -138,19 +140,21 @@ main(int argc, char **argv)
 	int	c, i;
 	pid_t	pid;
 	struct stat	stat_buf;
+#ifdef KEY_RESIZE
 	struct sigaction winch_action;
+#endif
 	mode_t orig_umask;
 	
 	yyin = stdin;
 	yyout = stdout;
 	/* save the command name for messages */
 	argv0 = argv[0];
-	
+#ifdef KEY_RESIZE	
 	winch_action.sa_sigaction = sigwinch_handler;
 	sigemptyset(&winch_action.sa_mask);
 	winch_action.sa_flags = SA_SIGINFO;
 	sigaction(SIGWINCH,&winch_action,NULL);
-
+#endif
 	/* set the options */
 	while (--argc > 0 && (*++argv)[0] == '-') {
 		/* HBB 20030814: add GNU-style --help and --version
