@@ -1,3 +1,18 @@
+2005-03-14  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	* src/input.c (getline): Removed.  Was just a minimally simplified
+	copy of mygetline() anyway, and it threatened to collide with a
+	like-named routine in libc.
+	
+	* src/global.h (getline): Removed prototype.
+
+ 	* src/command.c (command): Changed all calls of getline() to
+	mygetline() with an empty string as the first argument.
+
+	* src/egrep.y (memset): Changed #if condition around fallback
+	implementation to match that of the prototype in global.h.  Should
+	fix SF bug #1163104 (build failure on FreeBSD).
+
 2005-02-16  Neil Horman  <nhorman@gmail.com>
 
 	* src/command.c (command): Added ifdef KEY_RESIZE around
