@@ -71,7 +71,7 @@ help(void)
 			*tp++ = "pattern to search for, and then press the RETURN key.  For the first 4 and\n";
 			*tp++ = "last 2 input fields, the pattern can be a regcmp(3X) regular expression.\n";
 			*tp++ = "If the search is successful, you can use these single-character commands:\n\n";
-			*tp++ = "1-9a-zA-Z\tEdit the file containing the displayed line.\n";
+			*tp++ = "0-9a-zA-Z\tEdit the file containing the displayed line.\n";
 		}
 		*tp++ = "space bar\tDisplay next set of matching lines.\n";
 		*tp++ = "+\t\tDisplay next set of matching lines.\n";
@@ -113,7 +113,7 @@ help(void)
 		}
 		else {
 			*tp++ = "When changing text, you can use these single-character commands:\n\n";
-			*tp++ = "1-9a-zA-Z\tMark or unmark the line to be changed.\n";
+			*tp++ = "0-9a-zA-Z\tMark or unmark the line to be changed.\n";
 		}
 		*tp++ = "*\t\tMark or unmark all displayed lines to be changed.\n";
 		*tp++ = "space bar\tDisplay next set of lines.\n";
