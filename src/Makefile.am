@@ -3,12 +3,12 @@
 bin_PROGRAMS = cscope
 
 if USING_LEX
-LEXER_SOURCE=scanner
+LEXER_SOURCE=scanner.l
 else
-LEXER_SOURCE=fscanner
+LEXER_SOURCE=fscanner.l
 endif
 
-cscope_SOURCES = $(LEXER_SOURCE).l egrep.y \
+cscope_SOURCES = $(LEXER_SOURCE) egrep.y \
 	alloc.c basename.c command.c compath.c constants.h crossref.c dir.c \
 	display.c edit.c exec.c find.c global.h help.c history.c input.c \
 	invlib.c invlib.h library.h logdir.c lookup.c lookup.h main.c mouse.c \
