@@ -1328,16 +1328,11 @@ void
 movefile(char *new, char *old)
 {
 	(void) unlink(old);
-	if (link(new, old) == -1) {
+	if (rename(new, old) == -1) {
 		(void) myperror("cscope");
-		posterr("cscope: cannot link file %s to file %s\n",
+		posterr("cscope: cannot rename file %s to file %s\n",
 			new, old);
 		myexit(1);
-	}
-	if (unlink(new) == -1) {
-		(void) myperror("cscope");
-		posterr( "cscope: cannot unlink file %s\n", new);
-		errorsfound = YES;
 	}
 }
 

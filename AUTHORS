@@ -13,3 +13,4 @@ Thomas Klausner - NetBSD support
 Andrew Sharpe - progress bar, tab between line selection and prompts and more
 Carl Mascott - FreeBSD support
 Rich Salz - Allow -i accept stdio as input as "-"
+Stephane Fritsch - BeOS support
