@@ -520,7 +520,7 @@ changestring(void)
 		return(NO);
 	}
 	/* create the line change indicators */
-	change = (BOOL *) mycalloc((unsigned) totallines, sizeof(BOOL));
+	change = mycalloc((unsigned) totallines, sizeof(BOOL));
 	changing = YES;
 	mousemenu();
 

@@ -273,7 +273,6 @@ int	egrep(char *file, FILE *output, char *format);
 int	getline(char s[], unsigned size, int firstchar, BOOL iscaseless);
 int	invforward(INVCONTROL *invcntl);
 int	invopen(INVCONTROL *invcntl, char *invname, char *invpost, int stat);
-int	invterm(INVCONTROL *invcntl, char *term);
 int	mygetch(void);
 int	myopen(char *path, int flag, int mode);
 int	vpopen(char *path, int oflag);
@@ -282,8 +281,10 @@ int	hash(char *ss);
 int	execute(char *a, ...);
 int 	yylex(void);
 long	dbseek(long offset);
+long	invterm(INVCONTROL *invcntl, char *term);
 
 /*
 extern int atoi(const char *nptr);
 extern int access(const char *pathname, int mode);
 */
+

@@ -130,7 +130,7 @@ dispinit(void)
 	}
 
 	/* allocate the displayed line array */
-	displine = (int *) mymalloc(mdisprefs * sizeof(int));
+	displine = mymalloc(mdisprefs * sizeof(int));
 }
 
 /* display a page of the references */
@@ -423,6 +423,7 @@ atchange(void)
 RETSIGTYPE
 jumpback(int sig)
 {
+	(void) sig;		/* 'use' sig, to avoid warning from compiler */
 	longjmp(env, 1);
 }
 

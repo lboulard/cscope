@@ -1,3 +1,7 @@
+(2000/05/05 - broeker) global.h, invlib.c: change return type of invterm to
+	                'long'
+(2000/05/05 - broeker) remove superfluous casts from and to type 'void *'
+                       in calls to malloc() family of routines
 (2000/05/04 - hops) configure: find flex libs in /usr/local, 
                     cmdline args to specify use of flex/lex, yacc/byacc/bison
 (2000/06/03 - broeker) some code cleanup

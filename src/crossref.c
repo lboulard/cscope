@@ -108,7 +108,7 @@ crossref(char *srcfile)
 	fcnoffset = macrooffset = 0;
 	symbols = 0;
 	if (symbol == NULL) {
-		symbol = (struct symbol *) mymalloc(msymbols * sizeof(struct symbol));
+		symbol = mymalloc(msymbols * sizeof(struct symbol));
 	}
 	for (;;) {
 		
@@ -176,7 +176,7 @@ savesymbol(int token, int num)
 	/* make sure there is room for the symbol */
 	if (symbols == msymbols) {
 		msymbols += SYMBOLINC;
-		symbol = (struct symbol *) myrealloc((char *) symbol,
+		symbol = myrealloc(symbol,
 		    msymbols * sizeof(struct symbol));
 	}
 	/* save the symbol */

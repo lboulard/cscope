@@ -137,7 +137,7 @@ invmake(char *invname, char *invpost, FILE *infile)
 	postingfile = invpost;
 	nextpost = 0;
 	/* get space for the postings list */
-	if ((POST = (POSTING *) malloc(postsize)) == NULL) {
+	if ((POST = malloc(postsize)) == NULL) {
 		invcannotalloc(postsize);
 		return(0);
 	}
@@ -150,7 +150,7 @@ invmake(char *invname, char *invpost, FILE *infile)
 	supfing = SUPFING;
 	supintsize = supersize / 40;
 	/* also for the superfinger index */
-	if ((SUPINT = (unsigned long *)malloc(supintsize * sizeof(long))) == NULL) {
+	if ((SUPINT = malloc(supintsize * sizeof(long))) == NULL) {
 		invcannotalloc(supintsize * sizeof(long));
 		return(0);
 	}
@@ -199,7 +199,7 @@ invmake(char *invname, char *invpost, FILE *infile)
 			if (postptr + 10 > POST + postsize / sizeof(POSTING)) {
 				i = postptr - POST;
 				postsize += POSTINC * sizeof(POSTING);
-				if ((POST = (POSTING *) realloc((char *) POST, postsize)) == NULL) {
+				if ((POST = realloc(POST, postsize)) == NULL) {
 					invcannotalloc(postsize);
 					return(0);
 				}
@@ -390,7 +390,7 @@ invnewterm(void)
 		if ((numlogblk + 10) > supintsize) {
 			i = supint - SUPINT;
 			supintsize += SUPERINC;
-			if ((SUPINT = (unsigned long *) realloc((char *) SUPINT, supintsize * sizeof(long))) == NULL) {
+			if ((SUPINT = realloc(SUPINT, supintsize * sizeof(long))) == NULL) {
 				invcannotalloc(supintsize * sizeof(long));
 				return(0);
 			}
@@ -652,7 +652,7 @@ invforward(INVCONTROL *invcntl)
 }
 
 /**  invterm gets the present term from the present logical block  **/
-int
+long
 invterm(INVCONTROL *invcntl, char *term)
 {
 	ENTRY * entryptr;
@@ -799,14 +799,14 @@ boolready(void)
 	if (item1 != NULL) 
 		free(item1);
 	setsize1 = SETINC;
-	if ((item1 = (POSTING *) malloc(SETINC * sizeof(POSTING))) == NULL) {
+	if ((item1 = malloc(SETINC * sizeof(POSTING))) == NULL) {
 		invcannotalloc(SETINC);
 		return(-1);
 	}
 	if (item2 != NULL) 
 		free(item2);
 	setsize2 = SETINC;
-	if ((item2 = (POSTING *) malloc(SETINC * sizeof(POSTING))) == NULL) {
+	if ((item2 = malloc(SETINC * sizeof(POSTING))) == NULL) {
 		invcannotalloc(SETINC);
 		return(-1);
 	}
@@ -864,7 +864,7 @@ boolfile(INVCONTROL *invcntl, long *num, int boolarg)
 		if (item == item2) {
 			if (u > setsize1) {
 				u += SETINC;
-				if ((item1 = (POSTING *) realloc((char *) 
+				if ((item1 = realloc(
 				    item1, u * sizeof(POSTING))) == NULL) {
 					goto cannotalloc;
 				}
@@ -875,7 +875,7 @@ boolfile(INVCONTROL *invcntl, long *num, int boolarg)
 		else {
 			if (u > setsize2) {
 				u += SETINC;
-				if ((item2 = (POSTING *) realloc((char *) 
+				if ((item2 = realloc( 
 				    item2, u * sizeof(POSTING))) == NULL) {
 				cannotalloc:
 					invcannotalloc(u * sizeof(POSTING));
@@ -1070,7 +1070,7 @@ boolsave(int clear)		/* flag about whether to clear core  */
 		return(ptr);
 	}
 	i = (enditem - item) * sizeof(POSTING) + 100;
-	if ((ptr = (POSTING *) malloc(i))r == NULL) {
+	if ((ptr = malloc(i))r == NULL) {
 		invcannotalloc(i);
 		return(ptr);
 	}
