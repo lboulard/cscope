@@ -10,7 +10,9 @@ cscope_SOURCES = scanner.l egrep.y \
 		mypopen.c version.h vp.h vpaccess.c vpfopen.c \
 		vpinit.c vpopen.c
 
-cscope_LDADD = @LEXLIB@ @CURSES_LIBS@
+LEXLIB = @LEXLIB@
+
+cscope_LDADD = $(LEXLIB) $(CURSES_LIBS)
 
 INCLUDES = $(CURSES_INCLUDEDIR)
 

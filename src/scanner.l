@@ -216,8 +216,8 @@ number		\.?[0-9][.0-9a-fA-FlLuUxX]*
 			/* make sure there is room for the current brace count */
 			if (iflevel == miflevel) {
 				miflevel += IFLEVELINC;
-				maxifbraces = (int *) myrealloc((void *) maxifbraces, miflevel * sizeof(int));
-				preifbraces = (int *) myrealloc((void *) preifbraces, miflevel * sizeof(int));
+				maxifbraces = (int *) myrealloc(maxifbraces, miflevel * sizeof(int));
+				preifbraces = (int *) myrealloc(preifbraces, miflevel * sizeof(int));
 			}
 			/* push the current brace count */
 			preifbraces[iflevel] = braces;
@@ -263,7 +263,7 @@ number		\.?[0-9][.0-9a-fA-FlLuUxX]*
 				braces = 0;
 				classdef = NO;
 			}
-			if (braces == 0 || braces == 1 && classdef == YES) {
+			if (braces == 0 || (braces == 1 && classdef == YES)) {
 
 				/* if the end of an enum/struct/union definition */
 				if (esudef == YES) {
@@ -375,8 +375,8 @@ class[ \t]+{identifier}[ \t\na-zA-Z0-9_():]*\{	{	/* class definition */
 
 			/* if a function definition */
 			/* note: "#define a (b) {" and "#if defined(a)\n#" are not */
-			if (braces == 0 && ppdefine == NO && yytext[0] != '#' && rules == NO ||
-			    braces == 1 && classdef == YES) {
+			if ((braces == 0 && ppdefine == NO && yytext[0] != '#' && rules == NO) ||
+			    (braces == 1 && classdef == YES)) {
 				fcndef = YES;
 				token = FCNDEF;
 				goto fcn;
@@ -752,7 +752,7 @@ multicharconstant(char terminator)
 			
 		default:
 			/* change a control character to a blank */
-			if (!isprint(c)) {
+			if (!isprint((unsigned char)c)) {
 				yytext[yyleng - 1] = ' ';
 			}
 		}

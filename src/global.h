@@ -43,16 +43,19 @@
 #include <ctype.h>	/* isalpha, isdigit, etc. */
 #include <signal.h>	/* SIGINT and SIGQUIT */
 #include <stdio.h>	/* standard I/O package */
+#include <stdlib.h>     /* standard library functions */
 #include <string.h>	/* string functions */
 #include "constants.h"	/* misc. constants */
 #include "invlib.h"	/* inverted index library */
 #include "library.h"	/* library function return values */
 
+#ifndef RETSIGTYPE
 #if SVR2 || BSD && !sun
-#define SIGTYPE int
+#define RETSIGTYPE int
 #else
-#define SIGTYPE void
+#define RETSIGTYPE void
 #endif
+#endif /* RETSIGTYPE */
 
 typedef	enum	{		/* boolean data type */
 	NO,

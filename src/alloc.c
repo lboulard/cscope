@@ -34,16 +34,14 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "library.h"
 
 static char const rcsid[] = "$Id$";
 
 extern	char	*argv0;	/* command name (must be set in main function) */
 
-char	*mycalloc(int nelem, int size);
-char	*mymalloc(int size);
-void	*myrealloc(void *p, int size);
-char	*stralloc(char *s);
 static	void	*alloctest(void *p);
+
 #ifdef __STDC__
 #include <stdlib.h>
 # else
@@ -61,7 +59,7 @@ stralloc(char *s)
 
 /* version of malloc that only returns if successful */
 
-char *
+void *
 mymalloc(int size)
 {
 	return(alloctest(malloc((unsigned) size)));
@@ -69,7 +67,7 @@ mymalloc(int size)
 
 /* version of calloc that only returns if successful */
 
-char *
+void *
 mycalloc(int nelem, int size)
 {
 	return(alloctest(calloc((unsigned) nelem, (unsigned) size)));
@@ -80,7 +78,7 @@ mycalloc(int nelem, int size)
 void *
 myrealloc(void *p, int size)
 {
-	return(alloctest(realloc((void *) p, (unsigned) size)));
+	return(alloctest(realloc(p, (unsigned) size)));
 }
 
 /* check for memory allocation failure */

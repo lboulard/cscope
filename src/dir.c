@@ -38,6 +38,7 @@
 
 #include <stdlib.h>
 #include <dirent.h>
+#include <stdlib.h>
 #include <sys/types.h>	/* needed by stat.h */
 #include <sys/stat.h>	/* stat */
 #include "global.h"
@@ -103,7 +104,7 @@ makevpsrcdirs(void)
 	}
 	/* create the source directory list */
 	msrcdirs = nsrcdirs + DIRINC;
-	srcdirs = (char **) mymalloc(msrcdirs * sizeof(char *));
+	srcdirs = mymalloc(msrcdirs * sizeof(char *));
 	*srcdirs = ".";	/* first source dir is always current dir */
 	for (i = 1; i < vpndirs; ++i) {
 		srcdirs[i] = vpdirs[i];
@@ -139,7 +140,7 @@ sourcedir(char *dirlist)
 				addsrcdir(path);
 			}
 		}
-		dir = strtok((char *) NULL, DIRSEPS);
+		dir = strtok(NULL, DIRSEPS);
 	}
 	free(dirlist);		/* HBB 20000421: avoid memory leaks */
 }
@@ -158,7 +159,7 @@ addsrcdir(char *dir)
 		/* note: there already is a source directory list */
 		if (nsrcdirs == msrcdirs) {
 			msrcdirs += DIRINC;
-			srcdirs = (char **) myrealloc((char *) srcdirs, msrcdirs * sizeof(char *));
+			srcdirs = myrealloc(srcdirs, msrcdirs * sizeof(char *));
 		}
 		srcdirs[nsrcdirs++] = stralloc(dir);
 	}
@@ -203,7 +204,7 @@ includedir(char *dirlist)
 				addincdir(dir, path);
 			}
 		}
-		dir = strtok((char *) NULL, DIRSEPS);
+		dir = strtok(NULL, DIRSEPS);
 	}
 	free(dirlist);			/* HBB 20000421: avoid leaks */
 }
@@ -219,14 +220,14 @@ addincdir(char *name, char *path)
 	if (stat(compath(path), &statstruct) == 0 && 
 	    (statstruct.st_mode & S_IFDIR)) {
 		if (incdirs == NULL) {
-			incdirs = (char **) mymalloc(mincdirs * sizeof(char *));
-			incnames = (char **) mymalloc(mincdirs * sizeof(char *));
+			incdirs = mymalloc(mincdirs * sizeof(char *));
+			incnames = mymalloc(mincdirs * sizeof(char *));
 		}
 		else if (nincdirs == mincdirs) {
 			mincdirs += DIRINC;
-			incdirs = (char **) myrealloc((char *) incdirs, 
+			incdirs = myrealloc(incdirs, 
 				mincdirs * sizeof(char *));
-			incnames = (char **) myrealloc((char *) incnames, 
+			incnames = myrealloc(incnames, 
 				mincdirs * sizeof(char *));
 		}
 		incdirs[nincdirs] = stralloc(path);
@@ -256,7 +257,6 @@ void
 makefilelist(void)
 {
 	static	BOOL	firstbuild = YES;	/* first time through */
-	struct	dirent	*entry;		/* directory entry pointer */
 	FILE	*names;			/* name file pointer */
 	char	dir[PATHLEN + 1];
 	char	path[PATHLEN + 1];
@@ -428,12 +428,12 @@ issrcfile(char *file)
 			}
 		}
 		else if (s[2] == '\0') {	/* 2 character suffix */
-			if (*s == 'b' && s[1] == 'p' ||	/* breakpoint listing */
-			    *s == 'q' &&
-				(s[1] == 'c' || s[1] == 'h') || /* Ingres */
-			    *s == 's' && s[1] == 'd' || /* SDL */
-			    *s == 'c' && s[1] == 'c' || /* C++ source */
-			    *s == 'h' && s[1] == 'h') { /* C++ header */
+			if ((*s == 'b' && s[1] == 'p') ||	/* breakpoint listing */
+			    (*s == 'q' &&
+				(s[1] == 'c' || s[1] == 'h')) || /* Ingres */
+			    (*s == 's' && s[1] == 'd') || /* SDL */
+			    (*s == 'c' && s[1] == 'c') || /* C++ source */
+			    (*s == 'h' && s[1] == 'h')) { /* C++ header */
 			
 				/* some directories have 2 character
 				   suffixes so make sure it is a file */
@@ -548,11 +548,11 @@ addsrcfile(char *name, char *path)
 	/* make sure there is room for the file */
 	if (nsrcfiles == msrcfiles) {
 		msrcfiles += SRCINC;
-		srcfiles = (char **) myrealloc((char *) srcfiles, msrcfiles * sizeof(char *));
+		srcfiles = myrealloc(srcfiles, msrcfiles * sizeof(char *));
 	}
 	/* add the file to the list */
 	srcfiles[nsrcfiles++] = stralloc(compath(path));
-	p = (struct listitem *) mymalloc(sizeof(struct listitem));
+	p = mymalloc(sizeof(struct listitem));
 	p->text = stralloc(compath(name));
 	i = hash(p->text) % HASHMOD;
 	p->next = srcnames[i];
@@ -588,7 +588,7 @@ freefilelist(void)
 			/* HBB 20000421: avoid memory leak */
 			free(p->text);
 			nextp = p->next;
-			free((char *) p);
+			free(p);
 		}
 		srcnames[i] = NULL;
 	}

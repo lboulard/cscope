@@ -292,7 +292,7 @@ putcrossref(void)
 					++i;
 				}
 				/* skip the rest of the keyword */
-				while (isalpha(yytext[i])) {
+				while (isalpha((unsigned char)yytext[i])) {
 					++i;
 				}
 				/* skip space after certain keywords */

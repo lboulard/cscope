@@ -32,16 +32,17 @@
 
 static char const rcsid[] = "$Id$";
 
+#include <stdlib.h>
+
 /* return the non-null environment value or the default argument */
 
 char	*
 mygetenv(char *variable, char *deflt)
 {
 	char	*value;
-	char	*getenv();
 
 	value = getenv(variable);
-	if (value == (char *) 0 || *value == '\0') {
+	if (value == NULL || *value == '\0') {
 		return(deflt);
 	}
 	return(value);

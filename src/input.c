@@ -48,9 +48,10 @@ static	int	prevchar;	/* previous, ungotten character */
 /* catch the interrupt signal */
 
 /*ARGSUSED*/
-SIGTYPE
+RETSIGTYPE
 catchint(int sig)
 {
+ 	(void) sig;		/* 'use' it, to avoid a warning */
 	(void) signal(SIGINT, catchint);
 	longjmp(env, 1);
 }
@@ -68,7 +69,7 @@ myungetch(int c)
 int
 mygetch(void)
 {
-	SIGTYPE	(*savesig)();		/* old value of signal */
+	RETSIGTYPE	(*savesig)();		/* old value of signal */
 	int	c;
 
 	/* change an interrupt signal to a break key character */
@@ -184,7 +185,7 @@ shellpath(char *out, int limit, char *in)
 	char	*s, *v;
 
 	/* skip leading white space */
-	while (isspace(*in)) {
+	while (isspace((unsigned char)*in)) {
 		++in;
 	}
 	lastchar = out + limit - 1;
@@ -196,14 +197,14 @@ shellpath(char *out, int limit, char *in)
 
 		/* get the login name */
 		s = out;
-		while (s < lastchar && *in != '/' && *in != '\0' && !isspace(*in)) {
+		while (s < lastchar && *in != '/' && *in != '\0' && !isspace((unsigned char)*in)) {
 			*s++ = *in++;
 		}
 		*s = '\0';
 
 		/* if the login name is null, then use $HOME */
 		if (*out == '\0') {
-			v = (char *) getenv("HOME");
+			v = getenv("HOME");
 		}
 		else {	/* get the home directory of the login name */
 			v = logdir(out);
@@ -218,7 +219,7 @@ shellpath(char *out, int limit, char *in)
 		}
 	}
 	/* get the rest of the path */
-	while (out < lastchar && *in != '\0' && !isspace(*in)) {
+	while (out < lastchar && *in != '\0' && !isspace((unsigned char)*in)) {
 
 		/* look for an environment variable */
 		if (*in == '$') {
@@ -227,13 +228,13 @@ shellpath(char *out, int limit, char *in)
 			/* get the variable name */
 			s = out;
 			while (s < lastchar && *in != '/' && *in != '\0' &&
-			    !isspace(*in)) {
+			    !isspace((unsigned char)*in)) {
 				*s++ = *in++;
 			}
 			*s = '\0';
 	
 			/* get its value */
-			if ((v = (char *) getenv(out)) != NULL) {
+			if ((v = getenv(out)) != NULL) {
 				(void) strcpy(out - 1, v);
 				out += strlen(v) - 1;
 			}

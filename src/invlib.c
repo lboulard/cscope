@@ -109,7 +109,7 @@ invmake(char *invname, char *invpost, FILE *infile)
 	unsigned char	*s;
 	long	num;
 	int	i;
-	long	fileindex;
+	long	fileindex = 0;	/* initialze, to avoid warning */
 	unsigned postsize = POSTINC * sizeof(POSTING);
 	unsigned long	*intptr;
 	char	line[LINEMAX];
@@ -143,7 +143,7 @@ invmake(char *invname, char *invpost, FILE *infile)
 	}
 	postptr = POST;
 	/* get space for the superfinger (superindex) */
-	if ((SUPFING = malloc(supersize)) == NULL) {
+	if ((SUPFING = (char *)malloc(supersize)) == NULL) {
 		invcannotalloc(supersize);
 		return(0);
 	}
@@ -179,7 +179,7 @@ invmake(char *invname, char *invpost, FILE *infile)
 #if DEBUG || STATS
 		++totpost;
 #endif
-		s = (unsigned char *) strchr(line, SEP);
+		s = strchr(line, SEP);
 		if (s != NULL) {
 			*s = '\0';
 		}
@@ -258,12 +258,12 @@ invmake(char *invname, char *invpost, FILE *infile)
 	/* loops pointer around to start */
 	logicalblk.invblk[1] = 0;
 	logicalblk.invblk[2] = numlogblk - 1;
-	if (fwrite((char *) &logicalblk, BLOCKSIZE, 1, outfile) == 0) {
+	if (fwrite(&logicalblk, BLOCKSIZE, 1, outfile) == 0) {
 		goto cannotwrite;
 	}
 	numlogblk++;
 	/* write out block to save space. what in it doesn't matter */
-	if (fwrite((char *) &logicalblk, BLOCKSIZE, 1, outfile) == 0) {
+	if (fwrite(&logicalblk, BLOCKSIZE, 1, outfile) == 0) {
 		goto cannotwrite;
 	}
 	/* finish up the super finger */
@@ -274,7 +274,7 @@ invmake(char *invname, char *invpost, FILE *infile)
 	while (intptr < supint)
 		*intptr++ += i;
 	/* write out the offsets (1 for the N at start) and the super finger */
-	if (fwrite((char *) SUPINT, sizeof(*SUPINT), numlogblk + 1, outfile) == 0 ||
+	if (fwrite(SUPINT, sizeof(*SUPINT), numlogblk + 1, outfile) == 0 ||
 	    fwrite(SUPFING, 1, supfing - SUPFING, outfile) == 0) {
 		goto cannotwrite;
 	}
@@ -298,11 +298,11 @@ invmake(char *invname, char *invpost, FILE *infile)
 	param.supsize = nextsupfing;
 	param.cntlsize = BUFSIZ;
 	param.share = 0;
-	if (fwrite((char *) &param, sizeof(param), 1, outfile) == 0) {
+	if (fwrite(&param, sizeof(param), 1, outfile) == 0) {
 		goto cannotwrite;
 	}
 	for (i = 0; i < 10; i++)	/* for future use */
-		if (fwrite((char *) &zerolong, sizeof(zerolong), 1, outfile) == 0) {
+		if (fwrite(&zerolong, sizeof(zerolong), 1, outfile) == 0) {
 			goto cannotwrite;
 		}
 
@@ -312,7 +312,7 @@ invmake(char *invname, char *invpost, FILE *infile)
 	}
 	(void) fseek(outfile, (long)BUFSIZ + 8, 0); /* get to second word first block */
 	tlong = numlogblk - 1;
-	if (fwrite((char *) &tlong, sizeof(tlong), 1, outfile) == 0 ||
+	if (fwrite(&tlong, sizeof(tlong), 1, outfile) == 0 ||
 	    fclose(outfile) == EOF) {
 	cannotwrite:
 		invcannotwrite(invname);
@@ -339,9 +339,9 @@ invmake(char *invname, char *invpost, FILE *infile)
 	}
 #endif
 	/* free all malloc'd memory */
-	free((char *) POST);
+	free(POST);
 	free(SUPFING);
-	free((char *) SUPINT);
+	free(SUPINT);
 	return(totterm);
 }
 
@@ -358,6 +358,7 @@ invnewterm(void)
 		ENTRY		e;
 	} iteminfo;
 
+	gooditems = 0;		/* initialize, to avoid warning */
 	totterm++;
 #if STATS
 	/* keep zipfian info on the distribution */
@@ -375,7 +376,7 @@ invnewterm(void)
 		if (supfing + 500 > SUPFING + supersize) {
 			i = supfing - SUPFING;
 			supersize += 20000;
-			if ((SUPFING = realloc(SUPFING, supersize)) == NULL) {
+			if ((SUPFING = (char *)realloc(SUPFING, supersize)) == NULL) {
 				invcannotalloc(supersize);
 				return(0);
 			}
@@ -425,7 +426,7 @@ invnewterm(void)
 		logicalblk.invblk[1] = numlogblk + 1; 
 		/* set back pointer to last block */
 		logicalblk.invblk[2] = numlogblk - 1;
-		if (fwrite((char *) logicalblk.chrblk, 1, BLOCKSIZE, outfile) == 0) {
+		if (fwrite(logicalblk.chrblk, 1, BLOCKSIZE, outfile) == 0) {
 			invcannotwrite(indexfile);
 			return(0);
 		}
@@ -486,7 +487,7 @@ invnewterm(void)
 	amtused += numwilluse;
 	logicalblk.invblk[(lastinblk/sizeof(long))+wdlen] = nextpost;
 	if ((i = postptr - POST) > 0) {
-		if (fwrite((char *) POST, sizeof(POSTING), i, fpost) == 0) {
+		if (fwrite(POST, sizeof(POSTING), i, fpost) == 0) {
 			invcannotwrite(postingfile);
 			return(0);
 		}
@@ -506,7 +507,7 @@ invopen(INVCONTROL *invcntl, char *invname, char *invpost, int stat)
 		invcannotopen(invname);
 		return(-1);
 	}
-	if (fread((char *) &invcntl->param, sizeof(invcntl->param), 1, invcntl->invfile) == 0) {
+	if (fread(&invcntl->param, sizeof(invcntl->param), 1, invcntl->invfile) == 0) {
 		(void) fprintf(stderr, "%s: empty inverted file\n", argv0);
 		goto closeinv;
 	}
@@ -582,7 +583,7 @@ invopen(INVCONTROL *invcntl, char *invname, char *invpost, int stat)
 	invcntl->param.filestat = stat;
 	if (stat > invcntl->param.filestat ) {
 		rewind(invcntl->invfile);
-		(void) fwrite((char *) &invcntl->param, sizeof(invcntl->param), 1, invcntl->invfile);
+		(void) fwrite(&invcntl->param, sizeof(invcntl->param), 1, invcntl->invfile);
 	}
 	return(1);
 }
@@ -595,13 +596,13 @@ invclose(INVCONTROL *invcntl)
 	if (invcntl->param.filestat > 0) {
 		invcntl->param.filestat = 0;
 		rewind(invcntl->invfile);
-		(void) fwrite((char *) &invcntl->param, 1,
+		(void) fwrite(&invcntl->param, 1,
 		    sizeof(invcntl->param), invcntl->invfile);
 	}
 	if (invcntl->param.filestat == INVALONE) {
 		/* write out the super finger */
 		(void) fseek(invcntl->invfile, invcntl->param.startbyte, 0);
-		(void) fwrite((char *) invcntl->iindex, 1,
+		(void) fwrite(invcntl->iindex, 1,
 		    (int) invcntl->param.supsize, invcntl->invfile);
 	}
 	(void) fclose(invcntl->invfile);
@@ -796,14 +797,14 @@ boolready(void)
 {
 	numitems = 0;
 	if (item1 != NULL) 
-		free((char *) item1);
+		free(item1);
 	setsize1 = SETINC;
 	if ((item1 = (POSTING *) malloc(SETINC * sizeof(POSTING))) == NULL) {
 		invcannotalloc(SETINC);
 		return(-1);
 	}
 	if (item2 != NULL) 
-		free((char *) item2);
+		free(item2);
 	setsize2 = SETINC;
 	if ((item2 = (POSTING *) malloc(SETINC * sizeof(POSTING))) == NULL) {
 		invcannotalloc(SETINC);
@@ -829,10 +830,10 @@ boolfile(INVCONTROL *invcntl, long *num, int boolarg)
 	FILE	*file;
 	char	*ptr;
 	unsigned long	*ptr2;
-	POSTING	*newitem;
+	POSTING	*newitem = NULL; /* initialize, to avoid warning */
 	POSTING	posting;
 	unsigned u;
-	POSTING *newsetp, *set1p;
+	POSTING *newsetp = NULL, *set1p;
 	long	newsetc, set1c, set2c;
 
 	entryptr = (ENTRY *) (invcntl->logblk + 12) + invcntl->keypnt;
@@ -891,7 +892,7 @@ boolfile(INVCONTROL *invcntl, long *num, int boolarg)
 	}
 	file = invcntl->postfile;
 	(void) fseek(file, (long) *ptr2, 0);
-	(void) fread((char *) &posting, (int) sizeof(posting), 1, file);
+	(void) fread(&posting, (int) sizeof(posting), 1, file);
 	newsetc = 0;
 	switch (boolarg) {
 	case BOOL_OR:
@@ -906,7 +907,7 @@ boolfile(INVCONTROL *invcntl, long *num, int boolarg)
 			}
 			else if (set1p->lineoffset > posting.lineoffset) {
 				*newsetp++ = posting;
-				(void) fread((char *) &posting, (int) sizeof(posting), 1, file);
+				(void) fread(&posting, (int) sizeof(posting), 1, file);
 				set2c++;
 			}
 			else if (set1p->type < posting.type) {
@@ -915,13 +916,13 @@ boolfile(INVCONTROL *invcntl, long *num, int boolarg)
 			}
 			else if (set1p->type > posting.type) {
 				*newsetp++ = posting;
-				(void) fread((char *) &posting, (int) sizeof(posting), 1, file);
+				(void) fread(&posting, (int) sizeof(posting), 1, file);
 				set2c++;
 			}
 			else {	/* identical postings */
 				*newsetp++ = *set1p++;
 				set1c++;
-				(void) fread((char *) &posting, (int) sizeof(posting), 1, file);
+				(void) fread(&posting, (int) sizeof(posting), 1, file);
 				set2c++;
 			}
 		}
@@ -935,7 +936,7 @@ boolfile(INVCONTROL *invcntl, long *num, int boolarg)
 			while (set2c++ < *num) {
 				*newsetp++ = posting;
 				newsetc++;
-				(void) fread((char *) &posting, (int) sizeof(posting), 1, file);
+				(void) fread(&posting, (int) sizeof(posting), 1, file);
 			}
 		}
 		item = newitem;
@@ -948,7 +949,7 @@ boolfile(INVCONTROL *invcntl, long *num, int boolarg)
 				set1c++;
 			}
 			else if (set1p->lineoffset > posting.lineoffset) {
-				(void) fread((char *) &posting, (int) sizeof(posting), 1, file);
+				(void) fread(&posting, (int) sizeof(posting), 1, file);
 				set2c++;
 			}
 			else if (set1p->type < posting.type)  {
@@ -956,14 +957,14 @@ boolfile(INVCONTROL *invcntl, long *num, int boolarg)
 				set1c++;
 			}
 			else if (set1p->type > posting.type) {
-				(void) fread((char *) &posting, (int) sizeof(posting), 1, file);
+				(void) fread(&posting, (int) sizeof(posting), 1, file);
 				set2c++;
 			}
 			else {	/* identical postings */
 				*newsetp++ = *set1p++;
 				newsetc++;
 				set1c++;
-				(void) fread((char *) &posting, (int) sizeof(posting), 1, file);
+				(void) fread(&posting, (int) sizeof(posting), 1, file);
 				set2c++;
 			}
 		}
@@ -977,7 +978,7 @@ boolfile(INVCONTROL *invcntl, long *num, int boolarg)
 				set1c++;
 			}
 			else if (set1p->lineoffset > posting.lineoffset) {
-				(void) fread((char *) &posting, (int) sizeof(posting), 1, file);
+				(void) fread(&posting, (int) sizeof(posting), 1, file);
 				set2c++;
 			}
 			else if (set1p->type < posting.type) {
@@ -986,13 +987,13 @@ boolfile(INVCONTROL *invcntl, long *num, int boolarg)
 				set1c++;
 			}
 			else if (set1p->type > posting.type) {
-				(void) fread((char *) &posting, (int) sizeof(posting), 1, file);
+				(void) fread(&posting, (int) sizeof(posting), 1, file);
 				set2c++;
 			}
 			else {	/* identical postings */
 				set1c++;
 				set1p++;
-				(void) fread((char *) &posting, (int) sizeof(posting), 1, file);
+				(void) fread(&posting, (int) sizeof(posting), 1, file);
 				set2c++;
 			}
 		}
@@ -1010,7 +1011,7 @@ boolfile(INVCONTROL *invcntl, long *num, int boolarg)
 			}
 			else if (set1p->lineoffset > posting.lineoffset) {
 				*newsetp++ = posting;
-				(void) fread((char *) &posting, (int) sizeof(posting), 1, file);
+				(void) fread(&posting, (int) sizeof(posting), 1, file);
 				set2c++;
 			}
 			else if (set1p->type < posting.type) {
@@ -1019,20 +1020,20 @@ boolfile(INVCONTROL *invcntl, long *num, int boolarg)
 			}
 			else if (set1p->type > posting.type) {
 				*newsetp++ = posting;
-				(void) fread((char *) &posting, (int) sizeof(posting), 1, file);
+				(void) fread(&posting, (int) sizeof(posting), 1, file);
 				set2c++;
 			}
 			else {	/* identical postings */
 				set1c++;
 				set1p++;
-				(void) fread((char *) &posting, (int) sizeof(posting), 1, file);
+				(void) fread(&posting, (int) sizeof(posting), 1, file);
 				set2c++;
 			}
 		}
 		while (set2c++ < *num) {
 			*newsetp++ = posting;
 			newsetc++;
-			(void) fread((char *) &posting, (int) sizeof(posting), 1, file);
+			(void) fread(&posting, (int) sizeof(posting), 1, file);
 		}
 		item = newitem;
 		break; /* end of REVERSENOT  */

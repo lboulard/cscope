@@ -151,7 +151,7 @@ main(int argc, char **argv)
 		for (s = argv[0] + 1; *s != '\0'; s++) {
 			
 			/* look for an input field number */
-			if (isdigit(*s)) {
+			if (isdigit((unsigned char)*s)) {
 				field = *s - '0';
 				if (field > 8) {
 					field = 8;
@@ -304,7 +304,7 @@ lastarg:
 	/* read the environment */
 	editor = mygetenv("EDITOR", EDITOR);
 	editor = mygetenv("VIEWER", editor);	/* use viewer if set */
-	home = (char *) getenv("HOME");
+	home = getenv("HOME");
 	shell = mygetenv("SHELL", SHELL);
 	tmpdir = mygetenv("TMPDIR", TMPDIR);
 
@@ -418,7 +418,7 @@ lastarg:
 				(void) fprintf(stderr, "cscope: cannot read string space size from file %s\n", reffile);
 				exit(1);
 			}
-			s = mymalloc((unsigned) oldnum);
+			s = (char *)mymalloc((unsigned) oldnum);
 			(void) getc(oldrefs);	/* skip the newline */
 			
 			/* read the strings */
@@ -476,7 +476,7 @@ lastarg:
 		fileargv = argv;
 	
 		/* get source directories from the environment */
-		if ((s = (char *) getenv("SOURCEDIRS")) != NULL) {
+		if ((s = getenv("SOURCEDIRS")) != NULL) {
 			sourcedir(s);
 		}
 		/* make the source file list */
@@ -487,7 +487,7 @@ lastarg:
 			exit(1);
 		}
 		/* get include directories from the environment */
-		if ((s = (char *) getenv("INCLUDEDIRS")) != NULL) {
+		if ((s = getenv("INCLUDEDIRS")) != NULL) {
 			includedir(s);
 		}
 		/* add /usr/include to the #include directory list,
@@ -665,6 +665,7 @@ lastarg:
 	/* cleanup and exit */
 	myexit(0);
 	/* NOTREACHED */
+	return 0;		/* avoid warning... */
 }
 
 void
@@ -786,7 +787,7 @@ build(void)
 		(void) sprintf(newdir, "$HOME%s", currentdir + strlen(home));
 	}
 	/* sort the source file names (needed for rebuilding) */
-	qsort((char *) srcfiles, (unsigned) nsrcfiles, sizeof(char *), compare);
+	qsort(srcfiles, (unsigned) nsrcfiles, sizeof(char *), compare);
 
 	/* if there is an old cross-reference and its current directory matches */
 	/* or this is an unconditional build */
@@ -854,7 +855,7 @@ build(void)
 		if (samelist(oldrefs, srcdirs, nsrcdirs) == NO ||
 		    samelist(oldrefs, incdirs, nincdirs) == NO ||
 		    fscanf(oldrefs, "%d", &oldnum) != 1 ||	/* get the old number of files */
-		    fileversion >= 9 && fscanf(oldrefs, "%*s") != 0) {	/* skip the string space size */
+		    (fileversion >= 9 && fscanf(oldrefs, "%*s") != 0)) {	/* skip the string space size */
 			goto outofdate;
 		}
 		/* see if the list of source files is the same and
@@ -976,11 +977,11 @@ build(void)
 		firstfile = lastfile;
 		lastfile = nsrcfiles;
 		if (invertedindex == YES) {
-			srcoffset = (long *) myrealloc((char *) srcoffset,
+			srcoffset = (long *) myrealloc(srcoffset,
 			    (nsrcfiles + 1) * sizeof(long));
 		}
 		/* sort the included file names */
-		qsort((char *) &srcfiles[firstfile], (unsigned) (lastfile - 
+		qsort(&srcfiles[firstfile], (unsigned) (lastfile - 
 			firstfile), sizeof(char *), compare);
 	}
 	/* add a null file name to the trailing tab */
@@ -1024,7 +1025,7 @@ build(void)
 			(void) pclose(postings);
 		}
 		(void) unlink(temp1);
-		(void) free((char *) srcoffset);
+		(void) free(srcoffset);
 	}
 	/* rewrite the header with the trailer offset and final option list */
 	rewind(newrefs);
@@ -1267,7 +1268,7 @@ copyinverted(void)
 			c = dichar1[(c & 0177) / 8];
 		}
 		/* if this is a symbol */
-		if (isalpha(c) || c == '_') {
+		if (isalpha((unsigned char)c) || c == '_') {
 			blockp = cp;
 			putstring(symbol);
 			type = ' ';

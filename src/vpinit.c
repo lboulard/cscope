@@ -38,6 +38,7 @@
 #include <unistd.h>
 #include "vp.h"
 #include "library.h"
+#include "global.h"
 #include "constants.h"
 
 static char const rcsid[] = "$Id$";
@@ -60,10 +61,7 @@ vpinit(char *currentdir)
 	char	buf[MAXPATH + 1];
 	int	i;
 	char	*s;
-#if !NOMALLOC
-	char	*mymalloc(), *stralloc();
-	void	free();
-#else
+#if NOMALLOC
 	char	*node;		/* view path node */
 	char	vpathbuf[MAXVPATH + 1];
 #endif
@@ -74,18 +72,18 @@ vpinit(char *currentdir)
 		for (i = 0; i < vpndirs; ++i) {
 			free(vpdirs[i]);
 		}
-		free((char *) vpdirs);
+		free(vpdirs);
 #endif
 		vpndirs = 0;
 	}
 	/* return if the directory list has been computed */
 	/* or there isn't a view path environment variable */
-	if (vpndirs > 0 || (vpath = (char *) getenv("VPATH")) == NULL ||
+	if (vpndirs > 0 || (vpath = getenv("VPATH")) == NULL ||
 	    *vpath == '\0') {
 		return;
 	}
 	/* if not given, get the current directory name */
-	if (currentdir == NULL && (currentdir = (char *) getcwd(buf, MAXPATH)) == NULL) {
+	if (currentdir == NULL && (currentdir = getcwd(buf, MAXPATH)) == NULL) {
 		(void) fprintf(stderr, "%s: cannot get current directory name\n", argv0);
 		return;
 	}
@@ -127,8 +125,7 @@ vpinit(char *currentdir)
 	}
 	/* convert the view path nodes to directories */
 	for (i = 0; i < vpndirs; ++i) {
-		s = mymalloc((unsigned) (strlen(vpdirs[i]) + 
-			strlen(suffix) + 1));
+		s = (char *) mymalloc((strlen(vpdirs[i]) + strlen(suffix) + 1));
 		(void) strcpy(s, vpdirs[i]);
 		(void) strcat(s, suffix);
 		vpdirs[i] = s;

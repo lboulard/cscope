@@ -145,8 +145,8 @@ compath(char *pathname)			/*FDEF*/
 			 */
 
 			if ((*nextchar == '.') &&
-			    (*(nextchar + 1) == '/') ||
-			    ((*(nextchar + 1) == '.') && (*(nextchar + 2) == '/')))
+			    ((*(nextchar + 1) == '/') ||
+			     ((*(nextchar + 1) == '.') && (*(nextchar + 2) == '/'))))
 				/* EMPTY */;
 			else
 			{

@@ -44,9 +44,9 @@
 
 static char const rcsid[] = "$Id$";
 
-static	SIGTYPE	(*oldsigquit)();	/* old value of quit signal */
-static	SIGTYPE	(*oldsighup)();		/* old value of hangup signal */
-static	SIGTYPE	(*oldsigstp)();
+static	RETSIGTYPE	(*oldsigquit)();	/* old value of quit signal */
+static	RETSIGTYPE	(*oldsighup)();		/* old value of hangup signal */
+static	RETSIGTYPE	(*oldsigstp)();
 
 static	int	join(pid_t p);
 static	int	myexecvp(char *a, char **args);
@@ -61,7 +61,7 @@ int
 execute(char *a, ...)	/* note: "exec" is already defined on u370 */
 {
 	va_list	ap;
-	int	exitcode;
+	int	exitcode = -1;	/* initialize, to avoid warning */
 	char	*argv[BUFSIZ];
 	pid_t	p;
 	pid_t	myfork();
@@ -98,7 +98,6 @@ execute(char *a, ...)	/* note: "exec" is already defined on u370 */
 static int
 myexecvp(char *a, char **args)
 {
-	int	i;
 	char	msg[MSGLEN + 1];
 	
 	/* modify argv[0] to reference the last component of its path name */

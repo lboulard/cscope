@@ -36,7 +36,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "global.h"	/* pid_t, SIGTYPE, shell, and basename() */
+#include "global.h"	/* pid_t, RETSIGTYPE, shell, and basename() */
 
 #define	tst(a,b) (*mode == 'r'? (b) : (a))
 #define	RDR	0
@@ -46,7 +46,7 @@
 static char const rcsid[] = "$Id$";
 
 static pid_t popen_pid[20];
-static SIGTYPE (*tstat)();
+static RETSIGTYPE (*tstat)(int);
 
 int
 myopen(char *path, int flag, int mode)
@@ -126,7 +126,7 @@ pclose(FILE *ptr)
 	int f;
 	pid_t r;
 	int status;
-	SIGTYPE (*hstat)(), (*istat)(), (*qstat)();
+	RETSIGTYPE (*hstat)(int), (*istat)(int), (*qstat)(int);
 
 	f = fileno(ptr);
 	(void) fclose(ptr);

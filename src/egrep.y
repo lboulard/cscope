@@ -98,6 +98,11 @@ static	void synerror(void);
 static	void overflo(void);
 static	void add(int *array, int n);
 static	void follow(int v);
+static	int unary(int x, int d);
+static	int node(int x, int l, int r);
+static	int cclenter(int x);
+static	int enter(int x);
+
 %}
 
 %%
@@ -211,7 +216,7 @@ synerror(void)
 	yyerror("Syntax error");
 }
 
-int
+static int
 enter(int x)
 {
 	if(line >= MAXLIN) overflo();
@@ -221,7 +226,7 @@ enter(int x)
 	return(line++);
 }
 
-int
+static int
 cclenter(int x)
 {
 	int linno;
@@ -230,7 +235,7 @@ cclenter(int x)
 	return (linno);
 }
 
-int
+static int
 node(int x, int l, int r)
 {
 	if(line >= MAXLIN) overflo();
@@ -242,7 +247,7 @@ node(int x, int l, int r)
 	return(line++);
 }
 
-int
+static int
 unary(int x, int d)
 {
 	if(line >= MAXLIN) overflo();
@@ -478,21 +483,21 @@ char *
 egrepinit(char *egreppat)
 {
 	/* initialize the global data */
-	memset((char *) gotofn, 0, sizeof(gotofn));
-	memset((char *) state, 0, sizeof(state));
-	memset((char *) out, 0, sizeof(out));
+	memset(gotofn, 0, sizeof(gotofn));
+	memset(state, 0, sizeof(state));
+	memset(out, 0, sizeof(out));
 	line = 1;
-	memset((char *) name, 0, sizeof(name));
-	memset((char *) left, 0, sizeof(left));
-	memset((char *) right, 0, sizeof(right));
-	memset((char *) parent, 0, sizeof(parent));
-	memset((char *) foll, 0, sizeof(foll));
-	memset((char *) positions, 0, sizeof(positions));
-	memset((char *) chars, 0, sizeof(chars));
+	memset(name, 0, sizeof(name));
+	memset(left, 0, sizeof(left));
+	memset(right, 0, sizeof(right));
+	memset(parent, 0, sizeof(parent));
+	memset(foll, 0, sizeof(foll));
+	memset(positions, 0, sizeof(positions));
+	memset(chars, 0, sizeof(chars));
 	nxtpos = 0;
 	nxtchar = 0;
-	memset((char *) tmpstat, 0, sizeof(tmpstat));
-	memset((char *) initstat, 0, sizeof(initstat));
+	memset(tmpstat, 0, sizeof(tmpstat));
+	memset(initstat, 0, sizeof(initstat));
 	xstate = 0;
 	count = 0;
 	icount = 0;

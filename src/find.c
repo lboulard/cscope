@@ -85,7 +85,6 @@ findsymbol(void)
 	char	function[PATLEN + 1];	/* function name */
 	char	macro[PATLEN + 1];	/* macro name */
 	char	symbol[PATLEN + 1];	/* symbol name */
-	int	c;
 	char	*cp;
 	char	*s;
 	char firstchar;		/* first character of a potential symbol */
@@ -214,7 +213,7 @@ findsymbol(void)
 				firstchar = *cp;
 			}
 			
-			if (isalpha(firstchar) || firstchar == '_') {
+			if (isalpha((unsigned char)firstchar) || firstchar == '_') {
 				blockp = cp;
 				putstring(symbol);
 				if (caseless == YES) {
@@ -577,7 +576,7 @@ findinit(void)
 	isregexp_valid = NO;
 
 	/* remove trailing white space */
-	for (s = pattern + strlen(pattern) - 1; isspace(*s); --s) {
+	for (s = pattern + strlen(pattern) - 1; isspace((unsigned char)*s); --s) {
 		*s = '\0';
 	}
 	/* allow a partial match for a file name */
@@ -599,11 +598,11 @@ findinit(void)
 	else {
 		/* check for a valid C symbol */
 		s = pattern;
-		if (!isalpha(*s) && *s != '_') {
+		if (!isalpha((unsigned char)*s) && *s != '_') {
 			return(NOTSYMBOL);
 		}
 		while (*++s != '\0') {
-			if (!isalnum(*s) && *s != '_') {
+			if (!isalnum((unsigned char)*s) && *s != '_') {
 				return(NOTSYMBOL);
 			}
 		}
@@ -764,9 +763,9 @@ putsource(int seemore, FILE *output)
 	}
 	blockp = cp;
 	if (*blockp != '\n' || getrefchar() != '\n' || 
-		!isdigit(getrefchar()) && fileversion >= 12) {
-			postmsg("Internal error: cannot get source line from database");
-			myexit(1);
+	    (!isdigit(getrefchar()) && fileversion >= 12)) {
+		postmsg("Internal error: cannot get source line from database");
+		myexit(1);
 	}
 	/* until a double newline is found */
 	do {
@@ -907,7 +906,7 @@ lcasify(char *s)
 	char *lptr = ls;
 	
 	while(*s) {
-		*lptr = tolower(*s);
+		*lptr = tolower((unsigned char)*s);
 		lptr++;
 		s++;
 	}
@@ -999,7 +998,7 @@ findterm(void)
 		   less than lower case */
 		s = prefix;
 		while (*s != '\0') {
-			*s = toupper(*s);
+ 			*s = toupper((unsigned char)*s);
 			++s;
 		}
 	}

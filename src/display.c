@@ -132,7 +132,8 @@ dispinit(void)
 	/* allocate the displayed line array */
 	displine = (int *) mymalloc(mdisprefs * sizeof(int));
 }
-/* display a page of the references */
+
+/* display a page of the references */
 
 void
 display(void)
@@ -173,7 +174,7 @@ display(void)
 			printw("Change \"%s\" to \"%s\"", pattern, newpat);
 		}
 		else {
-			printw("%c%s: %s", toupper(fields[field].text2[0]),
+			printw("%c%s: %s", toupper((unsigned char)fields[field].text2[0]),
 				fields[field].text2 + 1, pattern);
 		}
 		/* display the column headings */
@@ -419,7 +420,7 @@ atchange(void)
 /* search for the symbol or text pattern */
 
 /*ARGSUSED*/
-SIGTYPE
+RETSIGTYPE
 jumpback(int sig)
 {
 	longjmp(env, 1);
@@ -436,7 +437,7 @@ search(void)
 	char	*egreperror = NULL;	/* egrep error message */
 	BOOL	funcexist = YES;		/* find "function" error */
 	FINDINIT rc = NOERROR;		/* findinit return code */
-	SIGTYPE	(*savesig)();		/* old value of signal */
+	RETSIGTYPE	(*savesig)();		/* old value of signal */
 	FP	f;			/* searching function */
 	int	c, i;
 	
@@ -598,7 +599,7 @@ myperror(char *text)
         s = strerror(errno);
 #else
 	if (errno < sys_nerr) {
-		s = (char *)sys_errlist[errno];
+		s = sys_errlist[errno];
 	}
 #endif
 	(void) sprintf(msg, "%s: %s", text, s);

@@ -329,7 +329,7 @@ command(int commandc)
 		return(NO);
 
 	case '!':	/* shell escape */
-		(void) execute(shell, shell, (char *) 0);
+		(void) execute(shell, shell, NULL);
 		seekline(topline);
 		break;
 
@@ -659,15 +659,15 @@ changestring(void)
 				if (strchr("/\\[.^*", *s) != NULL) {
 					(void) putc('\\', script);
 				}
-				if (caseless == YES && isalpha(*s)) {
+				if (caseless == YES && isalpha((unsigned char)*s)) {
 					(void) putc('[', script);
-					if(islower(*s)) {
-						(void) putc(toupper(*s), script);
+					if(islower((unsigned char)*s)) {
+						(void) putc(toupper((unsigned char)*s), script);
 						(void) putc(*s, script);
 					}
 					else {
 						(void) putc(*s, script);
-						(void) putc(tolower(*s), script);
+						(void) putc(tolower((unsigned char)*s), script);
 					}
 					(void) putc(']', script);
 				}
@@ -694,7 +694,7 @@ changestring(void)
 		clearprompt();
 		(void) refresh();
 		(void) fprintf(stderr, "Changed lines:\n\r");
-		(void) execute("sh", "sh", temp2, (char *) 0);
+		(void) execute("sh", "sh", temp2, NULL);
 		askforreturn();
 		seekline(1);
 	}
@@ -704,7 +704,7 @@ nochange:
 	}
 	changing = NO;
 	mousemenu();
-	free((char *) change);
+	free(change);
 	return(anymarked);
 }
 
@@ -794,8 +794,10 @@ countrefs(void)
 	numlen = 0;
 	while ((i = fscanf(refsfound, "%250s%250s%6s %5000[^\n]", file,
 	    function, linenum, yytext)) != EOF) {
-		if (i != 4 || !isgraph(*file) || !isgraph(*function) ||
-		    !isdigit(*linenum)) {
+		if (i != 4 ||
+		    !isgraph((unsigned char)*file) ||
+		    !isgraph((unsigned char)*function) ||
+		    !isdigit((unsigned char)*linenum)) {
 			postmsg("File does not have expected format");
 			totallines = 0;
 			return;

@@ -186,8 +186,9 @@ loadmenu(MENU *menu)
 		(void) printf("\033[6;1X\033[9;1X");
 		for (i = 0; menu[i].text != NULL; ++i) {
 			len = strlen(menu[i].text);
-			(void) printf("\033[%d;%dx%s%s", len, len + strlen(menu[i].value), 
-				menu[i].text, menu[i].value);
+			(void) printf("\033[%d;%dx%s%s", len,
+				      (int) (len + strlen(menu[i].value)), 
+				      menu[i].text, menu[i].value);
 		}
 		loaded = menu;
 	}
