@@ -14,6 +14,8 @@
 ; (C) Copyright 2000, 2001, Darryl Okahata, all rights reserved.
 ; GNU Emacs enhancements (C) Copyright 2001,
 ;         Triet H. Lai <thlai@mail.usyd.edu.au>
+; Fuzzy matching code (C) Copyright 2001,
+;         Steven Elliott <selliott4@austin.rr.com>
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ALPHA VERSION 0.94
