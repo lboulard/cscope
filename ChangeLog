@@ -1,3 +1,4 @@
+(2000/04/28 - petr) Fixed -q failure
 (2000/04/27 - brent) Add support for 3 letter suffixes (currently .tcc)
 (2000/04/27 - brent) Add -R option to recurse subdirectories
 (2000/04/27 - petr) Changed version number to 15.0bl2
