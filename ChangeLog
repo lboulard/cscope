@@ -1,4 +1,6 @@
+(2000/04/27 - petr) Changed version number to 15.0bl2
 (2000/04/27 - uzi) Added autoconf and restructure directories
+(2000/04/26 - petr) Tagged current source as v15_0_bl1 before autoconf support
 (2000/04/26 - darrylo) minor fixs in crossref.c and scanner.l
 (2000/04/26 - petr) changed spelling of psuedo to pseudo in scanner.l
 (2000/04/26 - uzi) Changes in preparation of autoconf/automake setup
