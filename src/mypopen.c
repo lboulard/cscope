@@ -36,12 +36,18 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "global.h"	/* pid_t, RETSIGTYPE, shell, and basename() */
+#include "global.h"	/* pid_t, RETSIGTYPE, shell, and mybasename() */
 
 #define	tst(a,b) (*mode == 'r'? (b) : (a))
 #define	RDR	0
 #define	WTR	1
-#define CLOSE_ON_EXEC	1
+
+/* HBB 20010312: make this a bit safer --- don't blindly assume it's 1 */
+#ifdef FD_CLOEXEC
+# define CLOSE_ON_EXEC FD_CLOEXEC
+#else
+# define CLOSE_ON_EXEC 1
+#endif
 
 static char const rcsid[] = "$Id$";
 
@@ -59,6 +65,12 @@ myopen(char *path, int flag, int mode)
 	else
 		fd = open(path, flag);
 
+#ifdef __DJGPP__		/* FIXME: test feature, not platform */
+	/* HBB 20010312: DOS GCC doesn't have FD_CLOEXEC (yet), so it 
+	 * always fails this call. Have to skip that step */
+	if(fd != -1)
+		return(fd);
+#endif
 	if(fd != -1 && (fcntl(fd, F_SETFD, CLOSE_ON_EXEC) != -1))
 		return(fd);
 
@@ -84,7 +96,13 @@ myfopen(char *path, char *mode)
 
 	fp = fopen(path, mode);
 
+#ifdef __DJGPP__ /* FIXME: test feature, not platform */
+	/* HBB 20010312: DOS GCC doesn't have FD_CLOEXEC (yet), so it 
+	 * always fails this call. Have to skip that step */
+	if(fp)
+#else
 	if(fp && (fcntl(fileno(fp), F_SETFD, CLOSE_ON_EXEC) != -1))
+#endif
 		return(fp);
 
 	else return(NULL);
@@ -93,6 +111,11 @@ myfopen(char *path, char *mode)
 FILE *
 mypopen(char *cmd, char *mode)
 {
+#ifdef __DJGPP__
+	/* HBB 20010312: Has its own implementation of popen(), which
+	 * is better suited to the platform than cscope's */
+	return (popen)(cmd, mode);
+#else
 	int	p[2];
 	pid_t *poptr;
 	int myside, yourside;
@@ -120,7 +143,7 @@ mypopen(char *cmd, char *mode)
 		(void) fcntl(yourside, F_DUPFD, stdio);
 #endif
 		(void) close(yourside);
-		(void) execlp(shell, basename(shell), "-c", cmd, 0);
+		(void) execlp(shell, mybasename(shell), "-c", cmd, 0);
 		_exit(1);
 	} else if (pid > 0)
 		tstat = signal(SIGTSTP, SIG_DFL);
@@ -129,8 +152,12 @@ mypopen(char *cmd, char *mode)
 	popen_pid[myside] = pid;
 	(void) close(yourside);
 	return(fdopen(myside, mode));
+#endif
 }
 
+#ifndef __DJGPP__ /* Don't replace that system's pclose() with our own. */
+/* FIXME: should we really override pclose(), after having left
+ * popen() well alone, and calling our own version mypopen()? */
 int
 pclose(FILE *ptr)
 {
@@ -156,3 +183,4 @@ pclose(FILE *ptr)
 	popen_pid[f] = 0;
 	return(status);
 }
+#endif

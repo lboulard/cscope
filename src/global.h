@@ -293,8 +293,6 @@ int	egrep(char *file, FILE *output, char *format);
 int	getline(char s[], unsigned size, int firstchar, BOOL iscaseless);
 int	mygetch(void);
 int	myopen(char *path, int flag, int mode);
-int	vpopen(char *path, int oflag);
-int	vpaccess(char *path, mode_t amode);
 int	hash(char *ss);
 int	execute(char *a, ...);
 int 	yylex(void);

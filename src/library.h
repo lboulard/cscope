@@ -44,7 +44,7 @@
 #endif
 
 /* private library */
-char	*basename(char *path);
+char	*mybasename(char *path);
 char	*compath(char *pathname);
 char	*egrepinit(char *egreppat);
 char	*logdir(char *name);

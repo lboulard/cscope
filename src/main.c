@@ -37,6 +37,7 @@
  */
 
 #include "global.h"
+#include "vp.h"
 #include "version.h"	/* FILEVERSION and FIXVERSION */
 #include <stdlib.h>	/* atoi */
 #if defined(USE_NCURSES) && !defined(RENAMED_NCURSES)
@@ -254,7 +255,7 @@ main(int argc, char **argv)
 					(void) strcpy(path, s);
 #if !BSD || sun	/* suns can access Amdahl databases */
 					/* System V has a 14 character limit */
-					s = basename(path);
+					s = mybasename(path);
 					if (strlen(s) > 11) {
 						s[11] = '\0';
 					}
@@ -392,7 +393,7 @@ lastarg:
 
 	/* if the cross-reference is to be considered up-to-date */
 	if (isuptodate == YES) {
-		if ((oldrefs = vpfopen(reffile, "r")) == NULL) {
+		if ((oldrefs = vpfopen(reffile, "rb")) == NULL) {
 			posterr("cscope: cannot open file %s\n", reffile);
 			myexit(1);
 		}
@@ -541,15 +542,15 @@ lastarg:
 	
 		/* create the file name(s) used for a new cross-referene */
 		(void) strcpy(path, reffile);
-		s = basename(path);
+		s = mybasename(path);
 		*s = '\0';
 		(void) strcat(path, "n");
 		++s;
-		(void) strcpy(s, basename(reffile));
+		(void) strcpy(s, mybasename(reffile));
 		newreffile = stralloc(path);
-		(void) strcpy(s, basename(invname));
+		(void) strcpy(s, mybasename(invname));
 		newinvname = stralloc(path);
-		(void) strcpy(s, basename(invpost));
+		(void) strcpy(s, mybasename(invpost));
 		newinvpost = stralloc(path);
 
 		/* build the cross-reference */
@@ -761,7 +762,7 @@ initcompress(void)
 void
 opendatabase(void)
 {
-	if ((symrefs = vpopen(reffile, O_RDONLY)) == -1) {
+	if ((symrefs = vpopen(reffile, O_BINARY | O_RDONLY)) == -1) {
 		cannotopen(reffile);
 		myexit(1);
 	}
@@ -831,7 +832,7 @@ build(void)
 
 	/* if there is an old cross-reference and its current directory matches */
 	/* or this is an unconditional build */
-	if ((oldrefs = vpfopen(reffile, "r")) != NULL && unconditional == NO &&
+	if ((oldrefs = vpfopen(reffile, "rb")) != NULL && unconditional == NO &&
 	    fscanf(oldrefs, "cscope %d %s", &fileversion, olddir) == 2 &&
 	    (strcmp(olddir, currentdir) == 0 || /* remain compatible */
 	     strcmp(olddir, newdir) == 0)) {
@@ -911,7 +912,7 @@ build(void)
 		/* the old cross-reference is up-to-date */
 		/* so get the list of included files */
 		while (i++ < oldnum && fscanf(oldrefs, "%s", oldname) == 1) {
-			addsrcfile(basename(oldname), oldname);
+			addsrcfile(mybasename(oldname), oldname);
 		}
 		(void) fclose(oldrefs);
 		return;
@@ -923,7 +924,7 @@ build(void)
 			goto force;
 		}
 		/* reopen the old cross-reference file for fast scanning */
-		if ((symrefs = vpopen(reffile, O_RDONLY)) == -1) {
+		if ((symrefs = vpopen(reffile, O_BINARY | O_RDONLY)) == -1) {
 			(void) fprintf(stderr, "cscope: cannot open file %s\n", reffile);
 			myexit(1);
 		}
@@ -938,11 +939,11 @@ build(void)
 		oldfile = NULL;
 	}
 	/* open the new cross-reference file */
-	if ((newrefs = myfopen(newreffile, "w")) == NULL) {
+	if ((newrefs = myfopen(newreffile, "wb")) == NULL) {
 		(void) fprintf(stderr, "cscope: cannot open file %s\n", reffile);
 		myexit(1);
 	}
-	if (invertedindex == YES && (postings = myfopen(temp1, "w")) == NULL) {
+	if (invertedindex == YES && (postings = myfopen(temp1, "wb")) == NULL) {
 		cannotwrite(temp1);
 		cannotindex();
 	}

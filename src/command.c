@@ -552,7 +552,7 @@ readrefs(char *filename)
 	FILE	*file;
 	int	c;
 
-	if ((file = myfopen(filename, "r")) == NULL) {
+	if ((file = myfopen(filename, "rb")) == NULL) {
 		cannotopen(filename);
 		return(NO);
 	}
@@ -567,7 +567,7 @@ readrefs(char *filename)
 			(void) putc(c, refsfound);
 		}
 		(void) fclose(file);
-		(void) freopen(temp1, "r", refsfound);
+		(void) freopen(temp1, "rb", refsfound);
 		countrefs();
 	}
 	return(YES);

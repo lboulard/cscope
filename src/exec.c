@@ -105,7 +105,7 @@ myexecvp(char *a, char **args)
 	char	msg[MSGLEN + 1];
 	
 	/* modify argv[0] to reference the last component of its path name */
-	args[0] = basename(args[0]);
+	args[0] = mybasename(args[0]);
 
 	/* execute the program or shell script */
 	(void) execvp(a, args);	/* returns only on failure */
@@ -129,14 +129,18 @@ myfork(void)
 	if (p > 0) {
 		oldsigquit = signal(SIGQUIT, SIG_IGN);
 		oldsighup = signal(SIGHUP, SIG_IGN);
+#ifdef SIGTSTP		
 		oldsigstp = signal(SIGTSTP, SIG_DFL);
+#endif		
 	}
 	/* so they can be used to stop the child */
 	else if (p == 0) {
 		(void) signal(SIGINT, SIG_DFL);
 		(void) signal(SIGQUIT, SIG_DFL);
 		(void) signal(SIGHUP, SIG_DFL);
+#ifdef SIGTSTP
 		(void) signal(SIGTSTP, SIG_DFL);
+#endif			
 	}
 	/* check for fork failure */
 	if (p == -1) {
@@ -161,7 +165,9 @@ join(pid_t p)
 	/* restore signal handling */
 	(void) signal(SIGQUIT, oldsigquit);
 	(void) signal(SIGHUP, oldsighup);
+#ifdef SIGTSTP
 	(void) signal(SIGTSTP, oldsigstp);
+#endif	
 
 	/* return the child's exit code */
 	return(status >> 8);

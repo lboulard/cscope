@@ -39,7 +39,7 @@
 static char const rcsid[] = "$Id$";
 
 char *
-basename(char *path)
+mybasename(char *path)
 {
 	char	*s, *strrchr();
 	

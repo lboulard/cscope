@@ -387,9 +387,14 @@ scan_dir(const char *adir, BOOL recurse_dir) {
                                             && (buf.st_mode & S_IFDIR) ) {
 					  scan_dir(path, recurse_dir);
 					}
-					else if (entry->d_ino != 0
-					        && issrcfile(path)
-					        && infilelist(path) == NO) {
+					else if (
+#ifdef __DJGPP__ /* FIXME: should test for feature, not platform */
+						 1 /* DJGPP doesn't have this field in dirent */
+#else
+						 entry->d_ino != 0
+#endif
+						 && issrcfile(path)
+						 && infilelist(path) == NO) {
 					  addsrcfile(file, path);
 					}
 				}

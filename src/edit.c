@@ -105,11 +105,11 @@ edit(char *file, char *linenum)
 	char	*s;
 
 	file = filepath(file);
-	(void) sprintf(msg, "%s +%s %s", basename(editor), linenum, file);
+	(void) sprintf(msg, "%s +%s %s", mybasename(editor), linenum, file);
 	postmsg(msg);
 	(void) sprintf(plusnum, lineflag, linenum);
 	/* if this is the more or page commands */
-	if (strcmp(s = basename(editor), "more") == 0 || strcmp(s, "page") == 0) {
+	if (strcmp(s = mybasename(editor), "more") == 0 || strcmp(s, "page") == 0) {
 		
 		/* get it to pause after displaying a file smaller than the screen
 		   length */

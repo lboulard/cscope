@@ -1,3 +1,12 @@
+(2001/03/12 - broeker) Some minor changes for compiling cscope with DJGPP, the
+	               MSDOG port of GCC. Mainly non-availability of some
+		       Unix features like CLOSE_ON_EXEC for files, and SIGTSTP.
+(2001/03/12 - broeker) Added 'b' flags and O_BINARY bits to all file-opening
+                       calls for (potentially) binary data files, to allow 
+		       cscope to work on DOS-style platforms. Moved vpopen()
+		       and vpfopen() prototypes into vp.h.
+(2001/03/12 - broeker) rename 'basename' to 'mybasename' --- avoid XPG4
+                       name conflict
 (2001/02/12 - duell) man page update for CSCOPE_* information
 (2001/02/09 - duell & hull) Support for CSCOPE_EDITOR, CSCOPE_LINEFLAG and
                             CSCOPE_LINEFLAGS_AFTER_FILE
