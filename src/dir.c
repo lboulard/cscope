@@ -585,7 +585,8 @@ freefilelist(void)
 	}
 	else {
 		/* for '-d' option free the string space block */
-		free (srcfiles[0]);
+	    if (nsrcfiles > 0)		/* protect against empty list */
+			free (srcfiles[0]);
 		nsrcfiles = 0;
 	}
 
