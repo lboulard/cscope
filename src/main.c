@@ -749,10 +749,10 @@ initcompress(void)
 	
 	if (compress == YES) {
 		for (i = 0; i < 16; ++i) {
-			dicode1[(unsigned) (dichar1[i])] = i * 8 + 1;
+			dicode1[(unsigned char) (dichar1[i])] = i * 8 + 1;
 		}
 		for (i = 0; i < 8; ++i) {
-			dicode2[(unsigned) (dichar2[i])] = i + 1;
+			dicode2[(unsigned char) (dichar2[i])] = i + 1;
 		}
 	}
 }

@@ -79,7 +79,7 @@ struct	symbol {	/* symbol data */
 };
 static struct symbol *symbol;
 
-void	putcrossref(void);
+static	void	putcrossref(void);
 static	void	savesymbol(int token, int num);
 
 void
@@ -208,11 +208,11 @@ putfilename(char *srcfile)
 
 /* output the symbols and source line */
 
-void
+static void
 putcrossref(void)
 {
 	int	i, j;
-	unsigned c;
+	unsigned char c;
 	BOOL	blank;		/* blank indicator */
 	int	symput = 0;	/* symbols output */
 	int	type;
@@ -262,19 +262,21 @@ putcrossref(void)
 			++symput;
 		}
 		else {
-			/* check for compressed blanks */
+                       /* check for compressed blanks */
 			if (blank == YES) {
 				if (dicode2[c]) {
-					c = (0200 - 2) + dicode1[' '] + dicode2[c];
+					c = DICODE_COMPRESS(' ', c);
 				}
 				else {
 					dbputc(' ');
 				}
 			}
 			/* compress digraphs */
-			else if (dicode1[c] && (j = dicode2[(unsigned) yytext[i + 1]]) != 0 && 
-			    symput < symbols && i + 1 != symbol[symput].first) {
-				c = (0200 - 2) + dicode1[c] + j;
+			else if (IS_A_DICODE(c, yytext[i + 1])
+				 && symput < symbols
+				 && i + 1 != symbol[symput].first
+				 ) {
+				c = DICODE_COMPRESS(c, yytext[i + 1]);
 				++i;
 			}
 			dbputc((int) c);
@@ -414,16 +416,18 @@ putposting(char *term, int type)
 void
 writestring(char *s)
 {
-	unsigned c;
+	unsigned char c;
 	int	i;
 	
 	/* compress digraphs */
 	for (i = 0; (c = s[i]) != '\0'; ++i) {
-		if (dicode1[c] && dicode2[(unsigned) s[i + 1]]) {
-			c = (0200 - 2) + dicode1[c] + dicode2[(unsigned) s[i + 1]];
+		if (/* dicode1[c] && dicode2[(unsigned char) s[i + 1]] */
+		    IS_A_DICODE(c, s[i + 1])) {
+			/* c = (0200 - 2) + dicode1[c] + dicode2[(unsigned char) s[i + 1]]; */
+			c = DICODE_COMPRESS(c, s[i + 1]);
 			++i;
 		}
-		dbputc((int) c);
+		dbputc(c);	
 	}
 }
 

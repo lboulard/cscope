@@ -1,3 +1,6 @@
+(2001/04/30 - broeker) Fixed signed char casting bug in dicode compression. 
+	               Encapsulated dicode compression idioms into macros
+		       IS_A_DICODE() and DICODE_COMPRESS().
 (2001/04/26 - ogawa) Fix for posterr
 (2001/04/26 - sorfa) Fixed a SIGSEGV in linemode in find.c. Thanks to OGAWA Hirofumi
                      for pointing out the problem.

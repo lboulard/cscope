@@ -92,6 +92,15 @@ extern	char	dichar2[];	/* 8 most frequent second chars
 extern	char	dicode1[];	/* digraph first character code */
 extern	char	dicode2[];	/* digraph second character code */
 
+/* and some macros to help using dicodes: */
+/* Check if a given pair of chars is compressable as a dicode: */
+#define IS_A_DICODE(inchar1, inchar2)					   \
+  (dicode1[(unsigned char)(inchar1)] && dicode2[(unsigned char)(inchar2)])
+/* Combine the pair into a dicode */
+#define DICODE_COMPRESS(inchar1, inchar2)		\
+  ((0200 - 2) + dicode1[(unsigned char)(inchar1)]	\
+   + dicode2[(unsigned char)(inchar2)])
+
 /* main.c global data */
 extern	char	*editor, *home, *shell, *lineflag;	/* environment variables */
 extern 	BOOL	lineflagafterfile;
