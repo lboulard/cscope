@@ -1,3 +1,7 @@
+(2001/06/27 - broeker) Yet another set of automake/autoconf changes. 
+                       Regenerated auto* files checked in, too. We are
+		       'make distcheck' ready, now. Added 'ylwrap' to
+		       CVS.
 (2001/06/26 - broeker) Changed lex/flex handling in automake/autoconf setup
 	               to make 'make distcheck' work cleanly: added new
 		       files scanner.h and lookup.h to list of sources. 
