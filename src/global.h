@@ -48,6 +48,12 @@
 #include <stdio.h>	/* standard I/O package */
 #include <stdlib.h>     /* standard library functions */
 
+/* A special "magic" header file required by HP/Compaq NSK (Non-Stop
+ * Kernel) to present a more Unix-ish environment ... */
+#ifdef HAVE_FLOSS_H
+# include <floss.h>
+#endif
+
 /* Replace most of the #if BSD stuff. Taken straight from the autoconf
  * manual, with an extension for handling memset(). */
 #if STDC_HEADERS

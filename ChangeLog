@@ -1,3 +1,11 @@
+2004-02-24  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	* configure.in (AC_CHECK_HEADERS): Added check for NSK-Tandem
+	special magic header file <floss.h>.
+
+	* src/global.h [HAVE_FLOSS_H]: Added #include <floss.h> if it
+	exists.
+
 2004-02-14  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	* src/command.c (countrefs): Fix off-by-one length specification
