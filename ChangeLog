@@ -1,3 +1,9 @@
+(2001/06/15 - broeker) Bugfix to flex scanner: comments after an #endif, 
+	               without any whitespace in between, would be dumped
+		       to stdout.
+(2001/06/15 - broeker) Minor documentation glitch in manpage and online help
+	               screen: set of keys to choose from matches found 
+		       contains 0-9, not 1-9. 
 (2001/06/01 - broeker) New version of fscanner.l, and lots of
 	               small changes to other source files, too. Avoids
 		       (ab)use of yytext[] as a temporary buffer by unrelated
