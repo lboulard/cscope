@@ -1,10 +1,10 @@
 Summary: cscope is an interactive, screen-oriented tool that allows the user to browse through C source files for specified elements of code.
 Name: cscope
-Version: 13.0
-Release: 2
+Version: 15.0bl2
+Release: 1
 Copyright: BSD
 Group: Development/Tools
-Source: cscope-13.0.tar.gz
+Source: cscope-15.0bl2.tar.gz
 Buildroot: /tmp/%{name}-%{version}
 
 %description
@@ -29,7 +29,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc TODO COPYING ChangeLog AUTHORS README NEWS
+%doc TODO COPYING ChangeLog AUTHORS README NEWS INSTALL
 
 /usr/local/bin/cscope
 /usr/local/man/man1/cscope.1
