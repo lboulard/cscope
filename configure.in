@@ -349,6 +349,10 @@ dnl Checks for libraries.
 dnl Replace `main' with a function in -lcurses:
 dnl AC_CHECK_LIB(curses, main)
 
+AC_CHECK_HEADER(regex.h, [], [
+  AC_MSG_ERROR([necessary header <regex.h> not found])
+])
+
 dnl Cygwin is a bit peculiar: it has the regcomp() functions, but in a
 dnl separate library, so we have to check for that:
 AC_CHECK_LIB(regex, regcomp)
