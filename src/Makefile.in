@@ -279,7 +279,7 @@ YLWRAP = $(top_srcdir)/ylwrap
 YACCCOMPILE = $(YACC) $(YFLAGS) $(AM_YFLAGS)
 DIST_SOURCES = $(am__cscope_SOURCES_DIST) $(EXTRA_cscope_SOURCES) \
 	$(am__gscope_SOURCES_DIST)
-DIST_COMMON = Makefile.am Makefile.in egrep.c fscanner.c scanner.c
+DIST_COMMON = Makefile.am Makefile.in TODO egrep.c fscanner.c scanner.c
 SOURCES = $(cscope_SOURCES) $(EXTRA_cscope_SOURCES) $(gscope_SOURCES)
 
 all: all-am
