@@ -1697,7 +1697,7 @@ EOF
         cat > conftest.$ac_ext <<EOF
 #line 1699 "configure"
 #include "confdefs.h"
-#include </usr/include/curses.h>
+#include <curses.h>
 EOF
 if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
   egrep "init_color" >/dev/null 2>&1; then
