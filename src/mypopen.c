@@ -103,7 +103,7 @@ myfopen(char *path, char *mode)
 	fp = fopen(path, mode);
 
 #ifdef SETMODE
-	if (! strchr(mode, 'b')) {
+	if (fp && ! strchr(mode, 'b')) {
 		SETMODE(fileno(fp), O_TEXT);
 	}
 #endif /* SETMODE */

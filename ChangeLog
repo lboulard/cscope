@@ -1,3 +1,4 @@
+(2002/08/15 - broeker) DOS/Cygwin bugfix: avoid setmode() if fopen() failed.
 (2002/07/27 - broeker) Yet another round of Cygwin-related fixes.  Do the 
 		       #include <fcntl.h> early enough, so checks for 
 		       O_BINARY work.  Make sure that myexit() is always
