@@ -102,6 +102,7 @@
 /* Version number of package */
 #undef VERSION
 
-/* Define if yytext' as a char'. */
+/* Define if lex declares yytext as a char * by default,
+             not a char. */
 #undef YYTEXT_POINTER
 
