@@ -1,0 +1,6 @@
+PKG="cscope"
+NAME="cscope"
+VERSION="15.1 UW7.1.1 11/22/2000"
+CATEGORY="utilities"
+ARCH=i386
+PSTAMP=
