@@ -502,7 +502,7 @@ scan_dir(const char *adir, BOOL recurse_dir)
 #else
 						 entry->d_ino != 0
 #endif
-						 && issrcfile(mybasename(path))
+						 && issrcfile(path)
 						 && infilelist(path) == NO) {
 					  addsrcfile(path);
 					}
@@ -517,65 +517,62 @@ scan_dir(const char *adir, BOOL recurse_dir)
 /* see if this is a source file */
 
 static BOOL
-issrcfile(char *file)
+issrcfile(char *path)
 {
 	struct	stat	statstruct;
-	char	*s;
+	char	*file = mybasename(path);
+	char	*s = strrchr(file, '.');
 
-	/* if there is a file suffix */
-	if ((s = strrchr(file, '.')) != NULL && *++s != '\0') {
+	/* ensure there is some file suffix */
+	if (s == NULL || *++s == '\0')
+		return NO;
 
-		/* if an SCCS or versioned file */
-		if (file[1] == '.' && file + 2 != s) { /* 1 character prefix */
-			switch (*file) {
-			case 's':
-			case 'S':
-				return(NO);
-			}
-		}
-		if (s[1] == '\0') {	/* 1 character suffix */
-			switch (*s) {
-			case 'c':
-			case 'h':
-			case 'l':
-			case 'y':
-			case 'C':
-			case 'G':
-			case 'H':
-			case 'L':
-				return(YES);
-			}
-		}
-		else if (s[2] == '\0') {	/* 2 character suffix */
-			if ((*s == 'b' && s[1] == 'p') ||	/* breakpoint listing */
-			    (*s == 'q' &&
-				(s[1] == 'c' || s[1] == 'h')) || /* Ingres */
-			    (*s == 's' && s[1] == 'd') || /* SDL */
-			    (*s == 'c' && s[1] == 'c') || /* C++ source */
-			    (*s == 'h' && s[1] == 'h')) { /* C++ header */
-			
-				/* some directories have 2 character
-				   suffixes so make sure it is a file */
-				if (lstat(file, &statstruct) == 0 && 
-				    S_ISREG(statstruct.st_mode)) {
-					return(YES);
-				}
-			}
-		}
-		else if( s[3] == '\0' ) { /* 3 char suffix */
-			if( 
-			   (*s == 't' && s[1] == 'c' && s[2] == 'c' ) ||
-						/* C++ template source */
-			   0) {
-				/* make sure it is a file */
-				if (lstat(file, &statstruct) == 0 && 
-					S_ISREG(statstruct.st_mode)) {
-					return(YES);
-				}
-			}
+	/* if an SCCS or versioned file */
+	if (file[1] == '.' && file + 2 != s) { /* 1 character prefix */
+		switch (*file) {
+		case 's':
+		case 'S':
+			return(NO);
 		}
 	}
-	return(NO);
+
+	if (s[1] == '\0') {	/* 1 character suffix */
+		switch (*s) {
+		case 'c':
+		case 'h':
+		case 'l':
+		case 'y':
+		case 'C':
+		case 'G':
+		case 'H':
+		case 'L':
+			return(YES);
+		}
+	} else if ((s[2] == '\0') /* 2 char suffix */
+		   && ((s[0] == 'b' && s[1] == 'p') /* breakpoint listing */
+		       || (s[0] == 'q' 
+			   && (s[1] == 'c' || s[1] == 'h')) /* Ingres */
+		       || (s[0] == 's' && s[1] == 'd') /* SDL */
+		       || (s[0] == 'c' && s[1] == 'c') /* C++ source */
+		       || (s[0] == 'h' && s[1] == 'h'))) { /* C++ header */
+			
+		/* some directories have 2 character
+		   suffixes so make sure it is a file */
+		if (lstat(path, &statstruct) == 0 && 
+		    S_ISREG(statstruct.st_mode)) {
+			return(YES);
+		}
+	} else if((s[3] == '\0') /* 3 char suffix */
+		  /* C++ template source */
+		  && (s[0] == 't' && s[1] == 'c' && s[2] == 'c' )
+		  ) { 
+		/* make sure it is a file */
+		if (lstat(path, &statstruct) == 0 && 
+		    S_ISREG(statstruct.st_mode)) {
+			return(YES);
+		}
+	}
+	return NO;
 }
 
 /* add an include file to the source file list */
