@@ -1,3 +1,8 @@
+(2002/03/16 - broeker) Fix namelist handling bug: ./ in paths would cause 
+	               search for next name to fail (SF bug #529618). 
+		       -I/-p and their argument no longer have to be in 
+		       one line inside the namelist file, and -I pathname
+		       can now be quote-escaped.
 (2002/03/13 - broeker) Add AC_PREREQ() call to configure.in.  Enables Cygwin
 	               automagic hack to call the right autoconf for us.
 (2002/03/13 - broeker) Replace all references to manpage 'regcmp(3X)' in
