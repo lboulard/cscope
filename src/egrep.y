@@ -45,7 +45,7 @@
 %left STAR PLUS QUEST
 
 %{
-#include "global.h"
+  /*#include "global.h"*/
 #include <ctype.h>
 #include <stdio.h>
 #ifdef BSD	/* build command requires #ifdef instead of #if */
@@ -60,6 +60,11 @@ char	*memset();
 #endif /*V9*/
 #endif
 #include <setjmp.h>	/* jmp_buf */
+
+/* HBB 20000509: only this line from 'global.h' is really
+ * needed. #include'ing all of it would pull in the unwanted
+ * non-static prototype for 'yylex()'.  */
+FILE	*myfopen(char *path, char *mode);
 
 #define nextch()	(*input++)
 
@@ -103,6 +108,7 @@ static	int node(int x, int l, int r);
 static	int cclenter(int x);
 static	int enter(int x);
 
+static int yylex(void);
 %}
 
 %%
