@@ -126,6 +126,13 @@ AC_DEFUN(AMNU_PROG_LEX,[
     AC_CHECK_PROGS(LEX, flex lex, "$missing_dir/missing flex")
     ACNU_PROG_LEX
     ACNU_DECL_YYTEXT
+dnl set up variable used to choose between the two lexer sources...
+    if test "x$LEX" = "xflex"; then
+	LEXER_SOURCE="fscanner"
+    else
+	LEXER_SOURCE="scanner"
+    fi
+    AC_SUBST(LEXER_SOURCE)
 ])
 dnl === END aclocal REPLACEMENT MACROS
 
@@ -144,10 +151,6 @@ if false; then
     AM_PROG_LEX
 fi
 AC_PROG_YACC
-
-if test "x$LEX" = "xflex"; then
-	LEX="$LEX -l"
-fi
 
 dnl === BEGIN CURSES CHECK
 dnl Curses detection: Munged from Midnight Commander's configure.in
