@@ -288,9 +288,9 @@ fi
 }
 
 OUT=${DIR}/cscope.out
-TMP=${DIR}/cscope.tmp
+TMP=${DIR}/cscope.tmplst
 INC=${DIR}/cscope.inc
 
 create_list ${TMP}
-do_cscope ${TMP} ${OUT} ${INC}
+do_cscope ${TMP} ${OUT} ${INC} ${QUICK}
 
