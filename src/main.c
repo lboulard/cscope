@@ -51,6 +51,7 @@
 /* defaults for unset environment variables */
 #define	EDITOR	"vi"
 #define	SHELL	"sh"
+#define LINEFLAG "+%s"	/* default: used by vi and emacs */
 #define TMPDIR	"/tmp"
 #ifndef DFLT_INCDIR
 #define DFLT_INCDIR "/usr/include"
@@ -66,7 +67,8 @@ char	dichar2[] = " tnerpla";		/* 8 most frequent second chars
 char	dicode1[256];		/* digraph first character code */
 char	dicode2[256];		/* digraph second character code */
 
-char	*editor, *home, *shell;	/* environment variables */
+char	*editor, *home, *shell, *lineflag;	/* environment variables */
+BOOL	lineflagafterfile;
 char	*argv0;			/* command name */
 BOOL	compress = YES;		/* compress the characters in the crossref */
 BOOL	dbtruncated;		/* database symbols are truncated to 8 chars */
@@ -306,9 +308,12 @@ nextarg:	;
 lastarg:
 	/* read the environment */
 	editor = mygetenv("EDITOR", EDITOR);
-	editor = mygetenv("VIEWER", editor);	/* use viewer if set */
+	editor = mygetenv("VIEWER", editor);		/* use viewer if set */
+	editor = mygetenv("CSCOPE_EDITOR", editor);	/* has last word */
 	home = getenv("HOME");
 	shell = mygetenv("SHELL", SHELL);
+	lineflag = mygetenv("CSCOPE_LINEFLAG", LINEFLAG);
+	lineflagafterfile = getenv("CSCOPE_LINEFLAG_AFTER_FILE")?1:0;
 	tmpdir = mygetenv("TMPDIR", TMPDIR);
 
 	/* XXX remove if/when clearerr() in dir.c does the right thing. */

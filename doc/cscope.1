@@ -359,6 +359,17 @@ cscope will quit when it detects end-of-file, or when the first
 character of an input line is ``^d'' or ``q''.
 .PP   
 .SH "ENVIRONMENT VARIABLES"
+.B CSCOPE_EDITOR
+Overrides the EDITOR and VIEWER variables. To be used when the EDITOR
+or VIEWER value is not compatible when called from cscope.
+.TP
+.B CSCOPE_LINEFLAG
+Options to the editor.
+.TP
+.B CSCOPE_LINEFLAG_AFTER_FILE
+Options to the editor that are required after the name of the
+file to be edited.
+.TP
 .B EDITOR
 Preferred editor, which defaults to vi.
 .TP

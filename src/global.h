@@ -93,7 +93,8 @@ extern	char	dicode1[];	/* digraph first character code */
 extern	char	dicode2[];	/* digraph second character code */
 
 /* main.c global data */
-extern	char	*editor, *home, *shell;	/* environment variables */
+extern	char	*editor, *home, *shell, *lineflag;	/* environment variables */
+extern 	BOOL	lineflagafterfile;
 extern	char	*argv0;		/* command name */
 extern	BOOL	compress;	/* compress the characters in the crossref */
 extern	BOOL	dbtruncated;	/* database symbols truncated to 8 chars */
