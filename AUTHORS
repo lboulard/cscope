@@ -24,3 +24,5 @@ Donald Slutz - Various fixes
 OGAWA Hirofumi - line mode fixes
 Garret Hade - Various ocs fixes
 Nick Dixon - Improvement in key handling
+Triet H. Lai <thlai@mail.usyd.edu.au> - GNU Emacs fixes for xcscope.el
+Steven Elliott <selliott4@austin.rr.com> - Fuzzy pattern matching for xcscope.el

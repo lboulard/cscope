@@ -1,3 +1,5 @@
+(2001/06/28 - darrylo) Updated xcscope.el to include GNU Emacs fixes and
+		       fuzzy pattern matching.  Updated docs in xcscope.el.
 (2001/06/28 - broeker) Added files in packages/MSDOS that help compiling
 		       cscope on MSDOS using the DJGPP compiler.
 (2001/06/28 - broeker) Add test for existence of <sys/termios.h> header,

@@ -6,7 +6,7 @@
 ; Description:  cscope interface for (X)Emacs
 ; Author:       Darryl Okahata
 ; Created:      Wed Apr 19 17:03:38 2000
-; Modified:     Wed Jun 27 20:59:17 2001
+; Modified:     Thu Jun 28 15:10:40 2001 (Darryl Okahata) darrylo@soco.agilent.com
 ; Language:     Emacs-Lisp
 ; Package:      N/A
 ; Status:       Experimental
@@ -139,11 +139,15 @@
 ;; directory is reached.  If the root directory is reached, the
 ;; current directory will be used.
 ;;
-;; A cscope database directory is one in which EITHER a cscope
-;; database file (e.g., "cscope.out") OR a cscope file list (e.g.,
+;; A cscope database directory is one in which EITHER a cscope database
+;; file (e.g., "cscope.out") OR a cscope file list (e.g.,
 ;; "cscope.files") exists.  If only "cscope.files" exists, the
 ;; corresponding "cscope.out" will be automatically created by cscope
-;; when a search is done.
+;; when a search is done.  By default, the cscope database file is called
+;; "cscope.out", but this can be changed (on a global basis) via the
+;; variable, `cscope-database-file'.  There is limited support for cscope
+;; databases that are named differently than that given by
+;; `cscope-database-file', using the variable, `cscope-database-regexps'.
 ;;
 ;; Note that the variable, `cscope-database-regexps', is generally not
 ;; needed, as the normal hierarchical database search is sufficient
@@ -321,11 +325,16 @@
 ;; 	    ( t )
 ;; 	    t
 ;;
-;; 	Here, DBDIR is a directory that contains a cscope database.  If only
-;; 	DBDIR is specified, then that cscope database will be searched without
-;; 	any additional cscope command-line options.  If OPTIONS is given, then
-;; 	OPTIONS is a list of strings, where each string is a separate cscope
-;; 	command-line option.
+;; 	Here, DBDIR is a directory (or a file) that contains a cscope
+;; 	database.  If DBDIR is a directory, then it is expected that the
+;; 	cscope database, if present, has the filename given by the variable,
+;; 	`cscope-database-file'; if DBDIR is a file, then DBDIR is the path
+;; 	name to a cscope database file (which does not have to be the same as
+;; 	that given by `cscope-database-file').  If only DBDIR is specified,
+;; 	then that cscope database will be searched without any additional
+;; 	cscope command-line options.  If OPTIONS is given, then OPTIONS is a
+;; 	list of strings, where each string is a separate cscope command-line
+;; 	option.
 ;;
 ;; 	In the case of "( t )", this specifies that the search is to use the
 ;; 	normal hierarchical database search.  This option is used to
@@ -357,8 +366,14 @@
 ;; 	current directory will be used.
 ;;
 ;; 	A cscope database directory is one in which EITHER a cscope database
-;; 	file (e.g., "cscope.out") OR a cscope file list (e.g., "cscope.files")
-;; 	exists.
+;; 	file (e.g., "cscope.out") OR a cscope file list (e.g.,
+;; 	"cscope.files") exists.  If only "cscope.files" exists, the
+;; 	corresponding "cscope.out" will be automatically created by cscope
+;; 	when a search is done.  By default, the cscope database file is called
+;; 	"cscope.out", but this can be changed (on a global basis) via the
+;; 	variable, `cscope-database-file'.  There is limited support for cscope
+;; 	databases that are named differently than that given by
+;; 	`cscope-database-file', using the variable, `cscope-database-regexps'.
 ;;
 ;; 	Here is an example of `cscope-database-regexps':
 ;;
@@ -367,7 +382,8 @@
 ;;			( "^/users/jdoe/sources/proj1"
 ;;			  ( t )
 ;;			  ( "/users/jdoe/sources/proj2")
-;;			  ( "/users/jdoe/sources/proj3")
+;;			  ( "/users/jdoe/sources/proj3/mycscope.out")
+;;			  ( "/users/jdoe/sources/proj4")
 ;;			  t
 ;;			  ( "/some/master/directory" ("-d" "-I/usr/local/include") )
 ;;			  )
@@ -384,8 +400,11 @@
 ;;	       locate a cscope database.
 ;;
 ;; 	    2. Next, searches will be done using the cscope database
-;;	       directories, "/users/jdoe/sources/proj2" and
-;;	       "/users/jdoe/sources/proj3".
+;;	       directories, "/users/jdoe/sources/proj2",
+;;	       "/users/jdoe/sources/proj3/mycscope.out", and
+;;	       "/users/jdoe/sources/proj4".  Note that, instead of the file,
+;;	       "cscope.out", the file, "mycscope.out", will be used in the
+;;	       directory "/users/jdoe/sources/proj3".
 ;;
 ;; 	    3. If a match was found, searching will stop.
 ;;
@@ -420,7 +439,34 @@
 ;;
 ;; 1. Cannot handle whitespace in directory or file names.
 ;;
+;; 2. By default, colored faces are used to display results.  If you happen
+;;    to use a black background, part of the results may be invisible
+;;    (because the foreground color may be black, too).  There are at least
+;;    two solutions for this:
 ;;
+;;    2a. Turn off colored faces, by setting `cscope-use-face' to `nil',
+;;        e.g.:
+;;
+;;            (setq cscope-use-face nil)
+;;
+;;    2b. Explicitly set colors for the faces used by cscope.  The faces
+;;        are:
+;;
+;;            cscope-file-face
+;;            cscope-function-face
+;;            cscope-line-number-face
+;;            cscope-line-face
+;;            cscope-mouse-face
+;;
+;;        The face most likely to cause problems (e.g., black-on-black
+;;        color) is `cscope-line-face'.
+;;
+;; 3. The support for cscope databases different from that specified by
+;;    `cscope-database-file' is quirky.  If the file does not exist, it
+;;    will not be auto-created (unlike files names by
+;;    `cscope-database-file').  You can manually force the file to be
+;;    created by using touch(1) to create a zero-length file; the
+;;    database will be created the next time a search is done.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -471,11 +517,15 @@ DBLIST is a list that contains one or more of:
     ( t )
     t
 
-Here, DBDIR is a directory that contains a cscope database.  If only
-DBDIR is specified, then that cscope database will be searched without
-any additional cscope command-line options.  If OPTIONS is given, then
-OPTIONS is a list of strings, where each string is a separate cscope
-command-line option.
+Here, DBDIR is a directory (or a file) that contains a cscope database.
+If DBDIR is a directory, then it is expected that the cscope database,
+if present, has the filename given by the variable,
+`cscope-database-file'; if DBDIR is a file, then DBDIR is the path name
+to a cscope database file (which does not have to be the same as that
+given by `cscope-database-file').  If only DBDIR is specified, then that
+cscope database will be searched without any additional cscope
+command-line options.  If OPTIONS is given, then OPTIONS is a list of
+strings, where each string is a separate cscope command-line option.
 
 In the case of \"( t )\", this specifies that the search is to use the
 normal hierarchical database search.  This option is used to
@@ -507,8 +557,14 @@ root directory is reached.  If the root directory is reached, the
 current directory will be used.
 
 A cscope database directory is one in which EITHER a cscope database
-file (e.g., \"cscope.out\") OR a cscope file list (e.g., \"cscope.files\")
-exists.
+file (e.g., \"cscope.out\") OR a cscope file list (e.g.,
+\"cscope.files\") exists.  If only \"cscope.files\" exists, the
+corresponding \"cscope.out\" will be automatically created by cscope
+when a search is done.  By default, the cscope database file is called
+\"cscope.out\", but this can be changed (on a global basis) via the
+variable, `cscope-database-file'.  There is limited support for cscope
+databases that are named differently than that given by
+`cscope-database-file', using the variable, `cscope-database-regexps'.
 
 Here is an example of `cscope-database-regexps':
 
@@ -517,7 +573,8 @@ Here is an example of `cscope-database-regexps':
                 ( \"^/users/jdoe/sources/proj1\"
                   ( t )
                   ( \"/users/jdoe/sources/proj2\")
-                  ( \"/users/jdoe/sources/proj3\")
+                  ( \"/users/jdoe/sources/proj3/mycscope.out\")
+                  ( \"/users/jdoe/sources/proj4\")
                   t
                   ( \"/some/master/directory\" (\"-d\" \"-I/usr/local/include\") )
                   )
@@ -534,8 +591,11 @@ done:
        locate a cscope database.
 
     2. Next, searches will be done using the cscope database
-       directories, \"/users/jdoe/sources/proj2\" and
-       \"/users/jdoe/sources/proj3\".
+       directories, \"/users/jdoe/sources/proj2\",
+       \"/users/jdoe/sources/proj3/mycscope.out\", and
+       \"/users/jdoe/sources/proj4\".  Note that, instead of the file,
+       \"cscope.out\", the file, \"mycscope.out\", will be used in the
+       directory \"/users/jdoe/sources/proj3\".
 
     3. If a match was found, searching will stop.
 
@@ -1263,6 +1323,8 @@ Point is not saved on mark ring."
 Starting from DIRECTORY, look upwards for a cscope database."
   (let (this-directory database-dir)
     (catch 'done
+      (if (file-regular-p directory)
+	  (throw 'done directory))
       (setq directory (cscope-canonicalize-directory directory)
 	    this-directory directory)
       (while this-directory
@@ -1526,7 +1588,8 @@ using the mouse."
 
 (defun cscope-search-one-database ()
   "Pop a database entry from cscope-search-list and do a search there."
-  (let ( next-item options cscope-directory database-file outbuf done)
+  (let ( next-item options cscope-directory database-file outbuf done
+		   base-database-file-name)
     (setq outbuf (get-buffer-create cscope-output-buffer-name))
     (save-excursion
       (catch 'finished
@@ -1535,6 +1598,7 @@ using the mouse."
 	(while (and (not done) cscope-search-list)
 	  (setq next-item (car cscope-search-list)
 		cscope-search-list (cdr cscope-search-list)
+		base-database-file-name cscope-database-file
 		)
 	  (if (listp next-item)
 	      (progn
@@ -1543,6 +1607,15 @@ using the mouse."
 		    (setq cscope-directory
 			  (cscope-search-directory-hierarchy
 			   default-directory)))
+		(if (file-regular-p cscope-directory)
+		    (progn
+		      ;; Handle the case where `cscope-directory' is really
+		      ;; a full path name to a cscope database.
+		      (setq base-database-file-name
+			    (file-name-nondirectory cscope-directory)
+			    cscope-directory
+			    (file-name-directory cscope-directory))
+		      ))
 		(setq cscope-directory 
 		      (file-name-as-directory cscope-directory))
 		(if (not (member cscope-directory cscope-searched-dirs))
@@ -1570,7 +1643,7 @@ using the mouse."
 	      ))
 	(if cscope-command-args
 	    (setq options (append options cscope-command-args)))
-	(setq database-file (concat cscope-directory cscope-database-file)
+	(setq database-file (concat cscope-directory base-database-file-name)
 	      cscope-searched-dirs (cons cscope-directory
 					 cscope-searched-dirs)
 	      )
@@ -1584,8 +1657,15 @@ using the mouse."
 
 	(goto-char (point-max))
 	(setq cscope-item-start (point))
-	(insert "\nDatabase directory: " cscope-directory "\n"
-		cscope-separator-line)
+	(if (string= base-database-file-name cscope-database-file)
+	    (insert "\nDatabase directory: " cscope-directory "\n"
+		    cscope-separator-line)
+	  (insert "\nDatabase directory/file: "
+		  cscope-directory base-database-file-name "\n"
+		  cscope-separator-line))
+	;; Add the correct database file to search
+	(setq options (cons base-database-file-name options))
+	(setq options (cons "-f" options))
 	(setq cscope-output-start (point))
 	(setq default-directory cscope-directory)
 	(if cscope-filter-func
