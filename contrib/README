@@ -1,0 +1,6 @@
+Contributed addons and wrappers for cscope
+$Id$
+
+ocs - wrapper for cscope providing database generation through recursive
+       directory set (among other things) - docced in script itself.
+        contributed from SCO osr5.
