@@ -1,3 +1,4 @@
+(2001/10/30 - petrs)   Added Joe Steffen to author's list as the creator.
 (2001/10/19 - broeker) Replace usages of freopen() by fclose()/fopen() pairs
 		       to work around bug in some Linux libc constellation.
 (2001/10/10 - broeker) Remove unused argument 'name' of addsrcfile() function.
