@@ -6,12 +6,12 @@
 ; Description:  cscope interface for (X)Emacs
 ; Author:       Darryl Okahata
 ; Created:      Wed Apr 19 17:03:38 2000
-; Modified:     Thu Nov  1 16:34:54 2001 (Darryl Okahata) darrylo@soco.agilent.com
+; Modified:     Thu Apr  4 17:22:22 2002 (Darryl Okahata) darrylo@soco.agilent.com
 ; Language:     Emacs-Lisp
 ; Package:      N/A
 ; Status:       Experimental
 ;
-; (C) Copyright 2000, 2001, Darryl Okahata <darrylo@sonic.net>,
+; (C) Copyright 2000, 2001, 2002, Darryl Okahata <darrylo@sonic.net>,
 ;     all rights reserved.
 ; GNU Emacs enhancements (C) Copyright 2001,
 ;         Triet H. Lai <thlai@mail.usyd.edu.au>
@@ -19,7 +19,7 @@
 ;         Steven Elliott <selliott4@austin.rr.com>
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ALPHA VERSION 0.95
+;; ALPHA VERSION 0.96
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; This program is free software; you can redistribute it and/or modify
@@ -113,6 +113,8 @@
 ;;	(define-key global-map [(control f10)] 'cscope-next-file)
 ;;	(define-key global-map [(control f11)] 'cscope-prev-symbol)
 ;;	(define-key global-map [(control f12)] 'cscope-prev-file)
+;;      (define-key global-map [(meta f9)]  'cscope-display-buffer)
+;;      (defin-ekey global-map [(meta f10)] 'cscope-display-buffer-toggle)
 ;;
 ;; 6. Restart (X)Emacs.  That's it.
 ;;
@@ -219,6 +221,8 @@
 ;;
 ;; These pertain to navigation through the search results:
 ;;
+;;      C-c s b         Display *cscope* buffer.
+;;      C-c s B         Auto display *cscope* buffer toggle.
 ;;      C-c s n         Next symbol.
 ;;      C-c s N         Next file.
 ;;      C-c s p         Previous symbol.
@@ -1069,6 +1073,12 @@ searching.")
   "The last symbol searched for.")
 
 
+(defvar cscope-adjust t
+  "True if the symbol searched for (cscope-symbol) should be on
+the line specified by the cscope database.  In such cases the point will be
+adjusted if need be (fuzzy matching).")
+
+
 (defvar cscope-adjust-range 1000
   "How far the point should be adjusted if the symbol is not on the line
 specified by the cscope database.")
@@ -1116,6 +1126,8 @@ directory should begin.")
   (define-key cscope:map "\C-csf" 'cscope-find-this-file)
   (define-key cscope:map "\C-csi" 'cscope-find-files-including-file)
   ;; --- (The '---' indicates that this line corresponds to a menu separator.)
+  (define-key cscope:map "\C-csb" 'cscope-display-buffer)
+  (define-key cscope:map "\C-csB" 'cscope-display-buffer-toggle)
   (define-key cscope:map "\C-csn" 'cscope-next-symbol)
   (define-key cscope:map "\C-csN" 'cscope-next-file)
   (define-key cscope:map "\C-csp" 'cscope-prev-symbol)
@@ -1151,50 +1163,67 @@ directory should begin.")
 		    [ "Find files #including a file"
 		      cscope-find-files-including-file t ]
 		    "-----------"
-		    [ "Next symbol"     cscope-next-symbol t ]
-		    [ "Next file"       cscope-next-file t ]
-		    [ "Previous symbol" cscope-prev-symbol t ]
-		    [ "Previous file"   cscope-prev-file t ]
-		    [ "Pop mark"        cscope-pop-mark t ]
+		    [ "Display *cscope* buffer" cscope-display-buffer t ]
+		    [ "Auto display *cscope* buffer toggle"
+		      cscope-display-buffer-toggle t ]
+		    [ "Next symbol"     	cscope-next-symbol t ]
+		    [ "Next file"       	cscope-next-file t ]
+		    [ "Previous symbol" 	cscope-prev-symbol t ]
+		    [ "Previous file"   	cscope-prev-file t ]
+		    [ "Pop mark"        	cscope-pop-mark t ]
 		    "-----------"
-		    [ "Set initial directory" cscope-set-initial-directory t ]
-		    [ "Unset initial directory"
-		      cscope-unset-initial-directory t ]
+		    ( "More ..."
+		      [ "Set initial directory"
+			cscope-set-initial-directory t ]
+		      [ "Unset initial directory"
+			cscope-unset-initial-directory t ]
+		      "-----------"
+		      [ "Create list of files to index"
+			cscope-create-list-of-files-to-index t ]
+		      [ "Create list and index"
+			cscope-index-files t ]
+		      [ "Edit list of files to index"
+			cscope-edit-list-of-files-to-index t ]
+		      [ "Locate this buffer's cscope directory"
+			cscope-tell-user-about-directory t ]
+		      [ "Dired this buffer's cscope directory"
+			cscope-dired-directory t ]
+		      )
 		    "-----------"
-		    [ "Create list of files to index"
-		      cscope-create-list-of-files-to-index t ]
-		    [ "Create list and index"
-		      cscope-index-files t ]
-		    [ "Edit list of files to index"
-		      cscope-edit-list-of-files-to-index t ]
-		    [ "Locate this buffer's cscope directory"
-		      cscope-tell-user-about-directory t ]
-		    [ "Dired this buffer's cscope directory"
-		      cscope-dired-directory t ]
-		    "-----------"
-		    [ "Auto edit single match" (setq cscope-edit-single-match
-						     (not cscope-edit-single-match))
-		      :style toggle :selected cscope-edit-single-match ]
-		    [ "Auto display *cscope* buffer"
-		      (setq cscope-display-cscope-buffer
-			    (not cscope-display-cscope-buffer))
-		      :style toggle :selected cscope-display-cscope-buffer ]
-		    [ "Stop at first matching database"
-		      (setq cscope-stop-at-first-match-dir
-			    (not cscope-stop-at-first-match-dir))
-		      :style toggle :selected cscope-stop-at-first-match-dir ]
-		    [ "Index recursively" (setq cscope-index-recursively
-						(not cscope-index-recursively))
-		      :style toggle :selected cscope-index-recursively ]
-		    [ "Suppress empty matches" (setq cscope-suppress-empty-matches
-						     (not cscope-suppress-empty-matches))
-		      :style toggle :selected cscope-suppress-empty-matches ]
-		    [ "Use relative paths" (setq cscope-use-relative-paths
-						 (not cscope-use-relative-paths))
-		      :style toggle :selected cscope-use-relative-paths ]
-		    [ "No mouse prompts" (setq cscope-no-mouse-prompts
-					       (not cscope-no-mouse-prompts))
-		      :style toggle :selected cscope-no-mouse-prompts ]
+		    ( "Options"
+		      [ "Auto edit single match"
+			(setq cscope-edit-single-match
+			      (not cscope-edit-single-match))
+			:style toggle :selected cscope-edit-single-match ]
+		      [ "Auto display *cscope* buffer"
+			(setq cscope-display-cscope-buffer
+			      (not cscope-display-cscope-buffer))
+			:style toggle :selected cscope-display-cscope-buffer ]
+		      [ "Stop at first matching database"
+			(setq cscope-stop-at-first-match-dir
+			      (not cscope-stop-at-first-match-dir))
+			:style toggle
+			:selected cscope-stop-at-first-match-dir ]
+		      [ "Never update cscope database"
+			(setq cscope-do-not-update-database
+			      (not cscope-do-not-update-database))
+			:style toggle :selected cscope-do-not-update-database ]
+		      [ "Index recursively"
+			(setq cscope-index-recursively
+			      (not cscope-index-recursively))
+			:style toggle :selected cscope-index-recursively ]
+		      [ "Suppress empty matches"
+			(setq cscope-suppress-empty-matches
+			      (not cscope-suppress-empty-matches))
+			:style toggle :selected cscope-suppress-empty-matches ]
+		      [ "Use relative paths"
+			(setq cscope-use-relative-paths
+			      (not cscope-use-relative-paths))
+			:style toggle :selected cscope-use-relative-paths ]
+		      [ "No mouse prompts" (setq cscope-no-mouse-prompts
+						 (not cscope-no-mouse-prompts))
+			:style toggle :selected cscope-no-mouse-prompts ] 
+		      )
 		    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1277,7 +1306,7 @@ Returns the window displaying BUFFER."
 		(setq old-pos (point))
 		(goto-line line-number)
 		(setq old-point (point))
-		(if cscope-adjust-range
+		(if (and cscope-adjust cscope-adjust-range)
 		    (progn
 		      ;; Calculate the length of the line specified by cscope.
 		      (end-of-line)
@@ -1444,6 +1473,24 @@ Point is not saved on mark ring."
 	  (set-window-point buffer-window point)))
     (set-buffer old-buffer)
     ))
+
+
+(defun cscope-display-buffer ()
+  "Display the *cscope* buffer."
+  (interactive)
+  (let ((buffer (get-buffer cscope-output-buffer-name)))
+    (if buffer
+        (pop-to-buffer buffer)
+      (error "The *cscope* buffer does not exist yet"))))
+
+
+(defun cscope-display-buffer-toggle ()
+  "Toggle cscope-display-cscope-buffer, which corresponds to
+\"Auto display *cscope* buffer\"."
+  (interactive)
+  (setq cscope-display-cscope-buffer (not cscope-display-cscope-buffer))
+  (message "The cscope-display-cscope-buffer variable is now %s."
+           (if cscope-display-cscope-buffer "set" "unset")))
 
 
 (defun cscope-next-symbol ()
@@ -1779,8 +1826,6 @@ using the mouse."
 	(delete-process process)
 	(let (buffer-read-only continue)
 	  (goto-char (point-max))
-	  (if (not cscope-first-match)
-	      (message "No matches were found."))
 	  (if (and cscope-suppress-empty-matches
 		   (= cscope-output-start (point)))
 	      (delete-region cscope-item-start (point-max))
@@ -1816,6 +1861,8 @@ using the mouse."
 		  (setq modeline-process ": Search complete"))
 	      (if cscope-start-directory
 		  (setq default-directory cscope-start-directory))
+	      (if (not cscope-first-match)
+		  (message "No matches were found."))
 	      )
 	    ))
 	(set-buffer-modified-p nil)
@@ -1840,7 +1887,7 @@ using the mouse."
          (cscope-select-entry-specified-window old-buffer-window))
        )
      )
-    (if (and done (eq old-buffer buffer))
+    (if (and done (eq old-buffer buffer) cscope-first-match)
 	(cscope-help))
     (set-buffer old-buffer)
     ))
@@ -2253,7 +2300,7 @@ file."
   (interactive (list
 		(cscope-prompt-for-symbol "Find this symbol: " nil)
 		))
-  (let ()
+  (let ( (cscope-adjust t) )	 ;; Use fuzzy matching.
     (setq cscope-symbol symbol)
     (cscope-call (format "Finding symbol: %s" symbol)
 		 (list "-0" symbol) nil 'cscope-process-filter
@@ -2266,7 +2313,7 @@ file."
   (interactive (list
 		(cscope-prompt-for-symbol "Find this global definition: " nil)
 		))
-  (let ()
+  (let ( (cscope-adjust t) )	 ;; Use fuzzy matching.
     (setq cscope-symbol symbol)
     (cscope-call (format "Finding global definition: %s" symbol)
 		 (list "-1" symbol) nil 'cscope-process-filter
@@ -2277,7 +2324,8 @@ file."
 (defun cscope-find-global-definition-no-prompting ()
   "Find a symbol's global definition without prompting."
   (interactive)
-  (let ( (symbol (cscope-extract-symbol-at-cursor nil)) )
+  (let ( (symbol (cscope-extract-symbol-at-cursor nil))
+	 (cscope-adjust t) )	 ;; Use fuzzy matching.
     (setq cscope-symbol symbol)
     (cscope-call (format "Finding global definition: %s" symbol)
 		 (list "-1" symbol) nil 'cscope-process-filter
@@ -2291,7 +2339,7 @@ file."
 		(cscope-prompt-for-symbol
 		 "Find functions called by this function: " nil)
 		))
-  (let ()
+  (let ( (cscope-adjust nil) )	 ;; Suppress fuzzy matching.
     (setq cscope-symbol symbol)
     (cscope-call (format "Finding functions called by: %s" symbol)
 		 (list "-2" symbol) nil 'cscope-process-filter
@@ -2305,7 +2353,7 @@ file."
 		(cscope-prompt-for-symbol
 		 "Find functions calling this function: " nil)
 		))
-  (let ()
+  (let ( (cscope-adjust t) )	 ;; Use fuzzy matching.
     (setq cscope-symbol symbol)
     (cscope-call (format "Finding functions calling: %s" symbol)
 		 (list "-3" symbol) nil 'cscope-process-filter
@@ -2318,7 +2366,7 @@ file."
   (interactive (list
 		(cscope-prompt-for-symbol "Find this text string: " nil)
 		))
-  (let ()
+  (let ( (cscope-adjust t) )	 ;; Use fuzzy matching.
     (setq cscope-symbol symbol)
     (cscope-call (format "Finding text string: %s" symbol)
 		 (list "-4" symbol) nil 'cscope-process-filter
@@ -2332,7 +2380,7 @@ file."
 		(let (cscope-no-mouse-prompts)
 		  (cscope-prompt-for-symbol "Find this egrep pattern: " nil))
 		))
-  (let ()
+  (let ( (cscope-adjust t) )	 ;; Use fuzzy matching.
     (setq cscope-symbol symbol)
     (cscope-call (format "Finding egrep pattern: %s" symbol)
 		 (list "-6" symbol) nil 'cscope-process-filter
@@ -2346,7 +2394,7 @@ file."
 		(let (cscope-no-mouse-prompts)
 		  (cscope-prompt-for-symbol "Find this file: " t))
 		))
-  (let ()
+  (let ( (cscope-adjust nil) )	 ;; Disable fuzzy matching.
     (setq cscope-symbol symbol)
     (cscope-call (format "Finding file: %s" symbol)
 		 (list "-7" symbol) nil 'cscope-process-filter
@@ -2361,7 +2409,8 @@ file."
 		  (cscope-prompt-for-symbol
 		   "Find files #including this file: " t))
 		))
-  (let ()
+  (let ( (cscope-adjust nil) )	;; Disable fuzzy matching.
+    				;; Is this needed?
     (setq cscope-symbol symbol)
     (cscope-call (format "Finding files #including file: %s" symbol)
 		 (list "-8" symbol) nil 'cscope-process-filter
