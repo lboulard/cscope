@@ -1020,7 +1020,7 @@ findterm(void)
 			s = lcasify(s);	/* make it lower case */
 		}
 		/* if it matches */
-		if (regexec (&regexp, s, (size_t)0, NULL, 0) != 0) {
+		if (regexec (&regexp, s, (size_t)0, NULL, 0) == 0) {
 	
 			/* add its postings to the set */
 			if ((postingp = boolfile(&invcontrol, &npostings, BOOL_OR)) == NULL) {

@@ -116,6 +116,7 @@ invmake(char *invname, char *invpost, FILE *infile)
 	long	tlong;
 	PARAM	param;
 	POSTING	posting;
+	char 	temp[BLOCKSIZE];
 #if STATS
 	int	j;
 	unsigned maxtermlen = 0;
@@ -279,7 +280,7 @@ invmake(char *invname, char *invpost, FILE *infile)
 	 */
 	i = nextsupfing % BLOCKSIZE;
 	/* write out junk to fill log blk */
-	if (fwrite(SUPFING, BLOCKSIZE - i, 1, outfile) == 0 ||
+	if (fwrite(temp, BLOCKSIZE - i, 1, outfile) == 0 ||
 	    fflush(outfile) == EOF) {	/* rewind doesn't check for write failure */
 		goto cannotwrite;
 	}
