@@ -32,6 +32,8 @@
 
 static char const rcsid[] = "$Id$";
 
+#include "library.h"
+
 #include <stdlib.h>
 
 /* return the non-null environment value or the default argument */

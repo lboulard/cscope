@@ -75,7 +75,7 @@ const char	dispchars[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQR
 
 static	int	fldline;		/* input field line */
 static	jmp_buf	env;			/* setjmp/longjmp buffer */
-int		lastdispline;		/* last displayed reference line */
+static	int	lastdispline;		/* last displayed reference line */
 static	char	lastmsg[MSGLEN + 1];	/* last message displayed */
 static	char	helpstring[] = "Press the ? key for help";
 static	char	selprompt[] = 
@@ -104,6 +104,9 @@ static	struct	{		/* text of input fields */
 	{"Find", "files #including this file",		findinclude},
 	{"Find all", "function definitions",		findallfcns},	/* samuel only */
 };
+
+/* Internal prototypes: */
+static	RETSIGTYPE	jumpback(int sig);
 
 /* initialize display parameters */
 
@@ -389,7 +392,7 @@ atchange(void)
 /* search for the symbol or text pattern */
 
 /*ARGSUSED*/
-RETSIGTYPE
+static RETSIGTYPE
 jumpback(int sig)
 {
 	(void) sig;		/* 'use' sig, to avoid warning from compiler */

@@ -61,7 +61,6 @@ static char const rcsid[] = "$Id$";
 
 long	dboffset;		/* new database offset */
 BOOL	errorsfound;		/* prompt before clearing messages */
-long	fileindex;		/* source file name index */
 long	lineoffset;		/* source line database offset */
 long	npostings;		/* number of postings */
 int	nsrcoffset;             /* number of file name database offsets */

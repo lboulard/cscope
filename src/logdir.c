@@ -50,6 +50,10 @@ static char const rcsid[] = "$Id$";
 
 static char line[OURBUFSIZ+1];
 
+/* Internal prototypes: */
+static	char	*nextfield(char *p);
+
+
 static char *
 nextfield(char *p)
 {

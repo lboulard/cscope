@@ -112,7 +112,7 @@ void	invclose(INVCONTROL *invcntl);
 void	invdump(INVCONTROL *invcntl, char *term);
 long	invfind(INVCONTROL *invcntl, char *searchterm);
 int	invforward(INVCONTROL *invcntl);
-int	invopen(INVCONTROL *invcntl, char *invname, char *invpost, int stat);
+int	invopen(INVCONTROL *invcntl, char *invname, char *invpost, int status);
 long	invmake(char *invname, char *invpost, FILE *infile);
 long	invterm(INVCONTROL *invcntl, char *term);
 

@@ -175,7 +175,9 @@ extern	BOOL	ogs;		/* display OGS book and subsystem names */
 extern	FILE	*postings;	/* new inverted index postings */
 extern	char	*prependpath;	/* prepend path to file names */
 extern	FILE	*refsfound;	/* references found file */
+#if 0 /* HBB 20010705: flag no longer used */
 extern	BOOL	select_large;	/* enable more than 9 select lines */
+#endif
 extern	int	symrefs;	/* cross-reference file */
 extern	char	temp1[];	/* temporary file name */
 extern	char	temp2[];	/* temporary file name */
@@ -195,7 +197,6 @@ extern	char	pattern[];	/* symbol or text pattern */
 /* crossref.c global data */
 extern	long	dboffset;	/* new database offset */
 extern	BOOL	errorsfound;	/* prompt before clearing error messages */
-extern	long	fileindex;	
 extern	long	lineoffset;	/* source line database offset */
 extern	long	npostings;	/* number of postings */
 extern	int	symbols;	/* number of symbols */
@@ -264,7 +265,6 @@ char	*findregexp(char *egreppat);
 char	*findstring(char *pattern);
 char	*inviewpath(char *file);
 char	*lookup(char *ident);
-char	*mygetenv(char *variable, char *deflt);
 char	*pathcomponents(char *path, int components);
 char	*readblock(void);
 char	*scanpast(char c);
@@ -274,6 +274,7 @@ void	addcmd(int f, char *s);
 void	addsrcfile(char *name, char *path);
 void	askforchar(void);
 void	askforreturn(void);
+void	atchange(void);
 void	atfield(void);
 void	cannotwrite(char *file);
 void	cannotopen(char *file);
@@ -294,7 +295,7 @@ void    freecrossref(void);
 void	freefilelist(void);
 void	help(void);
 void	incfile(char *file, char *type);
-void    includedir(char *dirname);
+void    includedir(char *_dirname);
 void    initsymtab(void);
 void	makefilelist(void);
 void	mousecleanup(void);
@@ -327,7 +328,6 @@ BOOL	readrefs(char *filename);
 BOOL	search(void);
 BOOL	writerefsfound(void);
 
-FILE	*myfopen(char *path, char *mode);
 FINDINIT findinit(char *pattern);
 MOUSE	*getmouseaction(char leading_char);
 struct	cmd *currentcmd(void);
@@ -337,7 +337,6 @@ struct	cmd *nextcmd(void);
 int	egrep(char *file, FILE *output, char *format);
 int	getline(char s[], unsigned size, int firstchar, BOOL iscaseless);
 int	mygetch(void);
-int	myopen(char *path, int flag, int mode);
 int	hash(char *ss);
 int	execute(char *a, ...);
 long	dbseek(long offset);

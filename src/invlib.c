@@ -59,7 +59,12 @@
 
 static char const rcsid[] = "$Id$";
 
+#if DEBUG
+/* FIXME HBB 20010705: nowhere in the source is `invbreak' ever set to
+ * a value other than the (silent) initialization to zero. Pretty
+ * useless, that looks */
 int	invbreak;
+#endif
 
 static	int	boolready(void);
 static	int	invnewterm(void);

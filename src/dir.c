@@ -57,13 +57,13 @@ char	**incdirs;		/* #include directories */
 char	**srcdirs;		/* source directories */
 char	**srcfiles;		/* source files */
 int	nincdirs;		/* number of #include directories */
-int	mincdirs = DIRINC;	/* maximum number of #include directories */
 int	nsrcdirs;		/* number of source directories */
-int	msrcdirs;		/* maximum number of source directories */
 int	nsrcfiles;		/* number of source files */
 int	msrcfiles = SRCINC;	/* maximum number of source files */
 
 static	char	**incnames;	/* #include directory names without view pathing */
+static	int	mincdirs = DIRINC; /* maximum number of #include directories */
+static	int	msrcdirs;	/* maximum number of source directories */
 static	int	nvpsrcdirs;	/* number of view path source directories */
 
 static	struct	listitem {	/* source file names without view pathing */
@@ -71,16 +71,17 @@ static	struct	listitem {	/* source file names without view pathing */
 	struct	listitem *next;
 } *srcnames[HASHMOD];
 
-BOOL	issrcfile(char *file);
-void	addsrcdir(char *dir);
-void	addincdir(char *name, char *path);
+/* Internal prototypes: */
+static	BOOL	issrcfile(char *file);
+static	void	addsrcdir(char *dir);
+static	void	addincdir(char *name, char *path);
+static	void	scan_dir(const char *dirfile, BOOL recurse);
+static	void	makevpsrcdirs(void);
 
-static void	scan_dir(const char *dirfile, BOOL recurse);
-				/* make the source file list */
 
 /* make the view source directory list */
 
-void
+static void
 makevpsrcdirs(void)
 {
 	int	i;
@@ -147,7 +148,7 @@ sourcedir(char *dirlist)
 
 /* add a source directory to the list */
 
-void
+static void
 addsrcdir(char *dir)
 {
 	struct	stat	statstruct;
@@ -211,7 +212,7 @@ includedir(char *dirlist)
 
 /* add a #include directory to the list */
 
-void
+static void
 addincdir(char *name, char *path)
 {
 	struct	stat	statstruct;
@@ -407,7 +408,7 @@ scan_dir(const char *adir, BOOL recurse_dir) {
 
 /* see if this is a source file */
 
-BOOL
+static BOOL
 issrcfile(char *file)
 {
 	struct	stat	statstruct;

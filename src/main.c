@@ -69,7 +69,7 @@ char	dichar2[] = " tnerpla";		/* 8 most frequent second chars
 char	dicode1[256];		/* digraph first character code */
 char	dicode2[256];		/* digraph second character code */
 
-char	*editor, *home, *shell, *lineflag;	/* environment variables */
+char	*editor, *shell, *lineflag;	/* environment variables */
 BOOL	lineflagafterfile;
 char	*argv0;			/* command name */
 BOOL	compress = YES;		/* compress the characters in the crossref */
@@ -98,7 +98,9 @@ BOOL	ogs;			/* display OGS book and subsystem names */
 FILE	*postings;		/* new inverted index postings */
 char	*prependpath;		/* prepend path to file names */
 FILE	*refsfound;		/* references found file */
+#if 0 /* HBB 20010705: flag no longer used */
 BOOL	select_large = NO;	/* enable more than 9 select lines */
+#endif
 int	symrefs = -1;		/* cross-reference file */
 char	temp1[PATHLEN + 1];	/* temporary file name */
 char	temp2[PATHLEN + 1];	/* temporary file name */
@@ -109,6 +111,7 @@ char	tempstring[8192];	/* use this as a buffer, instead of 'yytext',
 
 static	BOOL	buildonly = NO;		/* only build the database */
 static	BOOL	fileschanged;		/* assume some files changed */
+static	char	*home;		/* Home directory */
 static	char	*invname = INVNAME;	/* inverted index to the database */
 static	char	*invpost = INVPOST;	/* inverted index postings */
 static	long	traileroffset;		/* file trailer offset */
@@ -118,24 +121,26 @@ static	char	*reflines;		/* symbol reference lines file */
 static	char	*tmpdir;		/* temporary directory */
 static	BOOL	unconditional;		/* unconditionally build database */
 
-BOOL	samelist(FILE *oldrefs, char **names, int count);
-char	*getoldfile(void);
-int	compare(const void *s1, const void *s2); /* needed for qsort call */
-void	copydata(void);
-void	copyinverted(void);
-void	initcompress(void);
-void	movefile(char *new, char *old);
-void	opendatabase(void);
-void	putheader(char *dir);
-void	putinclude(char *s);
-void	putlist(char **names, int count);
-void	skiplist(FILE *oldrefs);
+/* Internal prototypes: */
 static	void	build(void);
-static	void	usage(void);
+static	void	cannotindex(void);
+static	int	compare(const void *s1, const void *s2);
+static	void	copydata(void);
+static	void	copyinverted(void);
+static	char	*getoldfile(void);
+static	void	initcompress(void);
 static	void	longusage(void);
+static	void	movefile(char *new, char *old);
+static	void	opendatabase(void);
+static	void	putheader(char *dir);
+static	void	putinclude(char *s);
+static	void	putlist(char **names, int count);
+static	BOOL	samelist(FILE *oldrefs, char **names, int count);
+static	void	skiplist(FILE *oldrefs);
+static	void	usage(void);
 
 #ifdef HAVE_FIXKEYPAD
-	void	fixkeypad();
+void	fixkeypad();
 #endif
 
 int
@@ -296,9 +301,11 @@ main(int argc, char **argv)
 					break;
 				}
 				goto nextarg;
+#if 0 /* HBB 20010705: unused, now! */
 			case 't':	/* enable more than 9 select lines */
 				select_large = YES;
 				break;
+#endif
 			default:
 				(void) fprintf(stderr, "%s: unknown option: -%c\n", argv0, 
 					*s);
@@ -343,8 +350,6 @@ lastarg:
 
 	/* if running in the foreground */
 	if (signal(SIGINT, SIG_IGN) != SIG_IGN) {
-		void myexit();	/* needed by ctrace */
-
 		/* cleanup on the interrupt and quit signals */
 		(void) signal(SIGINT, myexit);
 		(void) signal(SIGQUIT, myexit);
@@ -703,7 +708,7 @@ lastarg:
 	return 0;		/* avoid warning... */
 }
 
-void
+static void
 cannotindex(void)
 {
 	(void) fprintf(stderr, "cscope: cannot create inverted index; ignoring -q option\n");
@@ -746,7 +751,7 @@ cannotwrite(char *file)
 
 /* set up the digraph character tables for text compression */
 
-void
+static void
 initcompress(void)
 {
 	int	i;
@@ -763,7 +768,7 @@ initcompress(void)
 
 /* open the database */
 
-void
+static void
 opendatabase(void)
 {
 	if ((symrefs = vpopen(reffile, O_BINARY | O_RDONLY)) == -1) {
@@ -820,6 +825,7 @@ build(void)
 	int	lastfile;		/* last source file in pass */
 	int	built = 0;		/* built crossref for these files */
 	int	copied = 0;		/* copied crossref for these files */
+	long	fileindex;		/* source file name index */
 	BOOL	interactive = YES;	/* output progress messages */
 
 	/* normalize the current directory relative to the home directory so
@@ -1093,7 +1099,7 @@ build(void)
 	
 /* string comparison function for qsort */
 
-int
+static int
 compare(const void *arg_s1, const void *arg_s2)
 {
 	const char **s1 = (const char **) arg_s1;
@@ -1104,7 +1110,7 @@ compare(const void *arg_s1, const void *arg_s2)
 
 /* get the next file name in the old cross-reference */
 
-char *
+static char *
 getoldfile(void)
 {
 	static	char	file[PATHLEN + 1];	/* file name in old crossref */
@@ -1127,7 +1133,7 @@ getoldfile(void)
 /* output the cscope version, current directory, database format options, and
    the database trailer offset */
 
-void
+static void
 putheader(char *dir)
 {
 	dboffset = fprintf(newrefs, "cscope %d %s", FILEVERSION, dir);
@@ -1154,7 +1160,7 @@ putheader(char *dir)
 
 /* put the name list into the cross-reference file */
 
-void
+static void
 putlist(char **names, int count)
 {
 	int	i, size = 0;
@@ -1179,7 +1185,7 @@ putlist(char **names, int count)
 
 /* see if the name list is the same in the cross-reference file */
 
-BOOL
+static BOOL
 samelist(FILE *oldrefs, char **names, int count)
 {
 	char	oldname[PATHLEN + 1];	/* name in old cross-reference */
@@ -1203,7 +1209,7 @@ samelist(FILE *oldrefs, char **names, int count)
 
 /* skip the list in the cross-reference file */
 
-void
+static void
 skiplist(FILE *oldrefs)
 {
 	int	i;
@@ -1222,7 +1228,7 @@ skiplist(FILE *oldrefs)
 
 /* copy this file's symbol data */
 
-void
+static void
 copydata(void)
 {
 	char	symbol[PATLEN + 1];
@@ -1261,7 +1267,7 @@ copydata(void)
 
 /* copy this file's symbol data and output the inverted index postings */
 
-void
+static void
 copyinverted(void)
 {
 	char	*cp;
@@ -1333,7 +1339,7 @@ copyinverted(void)
 
 /* process the #included file in the old database */
 
-void
+static void
 putinclude(char *s)
 {
 	dbputc(INCLUDE);
@@ -1344,7 +1350,7 @@ putinclude(char *s)
 
 /* replace the old file with the new file */
 
-void
+static void
 movefile(char *new, char *old)
 {
 	(void) unlink(old);
