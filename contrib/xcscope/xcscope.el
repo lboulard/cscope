@@ -898,6 +898,13 @@ searching.")
   "")
 (make-variable-buffer-local 'cscope-stop-at-first-match-dir-meta)
 
+(defvar cscope-symbol nil
+  "The last symbol searched for.")
+
+(defvar cscope-adjust-range 1000
+  "How far the point should be adjusted if the symbol is not on the line
+specified by the cscope database.")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar cscope:map nil
@@ -1033,7 +1040,8 @@ not selected.  Save point on mark ring before goto
 LINE-NUMBER if optional argument SAVE-MARK-P is non-nil.
 Put `overlay-arrow-string' if arrow-p is non-nil.
 Returns the window displaying BUFFER."
-  (let (buffer old-pos)
+  (let (buffer old-pos old-point new-point forward-point backward-point
+	       line-end line-length)
     (if (and (stringp file)
 	     (integerp line-number))
 	(progn
@@ -1043,19 +1051,60 @@ Returns the window displaying BUFFER."
 	  (if (windowp window)
 	      (set-window-buffer window buffer)
 	    (setq window (display-buffer buffer)))
-    (set-buffer buffer)
-    (if (> line-number 0)
-	(progn
+	  (set-buffer buffer)
+	  (if (> line-number 0)
+	      (progn
 		(setq old-pos (point))
-	  (goto-line line-number)
-	  (set-window-point window (point))
+		(goto-line line-number)
+		(setq old-point (point))
+		(if cscope-adjust-range
+		    (progn
+		      ;; Calculate the length of the line specified by cscope.
+		      (end-of-line)
+		      (setq line-end (point))
+		      (goto-char old-point)
+		      (setq line-length (- line-end old-point))
+
+		      ;; Search forward and backward for the pattern.
+		      (setq forward-point (search-forward
+					   cscope-symbol
+					   (+ old-point
+					      cscope-adjust-range) t))
+		      (goto-char old-point)
+		      (setq backward-point (search-backward
+					    cscope-symbol
+					    (- old-point
+					       cscope-adjust-range) t))
+		      (if forward-point
+			  (progn
+			    (if backward-point
+				(setq new-point
+				      ;; Use whichever of forward-point or
+				      ;; backward-point is closest to old-point.
+				      ;; Give forward-point a line-length advantage
+				      ;; so that if the symbol is on the currrent
+				      ;; line the current line is chosen.
+				      (if (<= (- (- forward-point line-length)
+						 old-point)
+					      (- old-point backward-point))
+					  forward-point
+					backward-point))
+			      (setq new-point forward-point)))
+			(if backward-point
+			    (setq new-point backward-point)
+			  (setq new-point old-point)))
+		      (goto-char new-point)
+		      (beginning-of-line)
+		      (setq new-point (point)))
+		  (setq new-point old-point))
+		(set-window-point window new-point)
 		(if arrow-p
 		    (set-marker overlay-arrow-position (point))
 		  (set-marker overlay-arrow-position nil))
 		(or (not save-mark-p)
 		    (= old-pos (point))
 		    (push-mark old-pos))
-	  ))
+		))
 	  )
       (message "No entry found at point."))
     )
@@ -1811,6 +1860,7 @@ file."
 		(cscope-prompt-for-symbol "Find this symbol: " nil)
 		))
   (let ()
+    (setq cscope-symbol symbol)
     (cscope-call (format "Finding symbol: %s" symbol)
 		 (list "-0" symbol) nil 'cscope-process-filter
 		 'cscope-process-sentinel)
@@ -1823,6 +1873,7 @@ file."
 		(cscope-prompt-for-symbol "Find this global definition: " nil)
 		))
   (let ()
+    (setq cscope-symbol symbol)
     (cscope-call (format "Finding global definition: %s" symbol)
 		 (list "-1" symbol) nil 'cscope-process-filter
 		 'cscope-process-sentinel)
@@ -1836,6 +1887,7 @@ file."
 		 "Find functions called by this function: " nil)
 		))
   (let ()
+    (setq cscope-symbol symbol)
     (cscope-call (format "Finding functions called by: %s" symbol)
 		 (list "-2" symbol) nil 'cscope-process-filter
 		 'cscope-process-sentinel)
@@ -1849,6 +1901,7 @@ file."
 		 "Find functions calling this function: " nil)
 		))
   (let ()
+    (setq cscope-symbol symbol)
     (cscope-call (format "Finding functions calling: %s" symbol)
 		 (list "-3" symbol) nil 'cscope-process-filter
 		 'cscope-process-sentinel)
@@ -1861,6 +1914,7 @@ file."
 		(cscope-prompt-for-symbol "Find this text string: " nil)
 		))
   (let ()
+    (setq cscope-symbol symbol)
     (cscope-call (format "Finding text string: %s" symbol)
 		 (list "-4" symbol) nil 'cscope-process-filter
 		 'cscope-process-sentinel)
@@ -1874,6 +1928,7 @@ file."
 		  (cscope-prompt-for-symbol "Find this egrep pattern: " nil))
 		))
   (let ()
+    (setq cscope-symbol symbol)
     (cscope-call (format "Finding egrep pattern: %s" symbol)
 		 (list "-6" symbol) nil 'cscope-process-filter
 		 'cscope-process-sentinel)
@@ -1887,6 +1942,7 @@ file."
 		  (cscope-prompt-for-symbol "Find this file: " t))
 		))
   (let ()
+    (setq cscope-symbol symbol)
     (cscope-call (format "Finding file: %s" symbol)
 		 (list "-7" symbol) nil 'cscope-process-filter
 		 'cscope-process-sentinel)
@@ -1901,6 +1957,7 @@ file."
 		   "Find files #including this file: " t))
 		))
   (let ()
+    (setq cscope-symbol symbol)
     (cscope-call (format "Finding files #including file: %s" symbol)
 		 (list "-8" symbol) nil 'cscope-process-filter
 		 'cscope-process-sentinel)
