@@ -1,3 +1,9 @@
+(2002/06/20 - broeker) Fix operation of -C -L0 if pattern contains any
+	               upper-case characters.
+(2002/06/20 - broeker) Fix handling of non-standard whitespace in Flex 
+	               scanner. Should make it more robust against DOS text
+		       files that ended up on a Unix box, and other unexpected
+		       characters, and avoid SF bug #508060.
 (2002/03/16 - broeker) Fix namelist handling bug: ./ in paths would cause 
 	               search for next name to fail (SF bug #529618). 
 		       -I/-p and their argument no longer have to be in 
