@@ -19,11 +19,11 @@ make
 
 %install
 rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/usr/local/bin
-mkdir -p $RPM_BUILD_ROOT/usr/local/man/man1
+mkdir -p $RPM_BUILD_ROOT/usr/bin
+mkdir -p $RPM_BUILD_ROOT/usr/man/man1
 
-install -s -m 755 src/cscope $RPM_BUILD_ROOT/usr/local/bin/cscope
-install -m 755 doc/cscope.1 $RPM_BUILD_ROOT/usr/local/man/man1/cscope.1
+install -s -m 755 src/cscope $RPM_BUILD_ROOT/usr/bin/cscope
+install -m 755 doc/cscope.1 $RPM_BUILD_ROOT/usr/man/man1/cscope.1
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -32,8 +32,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %doc TODO COPYING ChangeLog AUTHORS README NEWS INSTALL
 
-/usr/local/bin/cscope
-/usr/local/man/man1/cscope.1
+/usr/bin/cscope
+/usr/man/man1/cscope.1
 
 %changelog
 * Wed Nov 20 2000 Cscope development team
