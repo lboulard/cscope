@@ -186,12 +186,14 @@
 ;; that is a parent of the directory that this module would otherwise
 ;; use.  For example, consider a project that contains the following
 ;; cscope database directories:
-;;    /users/jdoe/sources
-;;    /users/jdoe/sources/proj1
-;;    /users/jdoe/sources/proj2
+;;
+;;     /users/jdoe/sources
+;;     /users/jdoe/sources/proj1
+;;     /users/jdoe/sources/proj2
+;;
 ;; If a search is initiated from a .c file in /users/jdoe/sources/proj1
 ;; then (assuming the variable, `cscope-database-regexps', is not set)
-;; /usr/src/a_proj/sub1 will be used as the cscope data base directory.
+;; /users/jdoe/sources/proj1 will be used as the cscope data base directory.
 ;; Only matches in files in /users/jdoe/sources/proj1 will be found.  This
 ;; can be remedied by typing "C-c s a" and then "M-del" to remove single
 ;; path element in order to use a cscope database directory of
