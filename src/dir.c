@@ -412,6 +412,18 @@ issrcfile(char *file)
 				}
 			}
 		}
+		else if( s[3] == '\0' ) { /* 3 char suffix */
+			if( 
+			   (*s == 't' && s[1] == 'c' && s[2] == 'c' ) ||
+						/* C++ template source */
+			   0) {
+				/* make sure it is a file */
+				if (stat(file, &statstruct) == 0 && 
+					(statstruct.st_mode & S_IFREG)) {
+					return(YES);
+				}
+			}
+		}
 	}
 	return(NO);
 }
