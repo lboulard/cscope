@@ -71,8 +71,20 @@
 # Here is where we put things
 
 CSCOPE=cscope
-SYSDIR=/usr/local/lib/cs
 HOMEDIR=${HOME}/lib/cs
+
+#set the default value for SYSDIR 
+if [ -z "${SYSDIR}" ]; then
+   SYSDIR=/usr/local/lib/cs
+   echo setting default sysdir
+fi
+
+#check that SYSDIR exists
+if [ ! -d ${SYSDIR} ]; then
+   echo -n $SYSDIR does not exist. 
+   echo Please create the directory and set SYSDIR appropriately
+   exit 
+fi
 
 # Check that cscope is in PATH
 type cscope 1>/dev/null 2>&1
