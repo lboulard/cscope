@@ -261,7 +261,7 @@ extern	BOOL	changing;	/* changing text */
 extern	int	selecting;
 extern	int	curdispline;
 extern	char	newpat[];	/* new pattern */
-extern	char	pattern[];	/* symbol or text pattern */
+extern	char	Pattern[];	/* symbol or text pattern */
 
 /* crossref.c global data */
 extern	long	dboffset;	/* new database offset */
@@ -335,7 +335,7 @@ char	*findstring(char *pattern);
 char	*inviewpath(char *file);
 char	*lookup(char *ident);
 char	*pathcomponents(char *path, int components);
-char	*readblock(void);
+char	*read_block(void);
 char	*scanpast(char c);
 
 

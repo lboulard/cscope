@@ -1,5 +1,24 @@
 2004-04-30  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
+	* src/vpinit.c (vpinit): Renamed argument currentdir to
+	current_dir to avoid name clash with same-named global.
+
+	* src/command.c (Pattern): Renamed from "pattern", to avoid
+	multitute of compiler warnings about shadowing by locally defined
+	variables of the same name.  Changed all usages of this variable,
+	too.
+	(command): Test for individual KEY_* macros instead of TERMINFO
+	whenever one of the KEY_* macros is referenced.  This should
+	reduce the TERMINFO mess a little.
+
+	* src/find.c (read_block): Renamed from "readblock", to avoid name
+	clash with QNX system function of that name.  Calls changed
+	accordingly, all over the place.
+
+	* src/display.c: Fix fall-back definition of sigjmp_buf.
+
+	* src/constants.h: Activate TERMINFO for FreeBSD.
+
 	* src/input.c (mygetline): New function.  Poor-man's readline
 	imitation.
 

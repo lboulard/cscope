@@ -65,7 +65,7 @@ extern	char	vpdirs[MAXDIR][DIRLEN + 1];
 #endif
 extern	int	vpndirs;	/* number of directories in view path */
 
-void	vpinit(char *currentdir);
+void	vpinit(char *current_dir);
 int	vpopen(char *path, int oflag);
 int	vpaccess(char *path, mode_t amode);
 

@@ -172,7 +172,7 @@ main(int argc, char **argv)
 					postfatal("cscope: pattern too long, cannot be > %d characters\n", PATLEN);
 					/* NOTREACHED */
 				}
-				(void) strcpy(pattern, s);
+				(void) strcpy(Pattern, s);
 				goto nextarg;
 			}
 			switch (*s) {
@@ -372,10 +372,10 @@ lastarg:
 		entercurses();
 #if TERMINFO
 		(void) keypad(stdscr, TRUE);	/* enable the keypad */
-#ifdef HAVE_FIXKEYPAD
+# ifdef HAVE_FIXKEYPAD
 		fixkeypad();	/* fix for getch() intermittently returning garbage */
-#endif
-#endif
+# endif
+#endif /* TERMINFO */
 #if UNIXPC
 		standend();	/* turn off reverse video */
 #endif
@@ -545,7 +545,7 @@ lastarg:
 	/* if using the line oriented user interface so cscope can be a 
 	   subprocess to emacs or samuel */
 	if (linemode == YES) {
-		if (*pattern != '\0') {		/* do any optional search */
+		if (*Pattern != '\0') {		/* do any optional search */
 			if (search() == YES) {
 				while ((c = getc(refsfound)) != EOF) {
 					(void) putchar(c);
@@ -579,7 +579,7 @@ lastarg:
 			case '8':
 			case '9':	/* samuel only */
 				field = *buf - '0';
-				(void) strcpy(pattern, buf + 1);
+				(void) strcpy(Pattern, buf + 1);
 				(void) search();
 				(void) printf("cscope: %d lines\n", totallines);
 				while ((c = getc(refsfound)) != EOF) {
@@ -641,12 +641,11 @@ lastarg:
 		askforreturn();
 	}
 	/* do any optional search */
-	if (*pattern != '\0') {
+	if (*Pattern != '\0') {
 		atfield();		/* move to the input field */
 		(void) command(ctrl('Y'));	/* search */
-	}
-	/* read any symbol reference lines file */
-	else if (reflines != NULL) {
+	} else if (reflines != NULL) {
+		/* read any symbol reference lines file */
 		(void) readrefs(reflines);
 	}
 	display();		/* update the display */
