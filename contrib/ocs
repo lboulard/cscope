@@ -70,9 +70,19 @@
 #
 # Here is where we put things
 
-CSCOPE=/usr/bin/cscope
+CSCOPE=cscope
 SYSDIR=/usr/local/lib/cs
 HOMEDIR=${HOME}/lib/cs
+
+# Check that cscope is in PATH
+type cscope 1>/dev/null 2>&1
+
+if [ $? -ne 0 ]
+then
+	echo "ERROR: cscope is not in \$PATH" >&2
+	echo "       Please set \$PATH correctly or make sure cscope is installed" >&2
+	exit 1
+fi
 
 # popup editor 
 #XCS_EDITOR=${HOME}/bin/x_cscope_editor
