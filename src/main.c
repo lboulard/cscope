@@ -48,7 +48,6 @@
 #else
 #include <curses.h>
 #endif
-#include <fcntl.h>	/* O_RDONLY */
 #include <sys/types.h>	/* needed by stat.h */
 #include <sys/stat.h>	/* stat */
 
@@ -151,7 +150,7 @@ main(int argc, char **argv)
 				}
 				if (strlen(s) > PATLEN) {
 					(void) fprintf(stderr, "cscope: pattern too long, cannot be > %d characters\n", PATLEN);
-					exit(1);
+					myexit(1);
 				}
 				(void) strcpy(pattern, s);
 				goto nextarg;
@@ -168,7 +167,7 @@ main(int argc, char **argv)
 #else
 				(void) fprintf(stderr, "%s: version %d%s\n", argv0,
 					FILEVERSION, FIXVERSION);
-				exit(0);
+				myexit(0);
 #endif
 			case 'b':	/* only build the cross-reference */
 				buildonly = YES;
@@ -189,7 +188,7 @@ main(int argc, char **argv)
 				break;
 			case 'h':
 				(void) longusage();
-				exit(1);
+				myexit(1);
 			case 'k':	/* ignore DFLT_INCDIR */
 				kernelmode = YES;
 				break;
@@ -288,7 +287,7 @@ main(int argc, char **argv)
 			usage:
 				(void) usage();
 				(void) fprintf(stderr, "Try the -h option for more information.\n");
-				exit(1);
+				myexit(1);
 			}
 		}
 nextarg:	;
@@ -308,7 +307,7 @@ lastarg:
 	if (namefile && strcmp(namefile, "-") == 0 && !buildonly)
 	{
 	    fprintf (stderr, "cscope: Must use -b if file list comes from stdin\n");
-	    exit(1);
+	    myexit(1);
 	}
 
 	/* make sure that tmpdir exists */
@@ -316,7 +315,7 @@ lastarg:
 	{
 		fprintf (stderr, "cscope: Temporary directory %s does not exist or cannot be accessed\n", tmpdir);
 		fprintf (stderr, "cscope: Please create the directory or set the environment variable\ncscope: TMPDIR to a valid directory\n");
-		exit(1);
+		myexit(1);
 	}
 
 	/* create the temporary file names */
@@ -480,7 +479,7 @@ lastarg:
 			for (i = 0; i < nsrcfiles; ++i) {
 				if (fscanf(oldrefs, "%s", path) != 1) {
  					posterr("cscope: cannot read source file name from file %s\n", reffile);
-					exit(1);
+					myexit(1);
 				}
 				srcfiles[i] = stralloc(path);
 			}
@@ -721,12 +720,12 @@ skiplist(FILE *oldrefs)
 	
 	if (fscanf(oldrefs, "%d", &i) != 1) {
 		posterr("cscope: cannot read list size from file %s\n", reffile);
-		exit(1);
+		myexit(1);
 	}
 	while (--i >= 0) {
 		if (fscanf(oldrefs, "%*s") != 0) {
 			posterr("cscope: cannot read list name from file %s\n", reffile);
-			exit(1);
+			myexit(1);
 		}
 	}
 }

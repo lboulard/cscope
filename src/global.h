@@ -106,6 +106,12 @@ char	*memset();
 # endif
 #endif
 
+/* HBB 20020728: if <fcntl.h> is there, #include it here, since that's
+ * where the system definitions of O_TEXT should be coming from */
+#ifdef HAVE_FCNTL_H
+# include <fcntl.h>
+#endif
+
 /* HBB 20020103: Need to force text or binary mode opens on Cygwins,
  * because of their "binary/text mode mount" silliness :-( */
 #ifndef O_TEXT

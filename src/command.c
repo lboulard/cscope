@@ -43,7 +43,6 @@
 #else
 #include <curses.h>
 #endif
-#include <fcntl.h>	/* O_RDONLY */
 #include <ctype.h>
 
 static char const rcsid[] = "$Id$";

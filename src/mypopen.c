@@ -32,7 +32,6 @@
 
 #include <stdio.h>
 #include <signal.h>
-#include <fcntl.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>

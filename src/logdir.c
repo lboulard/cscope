@@ -41,7 +41,6 @@
 
 #include <unistd.h>
 #include <string.h>
-#include <fcntl.h>
 #include "global.h"
 
 #define	OURBUFSIZ	160	/* renamed: avoid conflict with <stdio.h> */

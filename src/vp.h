@@ -44,7 +44,15 @@
 
 #define MAXPATH	200		/* max length for entire name */
 
-#include <fcntl.h>
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#else
+# define HAVE_FCNTL_H 1		/* in case of doubt, assume it's there */
+#endif
+#ifdef HAVE_FCNTL_H
+# include <fcntl.h>		/* needed for O_... open flags */
+#endif
+
 #include <sys/stat.h>
 
 #if !NOMALLOC

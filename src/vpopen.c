@@ -34,7 +34,6 @@
 /* vpopen - view path version of the open system call */
 
 #include <stdio.h>
-#include <fcntl.h>
 #include "global.h"
 #include "vp.h"
 

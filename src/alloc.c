@@ -47,7 +47,6 @@ static	void	*alloctest(void *p);
 #include <stdlib.h>
 # else
 char	*calloc(), *malloc(), *realloc(), *strcpy();
-void	exit();
 # endif
 
 /* allocate a string */
@@ -89,7 +88,7 @@ alloctest(void *p)
 {
 	if (p == NULL) {
 		(void) fprintf(stderr, "\n%s: out of storage\n", argv0);
-		exit(1);
+		myexit(1);
 	}
 	return(p);
 }

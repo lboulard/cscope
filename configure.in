@@ -143,6 +143,7 @@ AC_CHECK_YACC
 dnl Checks for programs.
 AC_PROG_INSTALL
 AC_PROG_CC
+AC_EXEEXT
 AMNU_PROG_LEX
 AM_CONDITIONAL(USING_LEX, test "x$LEX" = "xlex")
 dnl below is hack to shut automake up about things it shouldn't be checking

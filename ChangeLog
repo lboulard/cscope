@@ -1,3 +1,8 @@
+(2002/07/27 - broeker) Yet another round of Cygwin-related fixes.  Do the 
+		       #include <fcntl.h> early enough, so checks for 
+		       O_BINARY work.  Make sure that myexit() is always
+		       called instead of calling exit() directly.  Add
+		       AC_EXEEXT to configure.in.
 (2002/07/10 - broeker) Get rid of assumption about values of access()
 	               parameters W_OK and R_OK --- make assumptions only 
 		       if system doesn't supply values.  Add check for 
