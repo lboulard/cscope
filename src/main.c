@@ -1343,8 +1343,8 @@ exitcurses(void)
 static void
 usage(void)
 {
-	(void) fprintf(stderr, "Usage:  cscope [-bcCdehklLqTuUV] [-f file] [-F file] [-i file] [-I dir] [-s dir]\n");
-	(void) fprintf(stderr, "               [-p number] [-P path] [-[0-8] pattern] [source files]\n");
+	(void) fprintf(stderr, "Usage: cscope [-bcCdehklLqRTuUV] [-f file] [-F file] [-i file] [-I dir] [-s dir]\n");
+	(void) fprintf(stderr, "              [-p number] [-P path] [-[0-8] pattern] [source files]\n");
 }
 
 /* long usage message */
@@ -1371,6 +1371,7 @@ longusage(void)
 	(void) fprintf(stderr, "-P path       Prepend path to relative file names in pre-built cross-ref file.\n");
 	(void) fprintf(stderr, "-p n          Display the last n file path components.\n");
 	(void) fprintf(stderr, "-q            Build an inverted index for quick symbol searching.\n");
+	(void) fprintf(stderr, "-R            Recurse directories for files.\n");
 	(void) fprintf(stderr, "-s dir        Look in dir for additional source  files.\n");
 	(void) fprintf(stderr, "-T            Use only the first eight characters to match against C symbols.\n");
 	(void) fprintf(stderr, "-U            Check file time stamps.\n");
