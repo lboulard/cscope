@@ -1070,7 +1070,7 @@ build(void)
 			else {
 				cannotindex();
 			}
-			(void) pclose(postings);
+			(void) mypclose(postings);
 		}
 		(void) unlink(temp1);
 		(void) free(srcoffset);

@@ -152,20 +152,24 @@ mypopen(char *cmd, char *mode)
 	popen_pid[myside] = pid;
 	(void) close(yourside);
 	return(fdopen(myside, mode));
-#endif
+#endif /* DJGPP */
 }
 
-#ifndef __DJGPP__ /* Don't replace that system's pclose() with our own. */
-/* FIXME: should we really override pclose(), after having left
- * popen() well alone, and calling our own version mypopen()? */
+/* HBB 20010705: renamed from 'pclose', which would collide with
+ * system-supplied function of same name */
 int
-pclose(FILE *ptr)
+mypclose(FILE *ptr)
 {
 	int f;
 	pid_t r;
 	int status;
 	RETSIGTYPE (*hstat)(int), (*istat)(int), (*qstat)(int);
 
+#ifdef __DJGPP__ 
+	/* HBB 20010705: This system has its own pclose(), which we
+	 * don't want to replace */
+	return (pclose)(ptr);
+#else
 	f = fileno(ptr);
 	(void) fclose(ptr);
 	istat = signal(SIGINT, SIG_IGN);
@@ -182,5 +186,5 @@ pclose(FILE *ptr)
 	/* mark this pipe closed */
 	popen_pid[f] = 0;
 	return(status);
+#endif /* DJGPP */
 }
-#endif

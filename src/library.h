@@ -47,6 +47,7 @@ void	*mymalloc(int size);
 void	*myrealloc(void *p, int size);
 char	*stralloc(char *s);
 FILE	*mypopen(char *cmd, char *mode);
+int	mypclose(FILE *ptr);
 FILE	*vpfopen(char *filename, char *type);
 void	egrepcaseless(int i);
 

@@ -387,7 +387,7 @@ command(int commandc)
 				(void) putc(c, file);
 			}
 			seekline(topline);
-			(void) pclose(file);
+			(void) mypclose(file);
 		}
 		if (commandc == '^') {
 			if (readrefs(temp2) == NO) {
