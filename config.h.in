@@ -90,6 +90,9 @@
 /* Define if you have the <sys/ndir.h> header file.  */
 #undef HAVE_SYS_NDIR_H
 
+/* Define if you have the <sys/termios.h> header file.  */
+#undef HAVE_SYS_TERMIOS_H
+
 /* Define if you have the <sys/window.h> header file.  */
 #undef HAVE_SYS_WINDOW_H
 
