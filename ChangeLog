@@ -1,3 +1,40 @@
+2004-01-08  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	* src/display.c (clearmsg): New function.  Does essentially the
+	same thing previously achieved by a rather more cryptic
+	postmsg("").
+	(postfatal): New function to printout a fatal error message and
+	terminate the program. Works like posterr(), but exits curses
+	first, so the message should end up visible after the program
+	exits.  Using this instead of posterr()+myexit() fixes SF bug
+	#419510.
+	(dispinit): Use postfatal:().
+	(postmsg): Use clearmsg().
+	(postmsg2): Call curses refresh() after change.
+
+	* src/global.h: Add prototypes for new functions clearmsg() and
+	postfatal().
+
+	* src/find.c (putsource): Use postfatal().
+
+	* src/main.c (main, skiplist): Use postfatal() and clearmsg().
+
+	* src/command.c (command): Use clearmsg().
+
+	* src/build.c (build, seek_to_trailer, movefile): Use postfatal().
+
+	* src/alloc.c (alloctest): Use postfatal().
+
+	* src/display.c (jumpback): Re-instate signal handler, in an
+	attempt to fix problems reported with the general behaviour of
+	signal handlers in cscope.
+
+	* src/scanner.l (ws, wsnl): Two new predefined patterns to catch
+	not only blanks and tabs, but all generally allowed white-space
+	characters in source files: form feeds, vertical tabs, carriage
+	returns.  Replaced most occurence of [ \t] and [ \t\n] by these.
+	This is a back-port from fscanner.l.  Should fix SF bug #508060.
+
 Wed Oct 15 16:05:46 2003  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	* src/dir.c (scan_dir): Don't reduce path to basename before

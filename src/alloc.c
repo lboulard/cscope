@@ -87,8 +87,8 @@ static	void *
 alloctest(void *p)
 {
 	if (p == NULL) {
-		(void) fprintf(stderr, "\n%s: out of storage\n", argv0);
-		myexit(1);
+		postfatal("\n%s: out of storage\n", argv0);
+		/* NOTREACHED */
 	}
 	return(p);
 }

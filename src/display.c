@@ -121,8 +121,8 @@ dispinit(void)
 
 
 	if (mdisprefs <= 0) {
-		(void) fprintf(stderr, "%s: screen too small\n", argv0);
-		myexit(1);
+		postfatal("%s: screen too small\n", argv0);
+		/* NOTREACHED */
 	}
 
 	if (mouse == NO && mdisprefs > strlen(dispchars))
@@ -396,7 +396,9 @@ atchange(void)
 static RETSIGTYPE
 jumpback(int sig)
 {
-	(void) sig;		/* 'use' sig, to avoid warning from compiler */
+	/* HBB NEW 20031008: try whether reinstating signal handler
+	 * helps... */
+	signal(sig, jumpback);
 	longjmp(env, 1);
 }
 
@@ -618,12 +620,22 @@ postmsg(char *msg)
 		fflush(stdout);
 	}
 	else {
-		move(MSGLINE, 0);
-		clrtoeol();
+		clearmsg();
 		addstr(msg);
 		refresh();
 	}
 	(void) strncpy(lastmsg, msg, sizeof(lastmsg) - 1);
+}
+
+/* clearmsg clears the first message line */
+
+void
+clearmsg(void)
+{
+	if (linemode == NO) {
+		move(MSGLINE, 0);
+		clrtoeol();
+	}
 }
 
 /* clearmsg2 clears the second message line */
@@ -648,6 +660,7 @@ postmsg2(char *msg)
 	else {
 		clearmsg2();
 		addstr(msg);
+		refresh();
 	}
 }
 
@@ -663,9 +676,7 @@ posterr(char *msg, ...)
     {
         (void) vfprintf(stderr, msg, ap); 
 	(void) fputc('\n', stderr);
-    }
-    else
-    {
+    } else {
 #if HAVE_VSNPRINTF
         vsnprintf(errbuf, sizeof(errbuf), msg, ap);
 #else
@@ -675,6 +686,30 @@ posterr(char *msg, ...)
     }
 }
 
+/* display a fatal error mesg -- stderr *after* shutting down curses */
+void
+postfatal(const char *msg, ...)
+{
+	va_list ap;
+	char errbuf[MSGLEN];
+
+	va_start(ap, msg);
+#if HAVE_VSNPRINTF
+	vsnprintf(errbuf, sizeof(errbuf), msg, ap);
+#else
+	vsprintf(errbuf, msg, ap);
+#endif
+	/* restore the terminal to its original mode */
+	if (incurses == YES) {
+		exitcurses();
+	}
+
+	/* display fatal error messages */
+	fprintf(stderr,"%s",errbuf);
+
+	/* shut down */
+	myexit(1);
+}
 
 /* position references found file at specified line */
 

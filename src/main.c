@@ -53,7 +53,7 @@
 
 /* defaults for unset environment variables */
 #define	EDITOR	"vi"
-#define HOME	"/"     /* no $HOME --> use root directory */
+#define HOME	"/"	/* no $HOME --> use root directory */
 #define	SHELL	"sh"
 #define LINEFLAG "+%s"	/* default: used by vi and emacs */
 #define TMPDIR	"/tmp"
@@ -141,7 +141,7 @@ main(int argc, char **argv)
 	while (--argc > 0 && (*++argv)[0] == '-') {
 		/* HBB 20030814: add GNU-style --help and --version
 		 * options */
-	  	if (strequal(argv[0], "--help")
+		if (strequal(argv[0], "--help")
 		    || strequal(argv[0], "-h")) {
 			longusage();
 			myexit(0);
@@ -169,8 +169,8 @@ main(int argc, char **argv)
 					s = *++argv;
 				}
 				if (strlen(s) > PATLEN) {
-					(void) fprintf(stderr, "cscope: pattern too long, cannot be > %d characters\n", PATLEN);
-					myexit(1);
+					postfatal("cscope: pattern too long, cannot be > %d characters\n", PATLEN);
+					/* NOTREACHED */
 				}
 				(void) strcpy(pattern, s);
 				goto nextarg;
@@ -248,7 +248,7 @@ main(int argc, char **argv)
 				case 'f':	/* alternate cross-reference file */
 					reffile = s;
 					(void) strcpy(path, s);
-#ifdef SHORT_NAMES_ONLY 
+#ifdef SHORT_NAMES_ONLY
 					/* System V has a 14 character limit */
 					s = mybasename(path);
 					if (strlen(s) > 11) {
@@ -317,8 +317,8 @@ lastarg:
 	/* XXX remove if/when clearerr() in dir.c does the right thing. */
 	if (namefile && strcmp(namefile, "-") == 0 && !buildonly)
 	{
-	    fprintf (stderr, "cscope: Must use -b if file list comes from stdin\n");
-	    myexit(1);
+	    postfatal("cscope: Must use -b if file list comes from stdin\n");
+	    /* NOTREACHED */
 	}
 
 	/* make sure that tmpdir exists */
@@ -381,7 +381,7 @@ lastarg:
 #endif
 		dispinit();	/* initialize display parameters */
 		setfield();	/* set the initial cursor position */
-		postmsg("");	/* clear any build progress message */
+		clearmsg();	/* clear any build progress message */
 		display();	/* display the version number and input fields */
 	}
 
@@ -389,13 +389,13 @@ lastarg:
 	/* if the cross-reference is to be considered up-to-date */
 	if (isuptodate == YES) {
 		if ((oldrefs = vpfopen(reffile, "rb")) == NULL) {
-			posterr("cscope: cannot open file %s\n", reffile);
-			myexit(1);
+			postfatal("cscope: cannot open file %s\n", reffile);
+			/* NOTREACHED */
 		}
 		/* get the crossref file version but skip the current directory */
 		if (fscanf(oldrefs, "cscope %d %*s", &fileversion) != 1) {
-			posterr("cscope: cannot read file version from file %s\n", reffile);
-			myexit(1);
+			postfatal("cscope: cannot read file version from file %s\n", reffile);
+			/* NOTREACHED */
 		}
 		if (fileversion >= 8) {
 
@@ -433,8 +433,8 @@ lastarg:
 
 		/* get the number of source files */
 		if (fscanf(oldrefs, "%d", &nsrcfiles) != 1) {
-			posterr("cscope: cannot read source file size from file %s\n", reffile);
-			myexit(1);
+			postfatal("cscope: cannot read source file size from file %s\n", reffile);
+			/* NOTREACHED */
 		}
 		/* get the source file list */
 		srcfiles = mymalloc(nsrcfiles * sizeof(char *));
@@ -442,16 +442,16 @@ lastarg:
 
 			/* allocate the string space */
 			if (fscanf(oldrefs, "%d", &oldnum) != 1) {
-				posterr("cscope: cannot read string space size from file %s\n", reffile);
-				myexit(1);
+				postfatal("cscope: cannot read string space size from file %s\n", reffile);
+				/* NOTREACHED */
 			}
 			s = (char *)mymalloc((unsigned) oldnum);
 			(void) getc(oldrefs);	/* skip the newline */
 			
 			/* read the strings */
 			if (fread(s, oldnum, 1, oldrefs) != 1) {
-				posterr("cscope: cannot read source file names from file %s\n", reffile);
-				myexit(1);
+				postfatal("cscope: cannot read source file names from file %s\n", reffile);
+				/* NOTREACHED */
 			}
 			/* change newlines to nulls */
 			for (i = 0; i < nsrcfiles; ++i) {
@@ -489,8 +489,8 @@ lastarg:
 		else {
 			for (i = 0; i < nsrcfiles; ++i) {
 				if (fscanf(oldrefs, "%s", path) != 1) {
- 					posterr("cscope: cannot read source file name from file %s\n", reffile);
-					myexit(1);
+ 					postfatal("cscope: cannot read source file name from file %s\n", reffile);
+					/* NOTREACHED */
 				}
 				srcfiles[i] = stralloc(path);
 			}
@@ -510,8 +510,8 @@ lastarg:
 		srcfiles = mymalloc(msrcfiles * sizeof(char *));
 		makefilelist();
 		if (nsrcfiles == 0) {
-			posterr( "cscope: no source files found\n");
-			myexit(1);
+			postfatal("cscope: no source files found\n");
+			/* NOTREACHED */
 		}
 		/* get include directories from the environment */
 		if ((s = getenv("INCLUDEDIRS")) != NULL) {
@@ -532,10 +532,10 @@ lastarg:
 		/* build the cross-reference */
 		initcompress();
 		if (linemode == NO || verbosemode == YES)    /* display if verbose as well */
-                    postmsg("Building cross-reference...");
+			postmsg("Building cross-reference...");    		    
 		build();
 		if (linemode == NO )
-                    postmsg("");	/* clear any build progress message */
+                    clearmsg();		/* clear any build progress message */
 		if (buildonly == YES) {
 			myexit(0);
 		}
@@ -681,6 +681,7 @@ cannotopen(char *file)
 	posterr("Cannot open file %s", file);
 }
 
+/* FIXME MTE - should use postfatal here */
 void
 cannotwrite(char *file)
 {
@@ -730,13 +731,13 @@ skiplist(FILE *oldrefs)
 	int	i;
 	
 	if (fscanf(oldrefs, "%d", &i) != 1) {
-		posterr("cscope: cannot read list size from file %s\n", reffile);
-		myexit(1);
+		postfatal("cscope: cannot read list size from file %s\n", reffile);
+		/* NOTREACHED */
 	}
 	while (--i >= 0) {
 		if (fscanf(oldrefs, "%*s") != 0) {
-			posterr("cscope: cannot read list name from file %s\n", reffile);
-			myexit(1);
+			postfatal("cscope: cannot read list name from file %s\n", reffile);
+			/* NOTREACHED */
 		}
 	}
 }

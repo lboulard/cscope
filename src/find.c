@@ -791,8 +791,8 @@ putsource(int seemore, FILE *output)
 	blockp = cp;
 	if (*blockp != '\n' || getrefchar() != '\n' || 
 	    (!isdigit(getrefchar()) && fileversion >= 12)) {
-		postmsg("Internal error: cannot get source line from database");
-		myexit(1);
+		postfatal("Internal error: cannot get source line from database");
+		/* NOTREACHED */
 	}
 	/* until a double newline is found */
 	do {

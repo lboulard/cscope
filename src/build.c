@@ -315,8 +315,8 @@ build(void)
 		}
 		/* reopen the old cross-reference file for fast scanning */
 		if ((symrefs = vpopen(reffile, O_BINARY | O_RDONLY)) == -1) {
-			(void) fprintf(stderr, "cscope: cannot open file %s\n", reffile);
-			myexit(1);
+			postfatal("cscope: cannot open file %s\n", reffile);
+			/* NOTREACHED */
 		}
 		/* get the first file name in the old cross-reference */
 		blocknumber = -1;
@@ -330,8 +330,8 @@ build(void)
 	}
 	/* open the new cross-reference file */
 	if ((newrefs = myfopen(newreffile, "wb")) == NULL) {
-		(void) fprintf(stderr, "cscope: cannot open file %s\n", reffile);
-		myexit(1);
+		postfatal("cscope: cannot open file %s\n", reffile);
+		/* NOTREACHED */
 	}
 	if (invertedindex == YES && (postings = myfopen(temp1, "wb")) == NULL) {
 		cannotwrite(temp1);
@@ -492,12 +492,12 @@ compare(const void *arg_s1, const void *arg_s2)
 void seek_to_trailer(FILE *f) 
 {
     if (fscanf(f, "%ld", &traileroffset) != 1) {
-	posterr("cscope: cannot read trailer offset from file %s\n", reffile);
-	myexit(1);
+	postfatal("cscope: cannot read trailer offset from file %s\n", reffile);
+	/* NOTREACHED */
     }
     if (fseek(f, traileroffset, SEEK_SET) == -1) {
-	posterr("cscope: cannot seek to trailer in file %s\n", reffile);
-	myexit(1);
+	postfatal("cscope: cannot seek to trailer in file %s\n", reffile);
+	/* NOTREACHED */
     }
 }
 
@@ -703,9 +703,9 @@ movefile(char *new, char *old)
 	(void) unlink(old);
 	if (rename(new, old) == -1) {
 		(void) myperror("cscope");
-		posterr("cscope: cannot rename file %s to file %s\n",
-			new, old);
-		myexit(1);
+	 	postfatal("cscope: cannot rename file %s to file %s\n",
+			   new, old);
+		/* NOTREACHED */
 	}
 }
 

@@ -109,7 +109,7 @@ command(int commandc)
 			askforreturn();
 		}		
 		entercurses();
-		postmsg("");		/* clear any previous message */
+		clearmsg();		/* clear any previous message */
 		totallines = 0;
 		disprefs = 0;	
 		topline = nextline = 1;
