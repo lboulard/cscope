@@ -4,4 +4,7 @@ It has been released by The Santa Cruz Operation, Inc as Open Source under
 the BSD license. Please look at COPYING for a detailed description of the
 license.
 
+TIPS:
+- Try to use flex as the lexical analyzer. There may be some problems with using the native lex (due to some problems). The has been reported as a problem on Solaris.
+
 Browse to http://cscope.sourceforge.net for more current information
