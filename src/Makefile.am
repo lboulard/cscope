@@ -1,5 +1,16 @@
 ## Process this file with automake to produce Makefile.in
 
+if HAS_GNOME
+if USING_GNOME2
+GNOMECFLAGS = `pkg-config --cflags libgnomeui-2.0 libpanelapplet-2.0 libglade-2.0`
+GNOMELINKAGE = `pkg-config --libs libgnomeui-2.0 libpanelapplet-2.0 libglade-2.0|sed -e 's/-lz //'`
+else
+GNOMECFLAGS = `gnome-config --cflags gnomeui applets libglade`
+GNOMELINKAGE = `gnome-config --libs gnomeui applets libglade|sed -e 's/-lz //'`	
+endif
+
+EXTRA_PROGRAMS = gscope
+endif
 bin_PROGRAMS = cscope
 
 if USING_LEX
@@ -29,3 +40,17 @@ dist-hook:
 	rm -f $(distdir)/scanner.c $(distdir)/fscanner.c $(distdir)/egrep.c
 
 EXTRA_DIST = emacs.e gmacs.ml
+
+if HAS_GNOME
+GNOME_SWITCH=-DUSING_GNOME_UI
+
+## if we compile gscope under Linux, we need to supply libglade the callback pointers
+if GNOME_LINUX
+GNOME_LINUX_FLAG = "-rdynamic"
+endif
+
+gscope_CFLAGS = $(GNOMECFLAGS) $(GNOME_SWITCH)
+gscope_LDADD =  $(CURSES_LIBS) $(LEXLIB)
+gscope_SOURCES = gscope.c $(cscope_SOURCES)
+gscope_LDFLAGS = $(GNOMELINKAGE) $(GNOME_LINUX_FLAG)
+endif
