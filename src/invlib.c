@@ -180,7 +180,12 @@ invmake(char *invname, char *invpost, FILE *infile)
 		++totpost;
 #endif
 		s = (unsigned char *) strchr(line, SEP);
-		*s = '\0';
+		if (s != NULL) {
+			*s = '\0';
+		}
+		else {
+			continue;
+		}
 #if STATS
 		if ((i = strlen(line)) > maxtermlen) {
 			maxtermlen = i;
