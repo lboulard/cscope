@@ -1,3 +1,4 @@
+(2000/12/11 - frost) Safety feature in mypopen.c
 (2000/11/28 - blank) More FreeBSD support
 (2000/11/23 - broeker) Added check for snprintf() to configure.in
 (2000/11/22 - petrs) Updated date to cscope.1 man page and retagged the file

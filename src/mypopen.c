@@ -62,7 +62,18 @@ myopen(char *path, int flag, int mode)
 	if(fd != -1 && (fcntl(fd, F_SETFD, CLOSE_ON_EXEC) != -1))
 		return(fd);
 
-	else return(-1);
+	else
+	{
+		// Ensure that if the fcntl fails and fd is valid, then
+		// the file is closed properly. In general this should
+		// not happen.
+		if (fd != -1)
+		{
+			close (fd);
+		}
+
+		return(-1);
+	}
 }
 
 FILE *

@@ -16,3 +16,4 @@ Rich Salz - Allow -i accept stdio as input as "-"
 Stephane Fritsch - BeOS support
 Andy Newman <atrn> - FreeBSD support patch
 Sascha Blank - FreeBSD support
+Bruce Frost - Stability
