@@ -38,5 +38,5 @@
  *	forces rebuilding of the cross-reference.
  */
 
-#define	FILEVERSION	15	/* Initial Open Source and Linux Port */
-#define	FIXVERSION	".3"	/* feature and bug fix version */
+#define	FILEVERSION	16	/* Initial Open Source and Linux Port */
+#define	FIXVERSION	".0a"	/* feature and bug fix version */

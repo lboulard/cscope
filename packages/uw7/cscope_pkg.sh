@@ -89,7 +89,7 @@ fi
 
 # Install the spool dir cscope entry into the package
 echo "INFO: creating package" >&2
-pkgtrans -s /var/spool/pkg cscope.15.2b.pkg cscope
+pkgtrans -s /var/spool/pkg cscope.16.0a.pkg cscope
 if [ $? -ne 0 ]
 then
 	echo "ERROR: An error occurred while creating the package" >&2

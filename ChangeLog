@@ -1,3 +1,4 @@
+(2001/07/03 - petrs)   Updated the version strings to 16.0a.
 (2001/07/02 - petrs)   Updated the contrib/README to include xcscope.
 (2001/07/02 - petrs)   15.3 version name, man page update, README update.
                        Make dist includes webcscope directory.
