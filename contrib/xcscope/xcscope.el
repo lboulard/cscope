@@ -6,7 +6,7 @@
 ; Description:  cscope interface for XEmacs
 ; Author:       Darryl Okahata
 ; Created:      Wed Apr 19 17:03:38 2000
-; Modified:     Tue Jun 13 14:58:13 2000 (Darryl Okahata) darrylo@soco.agilent.com
+; Modified:     Fri Aug 11 12:04:25 2000 (Darryl Okahata) darrylo@soco.agilent.com
 ; Language:     Emacs-Lisp
 ; Package:      N/A
 ; Status:       Experimental
@@ -14,7 +14,7 @@
 ; (C) Copyright 2000, Darryl Okahata, all rights reserved.
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ALPHA VERSION 0.90
+;; ALPHA VERSION 0.92
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; This is a cscope interface for XEmacs.
@@ -629,10 +629,15 @@ when creating the list of files and the corresponding cscope database."
 
 
 (defcustom cscope-no-mouse-prompts nil
-  "*If non-nil, use the file/symbol under the cursor.
-Do not prompt for a value."
+  "*If non-nil, use the symbol under the cursor instead of prompting.
+Do not prompt for a value, except for when seaching for a egrep pattern
+or a file."
   :type 'boolean
   :group 'cscope)
+
+
+(defcustom cscope-suppress-empty-matches t
+  "*If non-nil, delete empty matches.")
 
 
 (defcustom cscope-indexing-script "cscope-indexer"
@@ -642,6 +647,13 @@ Do not prompt for a value."
 
 
 (defcustom cscope-symbol-chars "A-Za-z0-9_"
+  "*A string containing legal characters in a symbol.
+The current syntax table should really be used for this."
+  :type 'string
+  :group 'cscope)
+
+
+(defcustom cscope-filename-chars "-.,/A-Za-z0-9_~!@#$%&+=\\\\"
   "*A string containing legal characters in a symbol.
 The current syntax table should really be used for this."
   :type 'string
@@ -719,6 +731,12 @@ searching.")
 (make-variable-buffer-local 'cscope-filter-func)
 
 
+(defvar cscope-sentinel-func nil
+  "Internal variable for holding the sentinel function to use (if any) when
+searching.")
+(make-variable-buffer-local 'cscope-filter-func)
+
+
 (defvar cscope-last-file nil
   "The file referenced by the last line of cscope process output.")
 (make-variable-buffer-local 'cscope-last-file)
@@ -726,22 +744,37 @@ searching.")
 
 (defvar cscope-start-time nil
   "The search start time, in seconds.")
+(make-variable-buffer-local 'cscope-start-time)
 
 
 (defvar cscope-first-match nil
   "The first match result output by cscope.")
+(make-variable-buffer-local 'cscope-first-match)
 
 
 (defvar cscope-first-match-point nil
   "Buffer location of the first match.")
+(make-variable-buffer-local 'cscope-first-match-point)
+
+
+(defvar cscope-item-start nil
+  "The point location of the start of a search's output, before header info.")
+(make-variable-buffer-local 'cscope-output-start)
+
+
+(defvar cscope-output-start nil
+  "The point location of the start of a search's output.")
+(make-variable-buffer-local 'cscope-output-start)
 
 
 (defvar cscope-matched-multiple nil
   "Non-nil if cscope output multiple matches.")
+(make-variable-buffer-local 'cscope-matched-multiple)
 
 
 (defvar cscope-stop-at-first-match-dir-meta nil
   "")
+(make-variable-buffer-local 'cscope-stop-at-first-match-dir-meta)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -803,6 +836,9 @@ searching.")
 		    [ "Index recursively" (setq cscope-index-recursively
 						(not cscope-index-recursively))
 		      :style toggle :selected cscope-index-recursively ]
+		    [ "Suppress empty matches" (setq cscope-suppress-empty-matches
+						 (not cscope-suppress-empty-matches))
+		      :style toggle :selected cscope-suppress-empty-matches ]
 		    [ "Use relative paths" (setq cscope-use-relative-paths
 						 (not cscope-use-relative-paths))
 		      :style toggle :selected cscope-use-relative-paths ]
@@ -919,7 +955,7 @@ the current directory will be used."
 		 (setq info (cdr (car regexps)))
 		 (throw 'done t)
 		 )) )
-	 ( (and (symbolb dir-regexp) dir-regexp)
+	 ( (and (symbolp dir-regexp) dir-regexp)
 	   (progn
 	     (setq info (cdr (car regexps)))
 	     (throw 'done t)
@@ -970,8 +1006,7 @@ using the mouse."
 	(progn
 	  (set-buffer (process-buffer process))
 	  ;; Make buffer-read-only nil
-	  (let (buffer-read-only line file function-name line-number moving
-				 new-file-hook-point offset-hook-point)
+	  (let (buffer-read-only line file function-name line-number moving)
 	    (setq moving (= (point) (process-mark process)))
 	    (save-excursion
 	      (goto-char (process-mark process))
@@ -984,9 +1019,7 @@ using the mouse."
 	      (while (and cscope-process-output
 			  (string-match "\\([^\n]+\n\\)\\(\\(.\\|\n\\)*\\)"
 					cscope-process-output))
-		(setq new-file-hook-point		nil
-		      offset-hook-point			nil
-		      file				nil
+		(setq file				nil
 		      glimpse-stripped-directory	nil
 		      )
 		;; Get a line
@@ -1014,29 +1047,24 @@ using the mouse."
 			    )
 		      (setq line (substring line
 					    (match-beginning 4) (match-end 4)))
-		      ;; If the current file is the same as the previous
+		      ;; If the current file is not the same as the previous
 		      ;; one ...
-		      (if (and cscope-last-file
-			       (string= file cscope-last-file))
+		      (if (not (and cscope-last-file
+				    (string= file cscope-last-file)))
 			  (progn
-			    ;; ... setup for calling the new-line
-			    ;; hook ...
-			    (setq offset-hook-point (point))
-			    )
-			(progn
-			  ;; The current file is different.
+			    ;; The current file is different.
 
-			  ;; Insert a separating blank line if
-			  ;; necessary.
-			  (if cscope-last-file
-			      (insert "\n"))
-			  ;; Insert the file name
-			  (cscope-insert-text-with-extent
-			   (concat "***** " file ":\n")
-			   (expand-file-name file)
-			   ;; Yes, -1 is intentional
-			   -1)
-			  ))
+			    ;; Insert a separating blank line if
+			    ;; necessary.
+			    (if cscope-last-file
+				(insert "\n"))
+			    ;; Insert the file name
+			    (cscope-insert-text-with-extent
+			     (concat "***** " file ":\n")
+			     (expand-file-name file)
+			     ;; Yes, -1 is intentional
+			     -1)
+			    ))
 		      (if (not cscope-first-match)
 			  (setq cscope-first-match-point (point)))
 		      ;; ... and insert the line, with the
@@ -1082,7 +1110,9 @@ using the mouse."
 	(delete-process process)
 	(let (buffer-read-only continue)
 	  (goto-char (point-max))
-	  (insert cscope-separator-line)
+	  (if (and cscope-suppress-empty-matches (= cscope-output-start (point)))
+	      (delete-region cscope-item-start (point-max))
+	    (insert cscope-separator-line))
 	  (setq continue
 		(and cscope-search-list
 		     (not (and cscope-first-match
@@ -1097,7 +1127,7 @@ using the mouse."
 	    (progn
 	      (insert "\nSearch complete.")
 	      (if cscope-display-times
-		  (let ( (times (current-time)) stop-time elapsed-time )
+		  (let ( (times (current-time)) cscope-stop elapsed-time )
 		    (setq cscope-stop (+ (* (car times) 65536.0)
 					 (car (cdr times))
 					 (* (car (cdr (cdr times))) 1.0E-6)))
@@ -1130,7 +1160,7 @@ using the mouse."
 
 (defun cscope-search-one-database ()
   "Pop a database entry from cscope-search-list and do a search there."
-  (let ( next-item directory options cscope-directory database-file outbuf done)
+  (let ( next-item options cscope-directory database-file outbuf done)
     (setq outbuf (get-buffer-create cscope-output-buffer-name))
     (save-excursion
       (catch 'finished
@@ -1184,8 +1214,10 @@ using the mouse."
 	    (setq options (cons "-d" options)))
 
 	(goto-char (point-max))
+	(setq cscope-item-start (point))
 	(insert "\nDatabase directory: " cscope-directory "\n"
 		cscope-separator-line)
+	(setq cscope-output-start (point))
 	(setq default-directory cscope-directory)
 	(if cscope-filter-func
 	    (progn
@@ -1194,8 +1226,9 @@ using the mouse."
 		    )
 	      (setq cscope-process
 		    (apply 'start-process "cscope" outbuf cscope-program options))
-	      (set-process-filter cscope-process 'cscope-process-filter)
-	      (set-process-sentinel cscope-process 'cscope-process-sentinel)
+	      (set-process-filter cscope-process cscope-filter-func)
+;;	      (set-process-sentinel cscope-process 'cscope-process-sentinel)
+	      (set-process-sentinel cscope-process cscope-sentinel-func)
 	      (set-marker (process-mark cscope-process) (point))
 	      (process-kill-without-query cscope-process)
 	      (setq modeline-process ": Searching ..."
@@ -1210,30 +1243,29 @@ using the mouse."
     ))
 
 
-(defun cscope-call (msg args &optional directory filter-func)
+(defun cscope-call (msg args &optional directory filter-func sentinel-func)
   "Generic function to call to process cscope requests.
-ARGS is a list of command-line arguments to pass to the cscope process.
-DIRECTORY is the current working directory to use (generally, the
-directory in which the cscope database is located, but not necessarily),
-if different that the current one.  FILTER-FUNC is an optional process
-filter."
-  (let ( (outbuf (get-buffer-create cscope-output-buffer-name))
-	 info options cscope-directory database-file
-	 )
+ARGS is a list of command-line arguments to pass to the cscope
+process.  DIRECTORY is the current working directory to use (generally,
+the directory in which the cscope database is located, but not
+necessarily), if different that the current one.  FILTER-FUNC and
+SENTINEL-FUNC are optional process filter and sentinel, respectively."
+  (let ( (outbuf (get-buffer-create cscope-output-buffer-name)) )
     (if cscope-process
 	(error "A cscope search is still in progress -- only one at a time is allowed"))
-    (if cscope-display-times
-	(let ( (times (current-time)) )
-	  (setq cscope-start-time (+ (* (car times) 65536.0) (car (cdr times))
-				     (* (car (cdr (cdr times))) 1.0E-6)))))
     (setq directory (cscope-canonicalize-directory directory))
     (save-excursion
       (set-buffer outbuf)
+      (if cscope-display-times
+	  (let ( (times (current-time)) )
+	    (setq cscope-start-time (+ (* (car times) 65536.0) (car (cdr times))
+				       (* (car (cdr (cdr times))) 1.0E-6)))))
       (setq default-directory directory
 	    cscope-search-list (cscope-find-info directory)
 	    cscope-searched-dirs nil
 	    cscope-command-args args
 	    cscope-filter-func filter-func
+	    cscope-sentinel-func sentinel-func
 	    cscope-first-match nil
 	    cscope-stop-at-first-match-dir-meta (memq t cscope-search-list)
 	    cscope-matched-multiple nil
@@ -1447,29 +1479,38 @@ file."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun cscope-extract-symbol-at-cursor ()
-  (let ( (symbol-char-regexp (concat "[" cscope-symbol-chars "]")) )
+(defun cscope-extract-symbol-at-cursor (extract-filename)
+  (let* ( (symbol-chars (if extract-filename
+			    cscope-filename-chars
+			  cscope-symbol-chars))
+	  (symbol-char-regexp (concat "[" symbol-chars "]"))
+	  )
     (save-excursion
       (buffer-substring
        (progn
 	 (if (not (looking-at symbol-char-regexp))
 	     (re-search-backward "\\w" nil t))
-	 (skip-chars-backward cscope-symbol-chars)
+	 (skip-chars-backward symbol-chars)
 	 (point))
        (progn
-	 (skip-chars-forward cscope-symbol-chars)
+	 (skip-chars-forward symbol-chars)
 	 (point)
 	 )))
       ))
 
 
-(defun cscope-prompt-for-symbol (prompt)
+(defun cscope-prompt-for-symbol (prompt extract-filename)
   "Prompt the user for a cscope symbol."
   (let (sym)
-    (setq sym (cscope-extract-symbol-at-cursor))
-    (if (not (and cscope-no-mouse-prompts current-mouse-event
-		  (or (mouse-event-p current-mouse-event)
-		      (misc-user-event-p current-mouse-event))))
+    (setq sym (cscope-extract-symbol-at-cursor extract-filename))
+    (if (or (not sym)
+	    (string= sym "")
+	    (not (and cscope-no-mouse-prompts current-mouse-event
+		      (or (mouse-event-p current-mouse-event)
+			  (misc-user-event-p current-mouse-event))))
+	    ;; Always prompt for symbol in dired mode.
+	    (eq major-mode 'dired-mode)
+	    )
 	(setq sym (read-from-minibuffer prompt sym))
       sym)
     ))
@@ -1478,88 +1519,101 @@ file."
 (defun cscope-find-this-symbol (symbol)
   "Locate a symbol in source code."
   (interactive (list
-		(cscope-prompt-for-symbol "Find this symbol: ")
+		(cscope-prompt-for-symbol "Find this symbol: " nil)
 		))
   (let ()
     (cscope-call (format "Finding symbol: %s" symbol)
-		 (list "-0" symbol) nil 'cscope-process-filter)
+		 (list "-0" symbol) nil 'cscope-process-filter
+		 'cscope-process-sentinel)
     ))
 
 
 (defun cscope-find-global-definition (symbol)
   "Find a symbol's global definition."
   (interactive (list
-		(cscope-prompt-for-symbol "Find this global definition: ")
+		(cscope-prompt-for-symbol "Find this global definition: " nil)
 		))
   (let ()
     (cscope-call (format "Finding global definition: %s" symbol)
-		 (list "-1" symbol) nil 'cscope-process-filter)
+		 (list "-1" symbol) nil 'cscope-process-filter
+		 'cscope-process-sentinel)
     ))
 
 
 (defun cscope-find-called-functions (symbol)
   "Display functions called by a function."
   (interactive (list
-		(cscope-prompt-for-symbol "Find functions called by this function: ")
+		(cscope-prompt-for-symbol "Find functions called by this function: "
+					  nil)
 		))
   (let ()
     (cscope-call (format "Finding functions called by: %s" symbol)
-		 (list "-2" symbol) nil 'cscope-process-filter)
+		 (list "-2" symbol) nil 'cscope-process-filter
+		 'cscope-process-sentinel)
     ))
 
 
 (defun cscope-find-functions-calling-this-function (symbol)
   "Display functions calling a function."
   (interactive (list
-		(cscope-prompt-for-symbol "Find functions calling this function: ")
+		(cscope-prompt-for-symbol "Find functions calling this function: "
+					  nil)
 		))
   (let ()
     (cscope-call (format "Finding functions calling: %s" symbol)
-		 (list "-3" symbol) nil 'cscope-process-filter)
+		 (list "-3" symbol) nil 'cscope-process-filter
+		 'cscope-process-sentinel)
     ))
 
 
 (defun cscope-find-this-text-string (symbol)
   "Locate where a text string occurs."
   (interactive (list
-		(cscope-prompt-for-symbol "Find this text string: ")
+		(cscope-prompt-for-symbol "Find this text string: " nil)
 		))
   (let ()
     (cscope-call (format "Finding text string: %s" symbol)
-		 (list "-4" symbol) nil 'cscope-process-filter)
+		 (list "-4" symbol) nil 'cscope-process-filter
+		 'cscope-process-sentinel)
     ))
 
 
 (defun cscope-find-egrep-pattern (symbol)
   "Run egrep over the cscope database."
   (interactive (list
-		(cscope-prompt-for-symbol "Find this egrep pattern: ")
+		(let (cscope-no-mouse-prompts)
+		  (cscope-prompt-for-symbol "Find this egrep pattern: " nil))
 		))
   (let ()
     (cscope-call (format "Finding egrep pattern: %s" symbol)
-		 (list "-6" symbol) nil 'cscope-process-filter)
+		 (list "-6" symbol) nil 'cscope-process-filter
+		 'cscope-process-sentinel)
     ))
 
 
 (defun cscope-find-this-file (symbol)
   "Locate a file."
   (interactive (list
-		(cscope-prompt-for-symbol "Find this file: ")
+		(let (cscope-no-mouse-prompts)
+		  (cscope-prompt-for-symbol "Find this file: " t))
 		))
   (let ()
     (cscope-call (format "Finding file: %s" symbol)
-		 (list "-7" symbol) nil 'cscope-process-filter)
+		 (list "-7" symbol) nil 'cscope-process-filter
+		 'cscope-process-sentinel)
     ))
 
 
 (defun cscope-find-files-including-file (symbol)
   "Locate all files #including a file."
   (interactive (list
-		(cscope-prompt-for-symbol "Find files #including this file: ")
+		(let (cscope-no-mouse-prompts)
+		  (cscope-prompt-for-symbol "Find files #including this file: " t))
 		))
   (let ()
     (cscope-call (format "Finding files #including file: %s" symbol)
-		 (list "-8" symbol) nil 'cscope-process-filter)
+		 (list "-8" symbol) nil 'cscope-process-filter
+		 'cscope-process-sentinel)
     ))
 
 
