@@ -42,5 +42,7 @@ Please report build problems at:
   around the problem. According to the lynx and ncurses people, this
   is a design problem of curses vs. signal handling, at the heart of it.
 
+- Solaris 2.8 on Intel hardware may not work using the vendor's curses
+  implementation.  Using the free NCurses should help.
 
 Browse to http://cscope.sourceforge.net for more current information.
