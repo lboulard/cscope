@@ -349,6 +349,7 @@ void	cannotwrite(char *file);
 void	cannotopen(char *file);
 void	clearmsg(void);
 void	clearmsg2(void);
+void	countrefs(void);
 void	crossref(char *srcfile);
 void    dispinit(void);
 void	display(void);

@@ -1,3 +1,14 @@
+2004-10-27  Hans-Bernhard Broeker  <broeker@accip02.physik.rwth-aachen.de>
+
+	* src/display.c (search): Replace duplicated code by a call to
+	countrefs().  Duplicate lacked adjustment of column widths in case
+	of very long function/file names.  Thanks to Darlene Wong for
+	spotting this.
+
+	* src/global.h (countrefs): Prototype added.
+
+	* src/command.c (countrefs): Made globally available.
+
 2004-06-23  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	* src/dir.c (makefilelist): Fix broken movement of point_in_line

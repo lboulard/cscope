@@ -69,7 +69,6 @@ static	BOOL	changestring(void);
 static	void	clearprompt(void);
 static	void	mark(int i);
 static	void	scrollbar(MOUSE *p);
-static	void	countrefs(void);
 
 /* execute the command */
 
@@ -867,7 +866,7 @@ scrollbar(MOUSE *p)
 
 /* count the references found */
 
-static void
+void
 countrefs(void)
 {
 	char	*subsystem;		/* OGS subsystem name */

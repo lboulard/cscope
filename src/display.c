@@ -502,39 +502,10 @@ search(void)
 	/* put back the character read */
 	(void) ungetc(c, refsfound);
 
-	/* count the references found and find the length of the file,
-	   function, and line number display fields */
-	subsystemlen = 9;	/* strlen("Subsystem") */
-	booklen = 4;		/* strlen("Book") */
-	filelen = 4;		/* strlen("File") */
-	fcnlen = 8;		/* strlen("Function") */
-	numlen = 0;
-	while (fscanf(refsfound, "%s%s%s", file, function, linenum) == 3) {
-		if ((i = strlen(pathcomponents(file, dispcomponents))) > filelen) {
-			filelen = i;
-		}
-		if (ogs == YES) {
-			ogsnames(file, &subsystem, &book);
-			if ((i = strlen(subsystem)) > subsystemlen) {
-				subsystemlen = i;
-			}
-			if ((i = strlen(book)) > booklen) {
-				booklen = i;
-			}
-		}
-		if ((i = strlen(function)) > fcnlen) {
-			fcnlen = i;
-		}
-		if ((i = strlen(linenum)) > numlen) {
-			numlen = i;
-		}
-		/* skip the line text */
-		while ((c = getc(refsfound)) != EOF && c != '\n') {
-			;
-		}
-		++totallines;
-	}
-	rewind(refsfound);
+	/* HBB 20041027: this used to hold a copy of the code of 
+	 * countrefs(), but with the crucial display width adjustments
+	 * missing.  Just call the real thing instead! */
+	countrefs();
 	return(YES);
 }
 
