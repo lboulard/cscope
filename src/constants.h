@@ -43,7 +43,7 @@
 
 /* database output macros that update its offset */
 #define	dbputc(c)	(++dboffset, (void) putc(c, newrefs))
-#if Linux || BSD && !sun
+#if __DJGPP__ || Linux || BSD && !sun
 #define	dbfputs(s)	(dboffset += strlen(s), fputs(s, newrefs))
 #else
 #define	dbfputs(s)	(dboffset += fputs(s, newrefs))
