@@ -597,17 +597,24 @@ findinit(char *pattern)
 	isregexp_valid = NO;
 
 	/* remove trailing white space */
-	for (s = pattern + strlen(pattern) - 1; isspace((unsigned char)*s); --s) {
+	for (s = pattern + strlen(pattern) - 1; 
+	     isspace((unsigned char)*s);
+	     --s) {
 		*s = '\0';
 	}
+
+	/* HBB 20020620: new: make sure pattern is lowercased. Curses
+	 * mode gets this right all on its own, but at least -L mode
+	 * doesn't */
+	if (caseless == YES) {
+		pattern = lcasify(pattern);
+	}
+
 	/* allow a partial match for a file name */
 	if (field == FILENAME || field == INCLUDES) {
-	
 		if (regcomp (&regexp, pattern, REG_EXTENDED | REG_NOSUB) != 0) { 
 			return(REGCMPERROR);
-		}
-		else
-		{
+		} else {
 			isregexp_valid = YES;
 		}
 		return(NOERROR);
@@ -615,8 +622,7 @@ findinit(char *pattern)
 	/* see if the pattern is a regular expression */
 	if (strpbrk(pattern, "^.[{*+$") != NULL) {
 		isregexp = YES;
-	}
-	else {
+	} else {
 		/* check for a valid C symbol */
 		s = pattern;
 		if (!isalpha((unsigned char)*s) && *s != '_') {
