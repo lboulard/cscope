@@ -1,3 +1,5 @@
+(2001/04/26 - sorfa) Fixed a SIGSEGV in linemode in find.c. Thanks to OGAWA Hirofumi
+                     for pointing out the problem.
 (2001/04/24 - slutz) STMTMAX increased to 10000
 (2001/03/29 - broeker) Some further MSDOS/DJGPP patches. Close file 
 	               'refsfound' before unlinking it. Avoid calling curses

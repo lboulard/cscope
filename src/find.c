@@ -497,10 +497,7 @@ findregexp(char *egreppat)
 			char *file = filepath(srcfiles[i]);
 			progress("Search", searchcount, nsrcfiles);
 			if (egrep(file, refsfound, "%s <unknown> %ld ") < 0) {
-				move(1, 0);
-				clrtoeol();
-				printw("Cannot open file %s", file);
-				refresh();
+				posterr ("Cannot open file %s", file);
 			}
 		}
 	}
