@@ -1,3 +1,4 @@
+(2001/04/24 - slutz) STMTMAX increased to 10000
 (2001/03/29 - broeker) Some further MSDOS/DJGPP patches. Close file 
 	               'refsfound' before unlinking it. Avoid calling curses
  	               function nonl().  Replace fork/exec/wait machinery in 
