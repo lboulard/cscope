@@ -122,10 +122,11 @@ Display the last n file path components instead of the default
 (1). Use 0 to not display the file name at all.
 .TP
 .B -q
-Build an inverted index for quick symbol searching. If you use
-this option with the -f option, you must use -f on every call
-to cscope, including when you build the cross-reference file,
-because it changes the names of the inverted index files.
+Enable fast symbol lookup via an inverted index. This option
+causes cscope to create 2 more files (default names
+``cscope.in.out'' and ``cscope.po.out'') in addition to the normal
+database. This allows a faster symbol search algorithm that
+provides noticeably faster lookup performance for large projects.
 .TP
 .B -R
 Recurse subdirectories for source files.

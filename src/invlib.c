@@ -508,9 +508,23 @@ invopen(INVCONTROL *invcntl, char *invname, char *invpost, int stat)
 	int	read_index;
 
 	if ((invcntl->invfile = vpfopen(invname, ((stat == 0) ? "rb" : "r+b"))) == NULL) {
+		/* If db created without '-f', but now invoked with '-f cscope.out',
+		 * we need to check for 'cscope.in.out', rather than 'cscope.out.in': 
+		 * I.e, hack around our own violation of the inverse db naming convention */
+		if (!strcmp(invname, "cscope.out.in")) {
+			if ((invcntl->invfile = vpfopen(INVNAME, ((stat == 0) ? "r" : "r+")))) 
+				goto openedinvname;
+		/* more silliness: if you create the db with '-f cscope', then try to open 
+		 * it without '-f cscope', you'll fail unless we check for 'cscope.out.in'
+		 * here. */
+		} else if (!strcmp(invname, INVNAME)) {
+			if ((invcntl->invfile = vpfopen("cscope.out.in", ((stat == 0) ? "r" : "r+")))) 
+				goto openedinvname;
+		}	
 		invcannotopen(invname);
 		return(-1);
 	}
+openedinvname:
 	if (fread(&invcntl->param, sizeof(invcntl->param), 1, invcntl->invfile) == 0) {
 		(void) fprintf(stderr, "%s: empty inverted file\n", argv0);
 		goto closeinv;
@@ -526,9 +540,18 @@ invopen(INVCONTROL *invcntl, char *invname, char *invpost, int stat)
 		goto closeinv;
 	}
 	if ((invcntl->postfile = vpfopen(invpost, ((stat == 0) ? "rb" : "r+b"))) == NULL) {
+		/* exact same naming convention hacks as above for invname */
+		if (!strcmp(invpost, "cscope.out.po")) {
+			if ((invcntl->postfile = vpfopen(INVPOST, ((stat == 0) ? "r" : "r+")))) 
+				goto openedinvpost;
+		} else if (!strcmp(invpost, INVPOST)) {
+			if ((invcntl->postfile = vpfopen("cscope.out.po",((stat == 0)?"r":"r+")))) 
+				goto openedinvpost;
+		}
 		invcannotopen(invpost);
 		goto closeinv;
 	}
+openedinvpost:
 	/* allocate core for a logical block  */
 	if ((invcntl->logblk = malloc((unsigned) invcntl->param.sizeblk)) == NULL) {
 		invcannotalloc((unsigned) invcntl->param.sizeblk);

@@ -18,7 +18,7 @@ Andy Newman <atrn> - FreeBSD support patch
 Sascha Blank - FreeBSD support
 Bruce Frost - Stability
 Chuck Marco and Wilfredo Sanchez - Darwin support
-Jason Duell - CSCOPE_EDITOR and CSCOPE_LINEFLAG*
+Jason Duell - CSCOPE_EDITOR and CSCOPE_LINEFLAG*, invname database
 Tom Hull - Similar work to CSCOPE_EDITOR and friends
 Donald Slutz - Various fixes
 OGAWA Hirofumi - line mode fixes
