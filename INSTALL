@@ -23,11 +23,6 @@ Please report build problems at:
   with using the native lex (due to some problems).  The has been
   reported as a problem on Solaris.
 
-  However, please note that the flex-generated scanner is significantly
-  slower than the lex scanner (database building is at least twice as
-  slow).  While flex appears to be more reliable, you might want to try
-  using lex.  This is true on HP-UX.
-
 - On Linux systems (and possibly others) configure may fail if lex is
   a synomyn for flex.  To fix, do the following:
 
