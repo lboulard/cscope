@@ -125,11 +125,11 @@ findsymbol(char *pattern)
 			while (*cp != '\n') {
 				++cp;
 			}
-		} while (*(cp + 1) == '\0' && (cp = readblock()) != NULL);
+		} while (*(cp + 1) == '\0' && (cp = read_block()) != NULL);
 
 		/* skip the found character */
 		if (cp != NULL && *(++cp + 1) == '\0') {
-			cp = readblock();
+			cp = read_block();
 		}
 		if (cp == NULL) {
 			break;
@@ -737,7 +737,7 @@ matchrest(void)
 			++blockp;
 			++i;
 		}
-	} while (*(blockp + 1) == '\0' && readblock() != NULL);
+	} while (*(blockp + 1) == '\0' && read_block() != NULL);
 	
 	if (*blockp == '\n' && cpattern[i] == '\0') {
 		return(YES);
@@ -852,7 +852,7 @@ putline(FILE *output)
 			}
 			++cp;
 		}
-	} while (*(cp + 1) == '\0' && (cp = readblock()) != NULL);
+	} while (*(cp + 1) == '\0' && (cp = read_block()) != NULL);
 	blockp = cp;
 }
 
@@ -878,13 +878,13 @@ putstring(char *s)
 			}
 			++cp;
 		}
-	} while (*(cp + 1) == '\0' && (cp = readblock()) != NULL);
+	} while (*(cp + 1) == '\0' && (cp = read_block()) != NULL);
 	blockp = cp;
 	*s = '\0';
 }
 /* scan past the next occurence of this character in the cross-reference */
 
-char	*
+char *
 scanpast(char c)
 {
 	char *cp;
@@ -895,7 +895,7 @@ scanpast(char c)
 		while (*cp != c) {
 			++cp;
 		}
-	} while (*(cp + 1) == '\0' && (cp = readblock()) != NULL);
+	} while (*(cp + 1) == '\0' && (cp = read_block()) != NULL);
 	blockp = cp;
 	if (cp != NULL) {
 		skiprefchar();	/* skip the found character */
@@ -904,9 +904,9 @@ scanpast(char c)
 }
 
 /* read a block of the cross-reference */
-
-char	*
-readblock(void)
+/* HBB 20040430: renamed from readblock(), to avoid name clash on QNX */
+char *
+read_block(void)
 {
 	/* read the next block */
 	blocklen = read(symrefs, block, BUFSIZ);
@@ -1148,7 +1148,7 @@ dbseek(long offset)
 			(void) sleep(3);
 			return(rc);
 		}
-		(void) readblock();
+		(void) read_block();
 		blocknumber = n;
 	}
 	blockp = block + offset % BUFSIZ;
