@@ -626,6 +626,20 @@ postmsg2(char *msg)
 		addstr(msg);
 	}
 }
+
+/* display an error mesg - stdout or on second msg line */
+void
+posterr(char *msg) 
+{
+	if (linemode == YES || incurses == NO)
+        {
+	    (void) fprintf(stderr, "%s\n", msg);
+	}
+	else
+            postmsg2(msg);
+}
+
+
 /* position references found file at specified line */
 
 void

@@ -74,12 +74,12 @@ BOOL	editallprompt = YES;	/* prompt between editing files */
 int	fileargc;		/* file argument count */
 char	**fileargv;		/* file argument values */
 int	fileversion;		/* cross-reference file version */
-BOOL	incurses;		/* in curses */
+BOOL	incurses = NO;		/* in curses */
 INVCONTROL invcontrol;		/* inverted file control structure */
 BOOL	invertedindex;		/* the database has an inverted index */
 BOOL	isuptodate;		/* consider the crossref up-to-date */
 BOOL	kernelmode;		/* don't use DFLT_INCDIR - bad for kernels */
-BOOL	linemode;		/* use line oriented user interface */
+BOOL	linemode = NO;		/* use line oriented user interface */
 BOOL	recurse_dir = NO;	/* recurse dirs when searching for src files */
 char	*namefile;		/* file of file names */
 static char *newinvname;	/* new inverted index file name */
@@ -96,8 +96,9 @@ char	temp1[PATHLEN + 1];	/* temporary file name */
 char	temp2[PATHLEN + 1];	/* temporary file name */
 long	totalterms;		/* total inverted index terms */
 BOOL	trun_syms;		/* truncate symbols to 8 characters */
+char	errmsg[4096];
 
-static	BOOL	buildonly;		/* only build the database */
+static	BOOL	buildonly = NO;		/* only build the database */
 static	BOOL	fileschanged;		/* assume some files changed */
 static	char	*invname = INVNAME;	/* inverted index to the database */
 static	char	*invpost = INVPOST;	/* inverted index postings */
@@ -180,6 +181,7 @@ main(int argc, char **argv)
 #endif
 			case 'b':	/* only build the cross-reference */
 				buildonly = YES;
+				linemode  = YES;
 				break;
 			case 'c':	/* ASCII characters only in crossref */
 				compress = NO;
@@ -376,12 +378,14 @@ lastarg:
 	/* if the cross-reference is to be considered up-to-date */
 	if (isuptodate == YES) {
 		if ((oldrefs = vpfopen(reffile, "r")) == NULL) {
-			(void) printf("cscope: cannot open file %s\n", reffile);
+			(void) snprintf(errmsg, sizeof(errmsg), "cscope: cannot open file %s\n", reffile);
+			posterr(errmsg);
 			myexit(1);
 		}
 		/* get the crossref file version but skip the current directory */
 		if (fscanf(oldrefs, "cscope %d %*s", &fileversion) != 1) {
-			(void) fprintf(stderr, "cscope: cannot read file version from file %s\n", reffile);
+			(void) snprintf(errmsg, sizeof(errmsg), "cscope: cannot read file version from file %s\n", reffile);
+			posterr(errmsg);
 			myexit(1);
 		}
 		if (fileversion >= 8) {
@@ -415,11 +419,13 @@ lastarg:
 
 			/* seek to the trailer */
 			if (fscanf(oldrefs, "%ld", &traileroffset) != 1) {
-				(void) fprintf(stderr, "cscope: cannot read trailer offset from file %s\n", reffile);
+				(void) snprintf(errmsg, sizeof(errmsg), "cscope: cannot read trailer offset from file %s\n", reffile);
+				posterr(errmsg);
 				myexit(1);
 			}
 			if (fseek(oldrefs, traileroffset, SEEK_SET) == -1) {
-				(void) fprintf(stderr, "cscope: cannot seek to trailer in file %s\n", reffile);
+				(void) snprintf(errmsg, sizeof(errmsg), "cscope: cannot seek to trailer in file %s\n", reffile);
+				posterr(errmsg);
 				myexit(1);
 			}
 		}
@@ -429,7 +435,8 @@ lastarg:
 
 		/* get the number of source files */
 		if (fscanf(oldrefs, "%d", &nsrcfiles) != 1) {
-			(void) fprintf(stderr, "cscope: cannot read source file size from file %s\n", reffile);
+			(void) snprintf(errmsg, sizeof(errmsg), "cscope: cannot read source file size from file %s\n", reffile);
+			posterr(errmsg);
 			myexit(1);
 		}
 		/* get the source file list */
@@ -438,7 +445,8 @@ lastarg:
 
 			/* allocate the string space */
 			if (fscanf(oldrefs, "%d", &oldnum) != 1) {
-				(void) fprintf(stderr, "cscope: cannot read string space size from file %s\n", reffile);
+				(void) snprintf(errmsg, sizeof(errmsg), "cscope: cannot read string space size from file %s\n", reffile);
+				posterr(errmsg);
 				myexit(1);
 			}
 			s = (char *)mymalloc((unsigned) oldnum);
@@ -446,7 +454,8 @@ lastarg:
 			
 			/* read the strings */
 			if (fread(s, oldnum, 1, oldrefs) != 1) {
-				(void) fprintf(stderr, "cscope: cannot read source file names from file %s\n", reffile);
+				(void) snprintf(errmsg, sizeof(errmsg), "cscope: cannot read source file names from file %s\n", reffile);
+				posterr(errmsg);
 				myexit(1);
 			}
 			/* change newlines to nulls */
@@ -472,11 +481,11 @@ lastarg:
 					}
 					switch (i) {
 					case 'p':	/* file path components to display */
-						if (*s < '0' || *s > '9') {
-							(void) fprintf(stderr, "cscope: -p option in file %s: missing or invalid numeric value\n", 
-								namefile);
-						}
-						dispcomponents = atoi(s);
+					    if (*s < '0' || *s > '9') {
+						(void) snprintf(errmsg, sizeof(errmsg), "cscope: -p option in file %s: missing or invalid numeric value\n", 								namefile);
+						posterr(errmsg);
+					    }
+					    dispcomponents = atoi(s);
 					}
 				}
 				(void) fclose(names);
@@ -485,7 +494,8 @@ lastarg:
 		else {
 			for (i = 0; i < nsrcfiles; ++i) {
 				if (fscanf(oldrefs, "%s", path) != 1) {
-					(void) fprintf(stderr, "cscope: cannot read source file name from file %s\n", reffile);
+ 					snprintf(errmsg, sizeof(errmsg), "cscope: cannot read source file name from file %s\n", reffile);
+ 					posterr(errmsg);
 					exit(1);
 				}
 				srcfiles[i] = stralloc(path);
@@ -506,7 +516,8 @@ lastarg:
 		srcfiles = mymalloc(msrcfiles * sizeof(char *));
 		makefilelist();
 		if (nsrcfiles == 0) {
-			(void) fprintf(stderr, "cscope: no source files found\n");
+			(void) snprintf(errmsg, sizeof(errmsg), "cscope: no source files found\n");
+			posterr(errmsg);
 			myexit(1);
 		}
 		/* get include directories from the environment */
@@ -537,10 +548,11 @@ lastarg:
 
 		/* build the cross-reference */
 		initcompress();
-		if (linemode == NO)
-			postmsg("Building cross-reference...");
+		if (linemode == NO )    /* display if verbose as well */
+                    postmsg("Building cross-reference...");    		    
 		build();
-		postmsg("");	/* clear any build progress message */
+		if (linemode == NO )
+                    postmsg("");	/* clear any build progress message */
 		if (buildonly == YES) {
 			myexit(0);
 		}
@@ -649,13 +661,12 @@ lastarg:
 	if (*pattern != '\0') {
 		atfield();		/* move to the input field */
 		(void) command(ctrl('Y'));	/* search */
-		display();		/* update the display */
 	}
 	/* read any symbol reference lines file */
 	else if (reflines != NULL) {
 		(void) readrefs(reflines);
-		display();		/* update the display */
 	}
+	display();		/* update the display */
 	for (;;) {
 		if (!selecting)
 			atfield();	/* move to the input field */
@@ -697,8 +708,8 @@ cannotopen(char *file)
 {
 	char	msg[MSGLEN + 1];
 
-	(void) sprintf(msg, "Cannot open file %s", file);
-	postmsg(msg);
+	(void) snprintf(msg, sizeof(msg), "Cannot open file %s", file);
+	posterr(msg);
 }
 
 void
@@ -706,7 +717,7 @@ cannotwrite(char *file)
 {
 	char	msg[MSGLEN + 1];
 
-	(void) sprintf(msg, "Removed file %s because write failed", file);
+	(void) snprintf(msg, sizeof(msg), "Removed file %s because write failed", file);
 	myperror(msg);	/* display the reason */
 	(void) unlink(file);
 	myexit(1);	/* calls exit(2), which closes files */
@@ -840,14 +851,17 @@ build(void)
 			}
 			/* check the old and new option settings */
 			if (oldcompress != compress || oldtruncate != trun_syms) {
-				(void) fprintf(stderr, "cscope: -c or -T option mismatch between command line and old symbol database\n");
+				(void) snprintf(errmsg, sizeof(errmsg), "cscope: -c or -T option mismatch between command line and old symbol database\n");
+				posterr(errmsg);
 				goto force;
 			}
 			if (oldinvertedindex != invertedindex) {
-				(void) fprintf(stderr, "cscope: -q option mismatch between command line and old symbol database\n");
+				(void) snprintf(errmsg, sizeof(errmsg), "cscope: -q option mismatch between command line and old symbol database\n");
+				posterr(errmsg);
 				if (invertedindex == NO) {
-					(void) fprintf(stderr, "cscope: removed files %s and %s\n",
+					(void) snprintf(errmsg, sizeof(errmsg), "cscope: removed files %s and %s\n",
 					    invname, invpost);
+					posterr(errmsg);
 					(void) unlink(invname);
 					(void) unlink(invpost);
 				}
@@ -856,7 +870,8 @@ build(void)
 			/* seek to the trailer */
 			if (fscanf(oldrefs, "%ld", &traileroffset) != 1 ||
 			    fseek(oldrefs, traileroffset, SEEK_SET) == -1) {
-				(void) fprintf(stderr, "cscope: incorrect symbol database file format\n");
+				(void) snprintf(errmsg, sizeof(errmsg), "cscope: incorrect symbol database file format\n");
+				posterr(errmsg);
 				goto force;
 			}
 		}
@@ -1178,12 +1193,14 @@ skiplist(FILE *oldrefs)
 	int	i;
 	
 	if (fscanf(oldrefs, "%d", &i) != 1) {
-		(void) fprintf(stderr, "cscope: cannot read list size from file %s\n", reffile);
+		(void) snprintf(errmsg, sizeof(errmsg), "cscope: cannot read list size from file %s\n", reffile);
+		posterr(errmsg);
 		exit(1);
 	}
 	while (--i >= 0) {
 		if (fscanf(oldrefs, "%*s") != 0) {
-			(void) fprintf(stderr, "cscope: cannot read list name from file %s\n", reffile);
+			(void) snprintf(errmsg, sizeof(errmsg), "cscope: cannot read list name from file %s\n", reffile);
+			posterr(errmsg);
 			exit(1);
 		}
 	}
@@ -1318,14 +1335,16 @@ movefile(char *new, char *old)
 {
 	(void) unlink(old);
 	if (link(new, old) == -1) {
-		(void) perror("cscope");
-		(void) fprintf(stderr, "cscope: cannot link file %s to file %s\n", 
+		(void) myperror("cscope");
+		(void) snprintf(errmsg, sizeof(errmsg), "cscope: cannot link file %s to file %s\n",
 			new, old);
+		posterr(errmsg);
 		myexit(1);
 	}
 	if (unlink(new) == -1) {
-		(void) perror("cscope");
-		(void) fprintf(stderr, "cscope: cannot unlink file %s\n", new);
+		(void) myperror("cscope");
+		(void) snprintf(errmsg, sizeof(errmsg), "cscope: cannot unlink file %s\n", new);
+		posterr(errmsg);
 		errorsfound = YES;
 	}
 }

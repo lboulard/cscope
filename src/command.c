@@ -398,6 +398,7 @@ command(int commandc)
 #if TERMINFO
 	case KEY_CLEAR:
 #endif
+                (void) clearmsg2();
 		(void) clearok(curscr, TRUE);
 		(void) wrefresh(curscr);
 		drawscrollbar(topline, bottomline);

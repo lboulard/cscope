@@ -109,7 +109,7 @@ getline(char s[], unsigned size, int firstchar, BOOL iscaseless)
 	}
 	/* until the end of the line is reached */
 	while ((c = mygetch()) != '\r' && c != '\n' && c != KEY_ENTER) {
-		if (c == erasechar() || c == KEY_BACKSPACE || c == DEL) {
+		if (c == erasechar() || c == KEY_BACKSPACE || c == DEL || c == ctrl('H') ) {
 			/* erase */
 			if (i > 0) {
 				addstr("\b \b");
