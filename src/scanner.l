@@ -357,11 +357,20 @@ class[ \t]+{identifier}[ \t\na-zA-Z0-9_():]*\{	{	/* class definition */
 			REJECT;
 			/* NOTREACHED */
 		}
-(enum|struct|union)/([ \t\n]+{identifier})?[ \t\n]*\{	{ /* enum/struct/union definition */
+(enum|struct|union)/([ \t\n]+{identifier})[ \t\n]*\{	{ /* enum/struct/union definition */
 			tagdef = *(yytext + first);
 			goto ident;
 			/* NOTREACHED */
 		}
+(enum|struct|union)/[ \t\n]*\{		{ /* tag-less e/s/u definition */
+			tagdef = yytext[first];
+			if (braces == 0) {
+				esudef = YES;
+			}
+			last = first;
+			tagdef = '\0';
+			goto more;
+		}  			
 {identifier}/[ \t]*\([ \t\na-zA-Z0-9_*&[\]=,.]*\)[ \t\n()]*[:a-zA-Z_#{]	{
 			
 			/* warning: "if (...)" must not overflow yytext, so the content
