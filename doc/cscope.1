@@ -5,7 +5,7 @@ cscope - interactively examine a C program
 .SH SYNOPSIS
 .ll +8
 .B cscope
-.RB [ " -bCcdehkLlqTUuV " ]
+.RB [ " -bCcdehkLlqRTUuV " ]
 .RB [ -F symfile  ]
 .RB [ -f reffile  ]
 .RB [ -I incdir  ]
@@ -125,6 +125,9 @@ Build an inverted index for quick symbol searching. If you use
 this option with the -f option, you must use -f on every call
 to cscope, including when you build the cross-reference file,
 because it changes the names of the inverted index files.
+.TP
+.B -R
+Recurse subdirectories for source files.
 .TP
 .B -s dir
 Look in dir for additional source files. This option is ignored

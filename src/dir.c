@@ -73,6 +73,9 @@ BOOL	issrcfile(char *file);
 void	addsrcdir(char *dir);
 void	addincdir(char *name, char *path);
 
+static void	scan_dir(const char* dirfile, BOOL recurse);
+				/* make the source file list */
+
 /* make the view source directory list */
 
 void
@@ -222,7 +225,6 @@ void
 makefilelist(void)
 {
 	static	BOOL	firstbuild = YES;	/* first time through */
-	DIR	*dirfile;		/* directory file descriptor */
 	struct	dirent	*entry;		/* directory entry pointer */
 	FILE	*names;			/* name file pointer */
 	char	dir[PATHLEN + 1];
@@ -322,26 +324,43 @@ makefilelist(void)
 	}
 	/* make a list of all the source files in the directories */
 	for (i = 0; i < nsrcdirs; ++i) {
+		scan_dir(srcdirs[i], recurse_dir);
+	}
+}
 
-		/* open the directory */
-		/* note: failure is allowed because SOURCEDIRS may not exist */
-		if ((dirfile = opendir(srcdirs[i])) != NULL) {
+/* scan a directory (recursively?) for source files */
+static void
+scan_dir(const char* adir, BOOL recurse_dir) {
+	DIR	*dirfile;       
 
-			/* read each entry in the directory */
-			while ((entry = readdir(dirfile)) != NULL) {
-				
-				/* if it is a source file not already found */
-				file = entry->d_name;
-				if (entry->d_ino != 0 && issrcfile(file) &&
-				    infilelist(file) == NO) {
+	if( (dirfile = opendir(adir)) != NULL ) {
+		struct dirent* entry;
+		char  path[PATHLEN + 1];
+		char* file;
 
-					/* add it to the list */
-					(void) sprintf(path, "%s/%s", srcdirs[i], file);
-					addsrcfile(file, path);
+		while( (entry = readdir(dirfile)) != NULL ) { 
+			if( (strcmp(".",entry->d_name) != 0)
+				&& (strcmp("..",entry->d_name) != 0) ) {
+				struct stat buf;
+
+				sprintf(path,"%s/%s",adir,entry->d_name);
+
+				if(stat(path,&buf) == 0) {
+					file = entry->d_name;
+
+					if( recurse_dir
+						&& (buf.st_mode & S_IFDIR) ) {
+						scan_dir(path, recurse_dir);
+					}
+					else if (entry->d_ino != 0
+						&& issrcfile(path)
+						&& infilelist(file) == NO) {
+						addsrcfile(file, path);
+					}
 				}
 			}
-			closedir(dirfile);
 		}
+		closedir(dirfile);
 	}
 }
 
