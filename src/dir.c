@@ -513,7 +513,8 @@ scan_dir(const char *adir, BOOL recurse_dir)
 #endif
 						 && issrcfile(path)
 						 && infilelist(path) == NO) {
-					  addsrcfile(path);
+						if(access(path,R_OK) == 0)
+							addsrcfile(path);
 					}
 				}
 			}
