@@ -1,3 +1,4 @@
+(2001/07/05 - cohrs)   LEX and SUNOS fix for scanner.
 (2001/07/05 - broeker) Put in lots of 'static' keywords, added prototypes.
 (2001/07/05 - broeker) Renamed pclose() function to mypclose(), in order not to
 	               cause a conflict with system function having the same
