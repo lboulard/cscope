@@ -35,6 +35,12 @@ rm -rf $RPM_BUILD_ROOT
 /usr/local/man/man1/cscope.1
 
 %changelog
+* Tue May 09 2000 Cscope development team
+- Version 15.0bl2 (build 2) pre-alpha release
+- Fixes and enhancements
+- Updated documentation
+- Autoconf/automake support
+- directory restructuring
 * Sun Apr 16 2000 Petr Sorfa <petrs@sco.com>
 - Initial Open Source release
 - Ported to GNU environment
