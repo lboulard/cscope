@@ -1,3 +1,5 @@
+(2003/01/23 - broeker) Update to latest auto* tools.  First step towards
+                       integration of GNOME GUI version.
 (2002/12/11 - broeker) Get rid of deprecated ={...} style actions in egrep.y.
 	               Use plain {...} instead.
 (2002/10/29 - broeker) Fix bug #588671: disprefs was still 0 if only 1 very
