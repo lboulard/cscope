@@ -57,7 +57,7 @@
 #ifndef HAVE_SIGSETJMP
 # define sigsetjmp(a,b) setjmp(a)
 # define siglongjmp(a,b) longjmp(a,b)
-# typedef jmp_buf sigjmp_buf;
+typedef jmp_buf sigjmp_buf;
 #endif
 
 static char const rcsid[] = "$Id$";
@@ -175,10 +175,10 @@ display(void)
 	} else {
 		/* display the pattern */
 		if (changing == YES) {
-			printw("Change \"%s\" to \"%s\"", pattern, newpat);
+			printw("Change \"%s\" to \"%s\"", Pattern, newpat);
 		} else {
 			printw("%c%s: %s", toupper((unsigned char)fields[field].text2[0]),
-				fields[field].text2 + 1, pattern);
+				fields[field].text2 + 1, Pattern);
 		}
 		/* display the column headings */
 		move(2, 2);
@@ -436,15 +436,15 @@ search(void)
 	if (sigsetjmp(env,1) == 0) {
 		f = fields[field].findfcn;
 		if (f == findregexp || f == findstring) {
-			findresult = (*f)(pattern);
+			findresult = (*f)(Pattern);
 		} else {
 			if ((nonglobalrefs = myfopen(temp2, "wb")) == NULL) {
 				cannotopen(temp2);
 				return(NO);
 			}
-			if ((rc = findinit(pattern)) == NOERROR) {
+			if ((rc = findinit(Pattern)) == NOERROR) {
 				(void) dbseek(0L); /* read the first block */
-				findresult = (*f)(pattern);
+				findresult = (*f)(Pattern);
 				if (f == findcalledby) 
 					funcexist = (*findresult == 'y');
 				findcleanup();
@@ -482,20 +482,20 @@ search(void)
 	if ((c = getc(refsfound)) == EOF) {
 		if (findresult != NULL) {
 			(void) sprintf(lastmsg, "Egrep %s in this pattern: %s", 
-				       findresult, pattern);
+				       findresult, Pattern);
 		} else if (rc == NOTSYMBOL) {
 			(void) sprintf(lastmsg, "This is not a C symbol: %s", 
-				       pattern);
+				       Pattern);
 		} else if (rc == REGCMPERROR) {
 			(void) sprintf(lastmsg, "Error in this regcomp(3) regular expression: %s", 
-				       pattern);
+				       Pattern);
 			
 		} else if (funcexist == NO) {
 			(void) sprintf(lastmsg, "Function definition does not exist: %s", 
-				       pattern);
+				       Pattern);
 		} else {
 			(void) sprintf(lastmsg, "Could not find the %s: %s", 
-				       fields[field].text2, pattern);
+				       fields[field].text2, Pattern);
 		}
 		return(NO);
 	}
