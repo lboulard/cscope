@@ -1,3 +1,9 @@
+(2003/04/29 - broeker) Check that a src file is a regular file before trying to
+	               scan it.  Change from S_IFDIR/S_IFREG bit tests to 
+		       macros S_ISDIR/S_ISREG.
+(2003/03/05 - broeker) Remove '-y' option from pipe call to utility "sort".
+	               It's long since deprecated, and some modern versions
+		       will barf seeing it.
 (2003/03/02 - broeker) Don't restrict to 14 character filenames any longer.
 (2003/01/23 - broeker) Update to latest auto* tools.  First step towards
                        integration of GNOME GUI version.

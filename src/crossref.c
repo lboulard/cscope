@@ -42,6 +42,7 @@
 #include "scanner.h"
 
 #include <stdlib.h>
+#include <sys/stat.h>
 
 static char const rcsid[] = "$Id$";
 
@@ -92,7 +93,15 @@ crossref(char *srcfile)
 	int	length;		/* symbol length */
 	int	entry_no;		/* function level of the symbol */
 	int	token;			/* current token */
+	struct stat st;
 
+	if (! ((stat(srcfile, &st) == 0)
+	       && S_ISREG(st.st_mode))) {
+		cannotopen(srcfile);
+		errorsfound = YES;
+		return;
+	}
+	
 	entry_no = 0;
 	/* open the source file */
 	if ((yyin = myfopen(srcfile, "r")) == NULL) {
