@@ -72,7 +72,7 @@ YACC = @YACC@
 
 bin_SCRIPTS = ocs
 
-EXTRA_DIST = ocs README xcscope
+EXTRA_DIST = ocs README xcscope webcscope
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 

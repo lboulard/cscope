@@ -2,5 +2,5 @@
 
 bin_SCRIPTS = ocs
 
-EXTRA_DIST = ocs README xcscope
+EXTRA_DIST = ocs README xcscope webcscope
 

@@ -3,7 +3,7 @@
 
 
 #define PACKAGE cscope
-#define VERSION 15.2b
+#define VERSION 15.3
 
 /* OS Definitions */
 #undef Linux

@@ -1,10 +1,10 @@
 Summary: cscope is an interactive, screen-oriented tool that allows the user to browse through C source files for specified elements of code.
 Name: cscope
-Version: 15.2b
+Version: 15.3
 Release: 1
 Copyright: BSD
 Group: Development/Tools
-Source: cscope-15.2b.tar.gz
+Source: cscope-15.3.tar.gz
 Buildroot: /tmp/%{name}-%{version}
 
 %description
@@ -36,6 +36,15 @@ rm -rf $RPM_BUILD_ROOT
 /usr/man/man1/cscope.1
 
 %changelog
+* Mon Jul 2 2001 Cscope development team
+- Version 15.3 release
+- New flex scanner
+- XEmacs support improvements
+- Vim support improvements
+- 64 bit fixes
+- MSDOS support
+- More editing keys
+- Webcscope added to contrib
 * Wed Nov 20 2000 Cscope development team
 - Version 15.1 release
 - New menu and line matching interface

@@ -39,4 +39,4 @@
  */
 
 #define	FILEVERSION	15	/* Initial Open Source and Linux Port */
-#define	FIXVERSION	".2b"	/* feature and bug fix version */
+#define	FIXVERSION	".3"	/* feature and bug fix version */
