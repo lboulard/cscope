@@ -1,3 +1,8 @@
+2004-02-14  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	* src/command.c (countrefs): Fix off-by-one length specification
+	of %s format.  Thanks to <anil@recoil.org> for spotting it.
+
 2004-02-12  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	Fix SF bug #892731: Ctrl-C interruption of search works only once
