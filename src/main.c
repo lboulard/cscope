@@ -1359,7 +1359,9 @@ void
 entercurses(void)
 {
 	incurses = YES;
+#ifndef __MSDOS__ /* HBB 20010313 */
 	(void) nonl();		/* don't translate an output \n to \n\r */
+#endif
 	(void) cbreak();	/* single character input */
 	(void) noecho();	/* don't echo input characters */
 	(void) clear();		/* clear the screen */
@@ -1434,6 +1436,11 @@ longusage(void)
 void
 myexit(int sig)
 {
+	/* HBB 20010313; close file before unlinking it. Unix may not care
+	 * about that, but DOS absolutely needs it */
+	if (refsfound != NULL)
+		fclose(refsfound);
+	
 	/* remove any temporary files */
 	if (temp1[0] != '\0') {
 		(void) unlink(temp1);

@@ -40,6 +40,9 @@
 #include <stdarg.h>
 #include <sys/wait.h>
 #include <sys/types.h>      /* pid_t */
+#ifdef __DJGPP__
+#include <process.h>
+#endif
 #if defined(USE_NCURSES) && !defined(RENAMED_NCURSES)
 #include <ncurses.h>
 #else
@@ -52,9 +55,11 @@ static	RETSIGTYPE	(*oldsigquit)();	/* old value of quit signal */
 static	RETSIGTYPE	(*oldsighup)();		/* old value of hangup signal */
 static	RETSIGTYPE	(*oldsigstp)();
 
+#ifndef __MSDOS__ /* none of these is needed, there */
 static	int	join(pid_t p);
 static	int	myexecvp(char *a, char **args);
 static	pid_t	myfork(void);
+#endif
 
 /* execute forks and executes a program or shell script, waits for it to
  * finish, and returns its exit code.
@@ -77,15 +82,24 @@ execute(char *a, ...)	/* note: "exec" is already defined on u370 */
 	va_start(ap, a);
 	for (p = 0; (argv[p] = va_arg(ap, char *)) != 0; p++)
 		;
+#ifdef __MSDOS__
+	/* HBB 20010313: in MSDOG, everything is completely different.
+	 * No fork()/exec()/wait(), but rather a single libc call: */
+        exitcode = spawnvp(P_WAIT, a, argv);
+#else
 	if ((p = myfork()) == 0) {
 		(void) myexecvp(a, argv);	/* child */
 	}
 	else {
 		exitcode = join(p);	/* parent */
 	}
+#endif /* MSDOS */
+	
 	/* the menu and scrollbar may be changed by the command executed */
 #if UNIXPC || !TERMINFO
+# ifndef __DJGPP__ /* leave CRLF handling as is */      
 	nonl();
+# endif
 	cbreak();	/* endwin() turns off cbreak mode so restore it */
 	noecho();
 #endif
@@ -94,6 +108,8 @@ execute(char *a, ...)	/* note: "exec" is already defined on u370 */
 	va_end(ap);
 	return(exitcode);
 }
+
+#ifndef __MSDOS__ /* None of the following functions is used, there */
 
 /* myexecvp is an interface to the execvp system call to
  * modify argv[0] to reference the last component of its path-name.
@@ -172,3 +188,5 @@ join(pid_t p)
 	/* return the child's exit code */
 	return(status >> 8);
 }
+
+#endif /* !MSDOS */
