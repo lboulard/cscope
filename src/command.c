@@ -378,6 +378,12 @@ command(int commandc)
 		/* if the ^ command, redirect output to a temp file */
 		if (commandc == '^') {
 			(void) strcat(strcat(newpat, " >"), temp2);
+			/* HBB 20020708: somebody might have even
+			 * their non-interactive default shells
+			 * complain about clobbering
+			 * redirections... --> delete before
+			 * overwriting */
+			remove(temp2);
 		}
 		exitcurses();
 		if ((file = mypopen(newpat, "w")) == NULL) {

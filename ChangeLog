@@ -1,3 +1,6 @@
+(2002/07/07 - broeker) Delete tempfile before redirecting to it, to avoid 
+	               complaints about clobbering from poorly configured 
+		       default shells.
 (2002/06/20 - broeker) Fix operation of -C -L0 if pattern contains any
 	               upper-case characters.
 (2002/06/20 - broeker) Fix handling of non-standard whitespace in Flex 
