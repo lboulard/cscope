@@ -37,6 +37,8 @@
  */
 
 #include "global.h"
+
+#include "build.h"
 #include "scanner.h"
 
 #include <stdlib.h>

@@ -150,6 +150,7 @@ extern	char	dicode2[];	/* digraph second character code */
 
 /* main.c global data */
 extern	char	*editor, *home, *shell, *lineflag;	/* environment variables */
+extern	char	*home;		/* Home directory */
 extern 	BOOL	lineflagafterfile;
 extern	char	*argv0;		/* command name */
 extern	BOOL	compress;	/* compress the characters in the crossref */
@@ -169,21 +170,18 @@ extern	BOOL	kernelmode;	/* don't use DFLT_INCDIR - bad for kernels */
 extern	BOOL	linemode;	/* use line oriented user interface */
 extern	BOOL	recurse_dir;	/* recurse dirs when searching for src files */
 extern	char	*namefile;	/* file of file names */
-extern	char	*newreffile;	/* new cross-reference file name */
-extern	FILE	*newrefs;	/* new cross-reference */
 extern	BOOL	ogs;		/* display OGS book and subsystem names */
-extern	FILE	*postings;	/* new inverted index postings */
 extern	char	*prependpath;	/* prepend path to file names */
 extern	FILE	*refsfound;	/* references found file */
 #if 0 /* HBB 20010705: flag no longer used */
 extern	BOOL	select_large;	/* enable more than 9 select lines */
 #endif
-extern	int	symrefs;	/* cross-reference file */
 extern	char	temp1[];	/* temporary file name */
 extern	char	temp2[];	/* temporary file name */
 extern	long	totalterms;	/* total inverted index terms */
 extern	BOOL	trun_syms;	/* truncate symbols to 8 characters */
 extern	char	tempstring[8192]; /* global dummy string buffer */
+extern	char	*tmpdir;	/* temporary directory */
 
 /* command.c global data */
 extern	BOOL	caseless;	/* ignore letter case when searching */
@@ -312,7 +310,6 @@ void	postmsg2(char *msg);
 void	posterr(char *msg,...);
 void	putposting(char *term, int type);
 void	putstring(char *s);
-void	rebuild(void);
 void	resetcmd(void);
 void	seekline(int line);
 void	setfield(void);

@@ -73,7 +73,7 @@ bin_PROGRAMS = cscope
 @USING_LEX_TRUE@LEXER_SOURCE = scanner.l
 @USING_LEX_FALSE@LEXER_SOURCE = fscanner.l
 
-cscope_SOURCES = $(LEXER_SOURCE) egrep.y 	alloc.c basename.c command.c compath.c constants.h crossref.c dir.c 	display.c edit.c exec.c find.c global.h help.c history.c input.c 	invlib.c invlib.h library.h logdir.c lookup.c lookup.h main.c mouse.c 	mygetenv.c mypopen.c scanner.h version.h vp.h vpaccess.c vpfopen.c 	vpinit.c vpopen.c
+cscope_SOURCES = $(LEXER_SOURCE) egrep.y 	alloc.c basename.c build.c build.h command.c compath.c constants.h crossref.c dir.c 	display.c edit.c exec.c find.c global.h help.c history.c input.c 	invlib.c invlib.h library.h logdir.c lookup.c lookup.h main.c mouse.c 	mygetenv.c mypopen.c scanner.h version.h vp.h vpaccess.c vpfopen.c 	vpinit.c vpopen.c
 
 
 EXTRA_cscope_SOURCES = scanner.l fscanner.l
@@ -98,13 +98,13 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 @USING_LEX_FALSE@cscope_OBJECTS =  fscanner.o egrep.o alloc.o basename.o \
-@USING_LEX_FALSE@command.o compath.o crossref.o dir.o display.o edit.o \
-@USING_LEX_FALSE@exec.o find.o help.o history.o input.o invlib.o \
+@USING_LEX_FALSE@build.o command.o compath.o crossref.o dir.o display.o \
+@USING_LEX_FALSE@edit.o exec.o find.o help.o history.o input.o invlib.o \
 @USING_LEX_FALSE@logdir.o lookup.o main.o mouse.o mygetenv.o mypopen.o \
 @USING_LEX_FALSE@vpaccess.o vpfopen.o vpinit.o vpopen.o
 @USING_LEX_TRUE@cscope_OBJECTS =  scanner.o egrep.o alloc.o basename.o \
-@USING_LEX_TRUE@command.o compath.o crossref.o dir.o display.o edit.o \
-@USING_LEX_TRUE@exec.o find.o help.o history.o input.o invlib.o \
+@USING_LEX_TRUE@build.o command.o compath.o crossref.o dir.o display.o \
+@USING_LEX_TRUE@edit.o exec.o find.o help.o history.o input.o invlib.o \
 @USING_LEX_TRUE@logdir.o lookup.o main.o mouse.o mygetenv.o mypopen.o \
 @USING_LEX_TRUE@vpaccess.o vpfopen.o vpinit.o vpopen.o
 cscope_DEPENDENCIES = 
@@ -122,11 +122,11 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = gtar
 GZIP_ENV = --best
-DEP_FILES =  .deps/alloc.P .deps/basename.P .deps/command.P \
-.deps/compath.P .deps/crossref.P .deps/dir.P .deps/display.P \
-.deps/edit.P .deps/egrep.P .deps/exec.P .deps/find.P .deps/fscanner.P \
-.deps/help.P .deps/history.P .deps/input.P .deps/invlib.P \
-.deps/logdir.P .deps/lookup.P .deps/main.P .deps/mouse.P \
+DEP_FILES =  .deps/alloc.P .deps/basename.P .deps/build.P \
+.deps/command.P .deps/compath.P .deps/crossref.P .deps/dir.P \
+.deps/display.P .deps/edit.P .deps/egrep.P .deps/exec.P .deps/find.P \
+.deps/fscanner.P .deps/help.P .deps/history.P .deps/input.P \
+.deps/invlib.P .deps/logdir.P .deps/lookup.P .deps/main.P .deps/mouse.P \
 .deps/mygetenv.P .deps/mypopen.P .deps/scanner.P .deps/vpaccess.P \
 .deps/vpfopen.P .deps/vpinit.P .deps/vpopen.P
 SOURCES = $(cscope_SOURCES) $(EXTRA_cscope_SOURCES)

@@ -44,10 +44,6 @@
 
 #define ctrl(x)	(x & 037)	/* control character macro */
 
-/* database output macros that update its offset */
-#define	dbputc(c)	(++dboffset, (void) putc(c, newrefs))
-#define	dbfputs(s)	(dboffset += strlen(s), fputs(s, newrefs))
-
 /* fast string equality tests (avoids most strcmp() calls) */
 #define	strequal(s1, s2)	(*(s1) == *(s2) && strcmp(s1, s2) == 0)
 #define	strnotequal(s1, s2)	(*(s1) != *(s2) || strcmp(s1, s2) != 0)

@@ -36,6 +36,8 @@
  */
 
 #include "global.h"
+
+#include "build.h"
 #include "scanner.h"		/* for token definitions */
 #if defined(USE_NCURSES) && !defined(RENAMED_NCURSES)
 #include <ncurses.h>

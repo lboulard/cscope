@@ -103,7 +103,6 @@ typedef	struct {
 
 extern	long	*srcoffset;	/* source file name database offsets */
 extern	int	nsrcoffset;	/* number of file name database offsets */
-extern	INVCONTROL invcontrol;	/* inverted file control structure */
 
 
 void	boolclear(void);

@@ -1,3 +1,6 @@
+(2001/07/06 - broeker) Code dealing with database creation ripped out of
+		       main.c and moved to a new module build.c. New
+		       header file build.h to go with it.
 (2001/07/05 - cohrs)   LEX and SUNOS fix for scanner.
 (2001/07/05 - broeker) Put in lots of 'static' keywords, added prototypes.
 (2001/07/05 - broeker) Renamed pclose() function to mypclose(), in order not to
