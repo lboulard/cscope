@@ -1,5 +1,6 @@
+(2000/04/20 - martin) Use 'env LC_ALL=C sort' rather than 'LC_ALL=C sort' for sorting
 (2000/04/19 - petr) Added README/NEWS/AUTHORS files
-(2000/04/19 - Mr Shark(?)) Non-preformatted man page
+(2000/04/19 - jens) Non-preformatted man page
 (2000/04/19 - petr) Make sure install directory exists with make install
 (2000/04/19 - petr) Make sure temporary directory exists
 (2000/04/18 - petr) Remove temporary buffer
