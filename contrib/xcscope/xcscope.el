@@ -6,7 +6,7 @@
 ; Description:  cscope interface for (X)Emacs
 ; Author:       Darryl Okahata
 ; Created:      Wed Apr 19 17:03:38 2000
-; Modified:     Wed Jul 18 19:27:09 2001 (Darryl Okahata) darrylo@sonic.net
+; Modified:     Thu Nov  1 16:34:54 2001 (Darryl Okahata) darrylo@soco.agilent.com
 ; Language:     Emacs-Lisp
 ; Package:      N/A
 ; Status:       Experimental
@@ -1770,15 +1770,16 @@ using the mouse."
     (set-buffer buffer)
     (save-window-excursion
       (save-excursion
-	(if (and (setq window (get-buffer-window buffer))
-		 (= (window-point window) (point-max)))
+	(if (or (and (setq window (get-buffer-window buffer))
+		     (= (window-point window) (point-max)))
+		(= (point) (point-max)))
 	    (progn
 	      (setq update-window t)
 	      ))
 	(delete-process process)
 	(let (buffer-read-only continue)
 	  (goto-char (point-max))
-	  (if (= cscope-output-start (point))
+	  (if (not cscope-first-match)
 	      (message "No matches were found."))
 	  (if (and cscope-suppress-empty-matches
 		   (= cscope-output-start (point)))
@@ -1819,15 +1820,17 @@ using the mouse."
 	    ))
 	(set-buffer-modified-p nil)
 	))
-    (if (and done cscope-first-match-point)
-	(if update-window
+    (if (and done cscope-first-match-point update-window)
+	(if window
 	    (set-window-point window cscope-first-match-point)
-	  (goto-char cscope-first-match-point)))
+	  (goto-char cscope-first-match-point))
+      )
     (cond
      ( (not done)		;; we're not done -- do nothing for now
        (if update-window
-	   (set-window-point window (point-max))
-	 (goto-char (point-max)))
+	   (if window
+	       (set-window-point window (point-max))
+	     (goto-char (point-max))))
        )
      ( cscope-first-match
        (if cscope-display-cscope-buffer
@@ -1837,6 +1840,8 @@ using the mouse."
          (cscope-select-entry-specified-window old-buffer-window))
        )
      )
+    (if (and done (eq old-buffer buffer))
+	(cscope-help))
     (set-buffer old-buffer)
     ))
 
