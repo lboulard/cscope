@@ -643,6 +643,7 @@ posterr(char *msg, ...)
     if (linemode == YES || incurses == NO)
     {
         (void) vfprintf(stderr, msg, ap); 
+	(void) fputc('\n', stderr);
     }
     else
     {
