@@ -81,6 +81,7 @@ command(int commandc)
 	FILE	*file;
 	struct	cmd	 *curritem, *item;	/* command history */
 	char	*s;
+	int lines, cols;
 
 	switch (commandc) {
 
@@ -408,6 +409,25 @@ command(int commandc)
 		}
 		askforreturn();
 		entercurses();
+		break;
+
+	case KEY_RESIZE:
+		exitcurses();
+		initscr();
+		entercurses();
+#if TERMINFO
+		(void) keypad(stdscr, TRUE);	/* enable the keypad */
+#ifdef HAVE_FIXKEYPAD
+		fixkeypad();	/* fix for getch() intermittently returning garbage */
+#endif
+#endif
+#if UNIXPC
+		standend();	/* turn off reverse video */
+#endif
+		dispinit();	/* initialize display parameters */
+		setfield();	/* set the initial cursor position */
+		postmsg("");	/* clear any build progress message */
+		display();	/* display the version number and input fields */
 		break;
 
 	case ctrl('L'):	/* redraw screen */
