@@ -36,6 +36,12 @@ rm -rf $RPM_BUILD_ROOT
 /usr/local/man/man1/cscope.1
 
 %changelog
+* Wed Nov 20 2000 Cscope development team
+- Version 15.1 release
+- New menu and line matching interface
+- Support for up to 62 (up from 9) matching lines on screen
+- Numerous fixes
+- Updated documentation
 * Tue May 15 2000 Cscope development team
 - Version 15.0bl2 (build 2) pre-alpha release
 - Fixes and enhancements
