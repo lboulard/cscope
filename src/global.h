@@ -130,6 +130,8 @@ extern	BOOL	trun_syms;	/* truncate symbols to 8 characters */
 extern	BOOL	caseless;	/* ignore letter case when searching */
 extern	BOOL	*change;	/* change this line */
 extern	BOOL	changing;	/* changing text */
+extern	int	selecting;
+extern	int	curdispline;
 extern	char	newpat[];	/* new pattern */
 extern	char	pattern[];	/* symbol or text pattern */
 
@@ -168,6 +170,7 @@ extern	int	bottomline;	/* bottom line of page */
 extern	long	searchcount;	/* count of files searched */
 extern	int	subsystemlen;	/* OGS subsystem name display field length */
 extern	int	totallines;	/* total reference lines */
+extern	const char dispchars[];	/* display chars for jumping to lines */
 
 /* find.c global data */
 extern	char	block[];	/* cross-reference file block */
@@ -195,6 +198,7 @@ extern	int	first;		/* buffer index for first char of symbol */
 extern	int	last;		/* buffer index for last char of symbol */
 extern	int	lineno;		/* symbol line number */
 extern	FILE	*yyin;		/* input file descriptor */
+extern	FILE	*yyout;		/* output file */
 extern	int	yyleng;		/* input line length */
 extern	int	myylineno;	/* input line number */
 extern	char	yytext[];	/* input line text */

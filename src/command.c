@@ -44,7 +44,7 @@
 static char const rcsid[] = "$Id$";
 
 
-int   selecting;
+int	selecting;
 int   curdispline = 0;
 
 BOOL	caseless;		/* ignore letter case when searching */
@@ -474,7 +474,6 @@ command(int commandc)
 
 		if (selecting && !mouse)
 		{
-			extern char	dispchars[];
 			char		*c;
 
 			if ((c = strchr(dispchars, commandc)))
@@ -678,7 +677,6 @@ changestring(void)
 		default:
 		{
 			/* if a line was selected */
-			extern char	dispchars[];
 			char		*cc;
 
 			if ((cc = strchr(dispchars, c)))

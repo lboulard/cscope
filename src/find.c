@@ -73,7 +73,6 @@ static	void	putline(FILE *output);
 static	void	putpostingref(POSTING *p, char *pat);
 static	void	putref(int seemore, char *file, char *func);
 static	void	putsource(int seemore, FILE *output);
-extern	POSTING	*boolfile(INVCONTROL *invcntl, long *num, int boolarg);
 
 /* find the symbol in the cross-reference */
 

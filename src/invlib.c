@@ -73,7 +73,6 @@ static	void	invstep(INVCONTROL *invcntl);
 static	void	invcannotalloc(unsigned n);
 static	void	invcannotopen(char *file);
 static	void	invcannotwrite(char *file);
-extern	FILE	*vpfopen(char *filename, char *type);
 
 #if STATS
 int	showzipf;	/* show postings per term distribution */

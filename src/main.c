@@ -124,8 +124,6 @@ static	void	build(void);
 static	void	usage(void);
 static	void	longusage(void);
 
-extern FILE *yyin, *yyout;
-
 int
 main(int argc, char **argv)
 {
@@ -659,9 +657,6 @@ lastarg:
 		display();		/* update the display */
 	}
 	for (;;) {
-		extern int	selecting,
-				curdispline;
-
 		if (!selecting)
 			atfield();	/* move to the input field */
 
