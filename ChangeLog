@@ -1,4 +1,8 @@
-(2000/05/18 - hops) explicitly initialise some booleans in main.c
+(2000/05/18 - hops) display errors via varargs posterr(ap, ..)
+                    start changing sprintfs to snprintfs
+                    buildonly not go into curses - set linemode 
+                        - fixes buildonly coredump
+                    explicitly initialise some booleans in main.c
                     handle error messages nicely - curses msgline2 line 
                     or stdout - using snprintf+posterr(buf). 
                     Clear msg2 line  on ^L command.c.
