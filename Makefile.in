@@ -68,7 +68,7 @@ PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 YACC = @YACC@
 
-SUBDIRS = doc src 
+SUBDIRS = doc src contrib
 
 EXTRA_DIST = contrib/README contrib/ocs
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4

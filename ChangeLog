@@ -1,3 +1,4 @@
+(2000/05/18 - hops) Add build support for contrib dir
 (2000/05/18 - broeker) move declarations of invlib.c functions to invlib.h,
                        from global.h
 (2000/05/18 - broeker) it's 'myylineno', not 'yylineno'
