@@ -55,8 +55,9 @@ dnl
 dnl chg: probes for lib in /usr/local/lib
 dnl sheesh you'd have thought that this was obvious enough to be done anyway
 AC_DEFUN(ACNU_PROG_LEX,[
-    AH_CHECK_LIB(fl)dnl
-    AH_CHECK_LIB(l)dnl
+dnl   autoconf-2.14a
+dnl    AH_CHECK_LIB(fl)dnl
+dnl    AH_CHECK_LIB(l)dnl
     AC_CHECK_PROG(LEX, flex, flex, lex)
     if test -z "$LEXLIB"
     then
@@ -101,7 +102,9 @@ AC_DEFUN([ACNU_DECL_YYTEXT],[
       echo 'extern char *yytext;' >>$LEX_OUTPUT_ROOT.c
       ac_save_LIBS=$LIBS
       LIBS="$LIBS $LEXLIB"
-      AC_LINK_IFELSE([`cat $LEX_OUTPUT_ROOT.c`], ac_cv_prog_lex_yytext_pointer=yes)
+      AC_TRY_LINK(`cat $LEX_OUTPUT_ROOT.c`, , ac_cv_prog_lex_yytext_pointer=yes)
+dnl autoconf 2.14
+dnl      AC_LINK_IFELSE([`cat $LEX_OUTPUT_ROOT.c`], ac_cv_prog_lex_yytext_pointer=yes)
       LIBS=$ac_save_LIBS
       rm -f "${LEX_OUTPUT_ROOT}.c"
     ])
