@@ -1,3 +1,4 @@
+(2001/10/09 - valentin) Prevention of a possible buffer overflow.
 (2001/09/27 - broeker) Added autoconf test to use Cygwin's separate
                        -lregex. The regcomp() in libc is not what we want.
 (2001/09/13 - broeker) Move chunk for malformed CPP directives further down, so

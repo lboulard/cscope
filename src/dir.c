@@ -201,7 +201,8 @@ includedir(char *dirlist)
 			
 			/* compute its path from higher view path source dirs */
 			for (i = 1; i < nvpsrcdirs; ++i) {
-				(void) sprintf(path, "%s/%s", srcdirs[i], dir);
+				(void) snprintf(path, PATHLEN+1,
+						"%s/%s", srcdirs[i], dir);
 				addincdir(dir, path);
 			}
 		}
