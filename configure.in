@@ -390,6 +390,7 @@ AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(strchr memcpy memset setmode _setmode)
 AC_CHECK_FUNCS(getcwd regcmp regcomp strerror vsnprintf snprintf lstat)
 AC_CHECK_FUNCS(fixkeypad)
+AC_FUNC_LSTAT
 
 case "$host_os" in
 	linux*)

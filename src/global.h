@@ -227,6 +227,7 @@ extern	BOOL	invertedindex;	/* the database has an inverted index */
 extern	BOOL	isuptodate;	/* consider the crossref up-to-date */
 extern	BOOL	kernelmode;	/* don't use DFLT_INCDIR - bad for kernels */
 extern	BOOL	linemode;	/* use line oriented user interface */
+extern	BOOL	verbosemode;	/* print extra information on line mode */
 extern	BOOL	recurse_dir;	/* recurse dirs when searching for src files */
 extern	char	*namefile;	/* file of file names */
 extern	BOOL	ogs;		/* display OGS book and subsystem names */

@@ -1,3 +1,5 @@
+(2003/06/12 - broeker) New option -v to output progress updates even in
+		       line mode.  To be used by interface kscope.
 (2003/06/02 - broeker) Use the basename of files only to test for SCCS/RCS
 	               files in -R traversal.
 (2003/04/29 - broeker) Check that a src file is a regular file before trying to

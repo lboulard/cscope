@@ -90,6 +90,7 @@ BOOL	invertedindex;		/* the database has an inverted index */
 BOOL	isuptodate;		/* consider the crossref up-to-date */
 BOOL	kernelmode;		/* don't use DFLT_INCDIR - bad for kernels */
 BOOL	linemode = NO;		/* use line oriented user interface */
+BOOL	verbosemode = NO;	/* print extra information on line mode */
 BOOL	recurse_dir = NO;	/* recurse dirs when searching for src files */
 char	*namefile;		/* file of file names */
 BOOL	ogs;			/* display OGS book and subsystem names */
@@ -198,6 +199,9 @@ main(int argc, char **argv)
 				/* FALLTHROUGH */
 			case 'l':
 				linemode = YES;
+				break;
+			case 'v':
+				verbosemode = YES;
 				break;
 			case 'o':	/* display OGS book and subsystem names */
 				ogs = YES;
@@ -521,8 +525,8 @@ lastarg:
 
 		/* build the cross-reference */
 		initcompress();
-		if (linemode == NO )    /* display if verbose as well */
-                    postmsg("Building cross-reference...");    		    
+		if (linemode == NO || verbosemode == YES)    /* display if verbose as well */
+                    postmsg("Building cross-reference...");
 		build();
 		if (linemode == NO )
                     postmsg("");	/* clear any build progress message */
@@ -771,7 +775,7 @@ exitcurses(void)
 static void
 usage(void)
 {
-	(void) fprintf(stderr, "Usage: cscope [-bcCdehklLqRTuUV] [-f file] [-F file] [-i file] [-I dir] [-s dir]\n");
+	(void) fprintf(stderr, "Usage: cscope [-bcCdehklLqRTuUvV] [-f file] [-F file] [-i file] [-I dir] [-s dir]\n");
 	(void) fprintf(stderr, "              [-p number] [-P path] [-[0-8] pattern] [source files]\n");
 }
 
@@ -804,6 +808,7 @@ longusage(void)
 	(void) fprintf(stderr, "-T            Use only the first eight characters to match against C symbols.\n");
 	(void) fprintf(stderr, "-U            Check file time stamps.\n");
 	(void) fprintf(stderr, "-u            Unconditionally build the cross-reference file.\n");
+	(void) fprintf(stderr, "-v            Be more verbose in line mode.\n");
 	(void) fprintf(stderr, "-V            Print the version number.\n");
 	(void) fprintf(stderr, "\n");
 	(void) fprintf(stderr, "Please see the manpage for more information.\n");

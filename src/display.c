@@ -563,6 +563,11 @@ progress(char *what, long current, long max)
 			addstr(msg);
 			refresh();
 		}
+		else if (verbosemode == YES)
+		{
+			sprintf(msg, "> %s %ld of %ld", what, current, max);
+		}
+
 		start = now;
 		if ((linemode == NO) && (incurses == YES))
 		{
@@ -576,7 +581,7 @@ progress(char *what, long current, long max)
 			refresh();
 		}
 		else
-			if (linemode == NO)
+			if (linemode == NO || verbosemode == YES)
 				postmsg(msg);
 	}
 	++searchcount;
@@ -610,6 +615,7 @@ postmsg(char *msg)
 {
 	if (linemode == YES || incurses == NO) {
 		(void) printf("%s\n", msg);
+		fflush(stdout);
 	}
 	else {
 		move(MSGLINE, 0);

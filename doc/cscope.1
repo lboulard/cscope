@@ -5,7 +5,7 @@ cscope - interactively examine a C program
 .SH SYNOPSIS
 .ll +8
 .B cscope
-.RB [ " -bCcdehkLlqRTUuV " ]
+.RB [ " -bCcdehkLlqRTUuVv " ]
 .RB [ -F symfile  ]
 .RB [ -f reffile  ]
 .RB [ -I incdir  ]
@@ -150,6 +150,10 @@ on the database even if no files have changed.
 .B -u
 Unconditionally build the cross-reference file (assume that all
 files have changed).
+.TP
+.B -v
+Be more verbose in line-oriented mode.  Output progress updates during
+database building and searches.
 .TP
 .B -V
 Print on the first line of screen the version number of cscope.
