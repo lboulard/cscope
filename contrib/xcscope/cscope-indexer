@@ -31,7 +31,7 @@
 #
 # Author:       Darryl Okahata
 # Created:      Thu Apr 27 17:12:14 2000
-# Modified:     Tue May  9 16:09:45 2000 (Darryl Okahata) darrylo@soco.agilent.com
+# Modified:     Tue Jun 19 09:47:45 2001 (Darryl Okahata) darrylo@soco.agilent.com
 # Language:     Shell-script
 # Package:      N/A
 # Status:       Experimental
@@ -134,10 +134,10 @@ fi
 	    echo "$DIR/$f"
 	done
     else
-	find $DIR -type f
+	find $DIR \( -type f -o -type l \)
     fi
 ) | \
-    egrep '\.([CHchly](xx|pp|XX|PP)*|CC|HH)$' | \
+    egrep -i '\.([chly](xx|pp)*|cc|hh)$' | \
     sed -e '/\/CVS\//d' -e '/\/RCS\//d' -e 's/^\.\///' | \
     sort > $LIST_FILE
 
