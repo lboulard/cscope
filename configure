@@ -3079,6 +3079,12 @@ else
   USING_LEX_FALSE=
 fi
 
+if test "x$LEX" = "xlex" ; then
+cat >>confdefs.h <<\_ACEOF
+#define USING_LEX 1
+_ACEOF
+
+fi
 for ac_prog in 'bison -y' byacc
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
@@ -3793,7 +3799,7 @@ echo "${ECHO_T}Please note that some screen refreshs may fail" >&6
 echo $ECHO_N "checking for ncurses version... $ECHO_C" >&6
 	ncurses_version=unknown
 cat > conftest.$ac_ext <<EOF
-#line 3796 "configure"
+#line 3802 "configure"
 #include "confdefs.h"
 #ifdef RENAMED_NCURSES
 #include <curses.h>

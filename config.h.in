@@ -145,6 +145,9 @@
 /* Use SystemV curses? */
 #undef USE_SYSV_CURSES
 
+/* Define this if the scanner is run through lex, not flex */
+#undef USING_LEX
+
 /* Version number of package */
 #undef VERSION
 
