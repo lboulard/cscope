@@ -238,7 +238,7 @@ main(int argc, char **argv)
 				case 'f':	/* alternate cross-reference file */
 					reffile = s;
 					(void) strcpy(path, s);
-#if !BSD || sun	/* suns can access Amdahl databases */
+#ifdef SHORT_NAMES_ONLY 
 					/* System V has a 14 character limit */
 					s = mybasename(path);
 					if (strlen(s) > 11) {

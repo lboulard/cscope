@@ -1,3 +1,4 @@
+(2003/03/02 - broeker) Don't restrict to 14 character filenames any longer.
 (2003/01/23 - broeker) Update to latest auto* tools.  First step towards
                        integration of GNOME GUI version.
 (2002/12/11 - broeker) Get rid of deprecated ={...} style actions in egrep.y.

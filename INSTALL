@@ -45,4 +45,11 @@ Please report build problems at:
 - Solaris 2.8 on Intel hardware may not work using the vendor's curses
   implementation.  Using the free NCurses should help.
 
-Browse to http://cscope.sourceforge.net for more current information.
+- Some ancient Unix filesytems supported only 14 characters in 
+  filenames.  cscope no longer cares for that by default.  If you want
+  to run it on such a system, #define the macro SHORT_NAMES_ONLY manually
+  (there's a definition in global.h you can uncomment).
+
+Browse to http://cscope.sourceforge.net for more current information,
+like reported bugs whose solutions haven't been put into this source
+distribution yet.
