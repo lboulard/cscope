@@ -1,3 +1,6 @@
+(2001/06/29 - broeker) Re-formatted README, and added a tip working around 
+	               buggy libcurses on HP-UX 10.
+(2001/06/29 - broeker) Oversight in packages/MSDOS/djmake.bat fixed.	
 (2001/06/28 - darrylo) Updated xcscope.el to include GNU Emacs fixes and
 		       fuzzy pattern matching.  Updated docs in xcscope.el.
 (2001/06/28 - broeker) Added files in packages/MSDOS that help compiling
