@@ -1,3 +1,9 @@
+2004-06-23  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	* src/dir.c (makefilelist): Fix broken movement of point_in_line
+	when parsing quoted names.  Simplify structure by moving default
+	handling upward.
+
 2004-06-21  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	* contrib/ocs (SYSDIR): Only set to /usr/local/lib/cs if not
@@ -26,7 +32,7 @@
 	* src/constants.h: Activate TERMINFO for FreeBSD.
 
 	* src/input.c (mygetline): New function.  Poor-man's readline
-	imitation.
+	imitation.  From SF Patch #937310.
 
 	* src/global.h (mygetline): Prototype added.
 

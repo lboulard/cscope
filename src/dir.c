@@ -287,184 +287,193 @@ makefilelist(void)
 				}
 				else {
 					(void) fprintf(stderr, "cscope: cannot find file %s\n",
-					    file);
+						       file);
 					errorsfound = YES;
 				}
 			}
 		}
 		return;
 	}
+
 	/* see if a file name file exists */
 	if (namefile == NULL && vpaccess(NAMEFILE, READ) == 0) {
 		namefile = NAMEFILE;
 	}
-	/* if there is a file of source file names */
-	if (namefile != NULL) {
-		if (strcmp(namefile, "-") == 0)
-		    names = stdin;
-		else if ((names = vpfopen(namefile, "r")) == NULL) {
-			cannotopen(namefile);
-			myexit(1);
+
+	if (namefile == NULL) {
+		/* No namefile --> make a list of all the source files
+		 * in the directories */
+		for (i = 0; i < nsrcdirs; ++i) {
+			scan_dir(srcdirs[i], recurse_dir);
 		}
-		/* get the names in the file */
-		while (fgets(line, 10*PATHLEN, names) != NULL) {
-			char *point_in_line = line + (strlen(line) - 1);
-			size_t length_of_name = 0;
-			int unfinished_option = 0;
-			BOOL done = NO;
-
-			/* Kill away \n left at end of fgets()'d string: */
-			if (*point_in_line == '\n')
-				*point_in_line = '\0';
-			
-			/* Parse whitespace-terminated strings in line: */
-			point_in_line = line;
-			while (sscanf(point_in_line, "%s", path) == 1) {
-				/* Have to store this length --- inviewpath() will
-				 * modify path, later! */
-				length_of_name = strlen(path);
-			  
-				if (*path == '-') {	/* if an option */
-					if (unfinished_option) {
-						/* Can't have another option directly after an
-						 * -I or -p option with no name after it! */
-						(void) fprintf(stderr, "\
-cscope: Syntax error in namelist file %s: unfinished -I or -p option\n", 
-									   namefile);
-						unfinished_option = 0;
-					}
-						
-					i = path[1];
-					switch (i) {
-					case 'c':	/* ASCII characters only in crossref */
-						compress = NO;
-						break;
-					case 'k':	/* ignore DFLT_INCDIR */
-						kernelmode = YES;
-						break;
-					case 'q':	/* quick search */
-						invertedindex = YES;
-						break;
-					case 'T':	/* truncate symbols to 8 characters */
-						trun_syms = YES;
-						break;
-					case 'I':	/* #include file directory */
-					case 'p':	/* file path components to display */
-						s = path + 2;		/* for "-Ipath" */
-						if (*s == '\0') {	/* if "-I path" */
-							unfinished_option = i;
-							break; 
-						} 
-
-						/* this code block used several times in here
-						 * --> make it a macro to avoid unnecessary
-						 * duplication */
-#define HANDLE_OPTION_ARGUMENT(i, s)																			   \
-						switch (i) {																			   \
-						case 'I':	/* #include file directory */												   \
-							if (firstbuild == YES) {															   \
-								/* expand $ and ~ */															   \
-								shellpath(dir, sizeof(dir), (s));												   \
-								includedir(dir);																   \
-							}																					   \
-							unfinished_option = 0;																   \
-							done = YES;																			   \
-							break;																				   \
-						case 'p':	/* file path components to display */										   \
-							if (*(s) < '0' || *(s) > '9') {														   \
-								(void) fprintf(stderr,															   \
-											   "cscope: -p option in file %s: missing or invalid numeric value\n", \
-											   namefile);														   \
-							}																					   \
-							dispcomponents = atoi(s);															   \
-							unfinished_option = 0;																   \
-							done = YES;																			   \
-							break;																				   \
-						default:																				   \
-							done = NO;																			   \
-						}
-
-						/* ... and now call it for the first time */
-						HANDLE_OPTION_ARGUMENT(i, s)
-						break;
-					default:
-						(void) fprintf(stderr, "cscope: only -I, -c, -k, -p, and -T options can be in file %s\n", 
-									   namefile);
-					}
-				} else if (*path == '"') {
-					/* handle quoted filenames... */
-					size_t in = 1, out = 0;
-					char *newpath = mymalloc(PATHLEN + 1);
-
-					while (in < PATHLEN && point_in_line[in] != '\0') {
-						if (point_in_line[in] == '"') {
-							newpath[out] = '\0';
-							/* Make sure we skip over the part just read */
-							point_in_line += in + 1;
-							/* ... to deactive step by strlen() path at end
-							 * of loop */
-							path[0]='\0';
-							break;	/* found end of quoted string */
-						}
-						else if (point_in_line[in] == '\\' && in < PATHLEN - 1
-								 && (point_in_line[in + 1]== '"' || point_in_line[in + 1] == '\\')) {
-							/* un-escape \" or \\ sequence */
-							newpath[out++] = point_in_line[in + 1];
-							in += 2;
-						}
-						else {
-							newpath[out++] = point_in_line[in++];
-						}
-					} /* while */ 
-					if (in >= PATHLEN) { /* safeguard against almost-overflow */
-						newpath[out]='\0';
-					}
-
-					/* If an -I or -p arguments was missing before,
-					 * treat this name as the argument: */
-					HANDLE_OPTION_ARGUMENT(unfinished_option, newpath);
-					if (! done) {
-						if ((s = inviewpath(newpath)) != NULL) {
-							addsrcfile(s);
-						} else {
-							(void) fprintf(stderr,
-										   "cscope: cannot find file %s\n",
-										   newpath);
-							errorsfound = YES;
-						}
-					}
-				} else {
-					/* ... so this is an ordinary file name, unquoted */
-
-					/* If an -I or -p arguments was missing before,
-					 * treat this name as the argument: */
-					HANDLE_OPTION_ARGUMENT(unfinished_option, path);
-					if (!done) {
-						if ((s = inviewpath(path)) != NULL) {
-							addsrcfile(s);
-						} else {
-							(void) fprintf(stderr, "cscope: cannot find file %s\n",
-										   path);
-							errorsfound = YES;
-						}
-					}
-				}
-				point_in_line += length_of_name;
-				while (isspace((unsigned char) *point_in_line))
-					point_in_line ++;
-			}
-		}
-		if (names == stdin)
-		    clearerr(stdin);
-		else
-		    (void) fclose(names);
-		firstbuild = NO;
 		return;
 	}
-	/* make a list of all the source files in the directories */
-	for (i = 0; i < nsrcdirs; ++i) {
-		scan_dir(srcdirs[i], recurse_dir);
+
+	/* Came here --> there is a file of source file names */
+
+	if (strcmp(namefile, "-") == 0)
+		names = stdin;
+	else if ((names = vpfopen(namefile, "r")) == NULL) {
+		cannotopen(namefile);
+		myexit(1);
 	}
+
+	/* get the names in the file */
+	while (fgets(line, 10*PATHLEN, names) != NULL) {
+		char *point_in_line = line + (strlen(line) - 1);
+		size_t length_of_name = 0;
+		int unfinished_option = 0;
+		BOOL done = NO;
+
+		/* Kill away \n left at end of fgets()'d string: */
+		if (*point_in_line == '\n')
+			*point_in_line = '\0';
+			
+		/* Parse whitespace-terminated strings in line: */
+		point_in_line = line;
+		while (sscanf(point_in_line, "%s", path) == 1) {
+			/* Have to store this length --- inviewpath() will
+			 * modify path, later! */
+			length_of_name = strlen(path);
+			  
+			if (*path == '-') {	/* if an option */
+				if (unfinished_option) {
+					/* Can't have another option directly after an
+					 * -I or -p option with no name after it! */
+					(void) fprintf(stderr, "\
+cscope: Syntax error in namelist file %s: unfinished -I or -p option\n", 
+						       namefile);
+					unfinished_option = 0;
+				}
+						
+				i = path[1];
+				switch (i) {
+				case 'c':	/* ASCII characters only in crossref */
+					compress = NO;
+					break;
+				case 'k':	/* ignore DFLT_INCDIR */
+					kernelmode = YES;
+					break;
+				case 'q':	/* quick search */
+					invertedindex = YES;
+					break;
+				case 'T':	/* truncate symbols to 8 characters */
+					trun_syms = YES;
+					break;
+				case 'I':	/* #include file directory */
+				case 'p':	/* file path components to display */
+					s = path + 2;		/* for "-Ipath" */
+					if (*s == '\0') {	/* if "-I path" */
+						unfinished_option = i;
+						break; 
+					} 
+
+					/* this code block used several times in here
+					 * --> make it a macro to avoid unnecessary
+					 * duplication */
+#define HANDLE_OPTION_ARGUMENT(i, s)													   \
+					switch (i) {											   \
+					case 'I':	/* #include file directory */							   \
+						if (firstbuild == YES) {								   \
+							/* expand $ and ~ */								   \
+							shellpath(dir, sizeof(dir), (s));						   \
+							includedir(dir);								   \
+						}											   \
+						unfinished_option = 0;									   \
+						done = YES;										   \
+						break;											   \
+					case 'p':	/* file path components to display */						   \
+						if (*(s) < '0' || *(s) > '9') {								   \
+							(void) fprintf(stderr,								   \
+								       "cscope: -p option in file %s: missing or invalid numeric value\n", \
+								       namefile);							   \
+						}											   \
+						dispcomponents = atoi(s);								   \
+						unfinished_option = 0;									   \
+						done = YES;										   \
+						break;											   \
+					default:											   \
+						done = NO;										   \
+					} /* switch(i) */
+
+					/* ... and now call it for the first time */
+					HANDLE_OPTION_ARGUMENT(i, s)
+						break;
+				default:
+					(void) fprintf(stderr, "cscope: only -I, -c, -k, -p, and -T options can be in file %s\n", 
+						       namefile);
+				} /* switch(i) */
+			} /* if('-') */
+			else if (*path == '"') {
+				/* handle quoted filenames... */
+				size_t in = 1, out = 0;
+				char *newpath = mymalloc(PATHLEN + 1);
+
+				while (in < PATHLEN && point_in_line[in] != '\0') {
+					if (point_in_line[in] == '"') {
+						newpath[out] = '\0';
+						/* Tell outer loop to skip over this entire quoted string */
+						length_of_name = in + 1;
+						break;	/* found end of quoted string */
+					} else if (point_in_line[in] == '\\'
+						   && in < PATHLEN - 1
+						   && (point_in_line[in + 1]== '"'
+						       || point_in_line[in + 1] == '\\')) {
+						/* un-escape \" or \\ sequence */
+						newpath[out++] = point_in_line[in + 1];
+						in += 2;
+					} else {
+						newpath[out++] = point_in_line[in++];
+					}
+				} /* while(in) */ 
+				if (in >= PATHLEN) { /* safeguard against almost-overflow */
+					newpath[out]='\0';
+				}
+
+				/* If an -I or -p arguments was missing before,
+				 * treat this name as the argument: */
+				HANDLE_OPTION_ARGUMENT(unfinished_option, newpath);
+				if (! done) {
+					if ((s = inviewpath(newpath)) != NULL) {
+						addsrcfile(s);
+					} else {
+						(void) fprintf(stderr,
+							       "cscope: cannot find file %s\n",
+							       newpath);
+						errorsfound = YES;
+					}
+				}
+			} /* if(quoted name) */
+			else {
+				/* ... so this is an ordinary file name, unquoted */
+
+				/* If an -I or -p arguments was missing before,
+				 * treat this name as the argument: */
+				HANDLE_OPTION_ARGUMENT(unfinished_option, path);
+				if (!done) {
+					if ((s = inviewpath(path)) != NULL) {
+						addsrcfile(s);
+					} else {
+						(void) fprintf(stderr, "cscope: cannot find file %s\n",
+							       path);
+						errorsfound = YES;
+					}
+				}
+			} /* else(ordinary name) */
+
+			point_in_line += length_of_name;
+			while (isspace((unsigned char) *point_in_line))
+				point_in_line ++;
+		} /* while(sscanf(line)) */
+	} /* while(fgets(line)) */
+
+	if (names == stdin)
+		clearerr(stdin);
+	else
+		(void) fclose(names);
+	firstbuild = NO;
+	return;
+
 }
 
 /* scan a directory (recursively?) for source files */
