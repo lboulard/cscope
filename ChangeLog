@@ -1,3 +1,6 @@
+(2001/09/13 - broeker) Move chunk for malformed CPP directives further down, so
+	               it won't incorrectly eat up #else or #endif directives.
+		       Fixes bug #460345.
 (2001/08/27 - broeker) Add C++-style comments to {comment} pattern. Fixes
 	               bug #455441: C++ comments in the middle of a function 
 		       definition caused it not be recognized.

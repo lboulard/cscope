@@ -230,13 +230,6 @@ whitespace	[ \t\n]|{comment}
 			goto more;
 			/* NOTREACHED */
 		}
-<IN_PREPROC>.|\n			|
-<IN_PREPROC>{identifier}	{   /* unknown preprocessor line */
-			BEGIN(INITIAL);
-			goto more;
-			/* NOTREACHED */
-		}
-
 <IN_PREPROC>endif([^a-zA-Z0-9_$\n].*)?	{	/* #endif */
 			/* delay treatment of #endif depending on whether an
 			 * #if comes right after it, or not */
@@ -468,6 +461,13 @@ whitespace	[ \t\n]|{comment}
 			goto definition;
 			/* NOTREACHED */
 		}
+<IN_PREPROC>.|\n			|
+<IN_PREPROC>{identifier}	{   /* unknown preprocessor line */
+			BEGIN(INITIAL);
+			goto more;
+			/* NOTREACHED */
+		}
+
 class{whitespace}+{identifier}({whitespace}|{identifier}|[():])*\{	{	/* class definition */
 			classdef = YES;
 			tagdef =  'c';
