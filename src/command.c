@@ -397,6 +397,23 @@ command(int commandc)
 		if (isdigit(commandc) && commandc != '0' && !mouse) {
 			editref(commandc - '1');
 		}
+		/* if this is a selected line greater than 9 */
+		else if (commandc == '0' && select_large && !mouse) {
+			commandc = mygetch();
+			if (commandc >= '0' && commandc <= '9') {
+				editref(9 + commandc - '0');
+			}
+			else if (commandc >= 'a' && commandc <='z') {
+				editref(19 + commandc - 'a');
+			}
+			else if (commandc >= 'A' && commandc <='Z') {
+				editref(19 + commandc - 'A');
+			}
+			else {
+				return(NO);
+			}
+			
+		}
 		/* if this is the start of a pattern */
 		else if (isprint(commandc)) {
 	ispat:		if (getline(newpat, COLS - fldcolumn - 1, commandc,
@@ -593,6 +610,18 @@ changestring(void)
 			if (isdigit(c) && c != '0' && !mouse) {
 				mark(c - '1');
 			}
+			else if (c == '0' && select_large && !mouse) {
+				c = mygetch ();
+				if (c >= '0' && c <= '9') {
+					mark(9 + c - '0');
+				}
+				else if (c >= 'a' && c <= 'z') {
+					mark(19 + c - 'a');
+				}
+				else if (c >= 'A' && c <= 'Z') {
+					mark(19 + c - 'A');
+				}
+			}
 			goto same;
 		}
 	}
@@ -688,7 +717,12 @@ mark(int i)
 	
 	j = i + topline - 1;
 	if (j < totallines) {
-		(void) move(displine[i], 1);
+		if (select_large == YES) {
+			(void) move(displine[i], 2);
+		}
+		else {
+			(void) move(displine[i], 1);
+		}
 		if (change[j] == NO) {
 			change[j] = YES;
 			(void) addch('>');

@@ -114,6 +114,7 @@ extern	BOOL	ogs;		/* display OGS book and subsystem names */
 extern	FILE	*postings;	/* new inverted index postings */
 extern	char	*prependpath;	/* prepend path to file names */
 extern	FILE	*refsfound;	/* references found file */
+extern	BOOL	select_large;	/* enable more than 9 select lines */
 extern	int	symrefs;	/* cross-reference file */
 extern	char	temp1[];	/* temporary file name */
 extern	char	temp2[];	/* temporary file name */

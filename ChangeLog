@@ -1,3 +1,5 @@
+(2000/05/02 - petr) Added support for more than 9 select lines (up to 45)
+                    temporary option -t enables this feature for testing
 (2000/05/01 - petr) Updated configure.in (and configure) to handle UW7
 (2000/04/28 - petr) Fixed another -q failure on large data
 (2000/04/28 - petr) Fixed -q failure

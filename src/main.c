@@ -89,6 +89,7 @@ BOOL	ogs;			/* display OGS book and subsystem names */
 FILE	*postings;		/* new inverted index postings */
 char	*prependpath;		/* prepend path to file names */
 FILE	*refsfound;		/* references found file */
+BOOL	select_large = NO;	/* enable more than 9 select lines */
 int	symrefs = -1;		/* cross-reference file */
 char	temp1[PATHLEN + 1];	/* temporary file name */
 char	temp2[PATHLEN + 1];	/* temporary file name */
@@ -284,6 +285,9 @@ main(int argc, char **argv)
 					break;
 				}
 				goto nextarg;
+			case 't':	/* enable more than 9 select lines */
+				select_large = YES;
+				break;
 			default:
 				(void) fprintf(stderr, "%s: unknown option: -%c\n", argv0, 
 					*s);

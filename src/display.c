@@ -120,9 +120,15 @@ dispinit(void)
 		(void) fprintf(stderr, "%s: screen too small\n", argv0);
 		myexit(1);
 	}
-	if (mouse == NO && mdisprefs > 9) {
+
+	if (mouse == NO && mdisprefs > 9 && select_large == NO) {
 		mdisprefs = 9;
 	}
+	else if (mouse == NO && mdisprefs > 45 && select_large == YES) {
+		/* Limit is 45 select lines */
+		mdisprefs = 45;
+	}
+
 	/* allocate the displayed line array */
 	displine = (int *) mymalloc(mdisprefs * sizeof(int));
 }
@@ -177,7 +183,12 @@ display(void)
 			printw("%-*s ", booklen, "Book");
 		}
 		if (dispcomponents > 0) {
-			printw("%-*s ", filelen, "File");
+			if (select_large == YES) {
+				printw(" %-*s ", filelen, "File");
+			}
+			else {
+				printw("%-*s ", filelen, "File");
+			}
 		}
 		if (field == SYMBOL || field == CALLEDBY || field == CALLING) {
 			printw("%-*s ", fcnlen, "Function");
@@ -192,7 +203,12 @@ display(void)
 			seekline(1);
 		}
 		/* calculate the source text column */
-		width = COLS - numlen - 3;
+		if (select_large == YES) {
+			width = COLS - numlen - 4;
+		}
+		else {
+			width = COLS - numlen - 3;
+		}
 		if (ogs == YES) {
 			width -= subsystemlen + booklen + 2;
 		}
@@ -222,7 +238,25 @@ display(void)
 				addch(' ');
 			}
 			else {
-				printw("%d", disprefs + 1);
+				/* print numbers and then letters for
+				   selections */
+				if (disprefs < 9) {
+					if (select_large == YES) {
+						printw(" %d", disprefs + 1);
+					}
+					else {
+						printw("%d", disprefs + 1);
+					}
+				}
+				else if (select_large == YES) {
+					if (disprefs < 19) {
+						printw("0%d", disprefs - 9);
+					}
+					else {
+						printw("0%c",
+							disprefs - 19 + 'a');
+					}
+				}
 			}
 			/* display any change mark */
 			if (changing == YES && 
@@ -266,6 +300,7 @@ display(void)
 			}
 			/* display the source line */
 			s = yytext;
+
 			for (;;) {
 				/* see if the source line will fit */
 				if ((i = strlen(s)) > width) {
