@@ -51,8 +51,6 @@ char	vpdirs[MAXDIR][DIRLEN + 1];
 #endif
 int	vpndirs;	/* number of directories in view path */
 
-extern	char	*argv0;	/* command name (must be set in main function) */
-
 void
 vpinit(char *currentdir)
 {

@@ -35,10 +35,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "library.h"
+#include "global.h"
 
 static char const rcsid[] = "$Id$";
-
-extern	char	*argv0;	/* command name (must be set in main function) */
 
 static	void	*alloctest(void *p);
 
