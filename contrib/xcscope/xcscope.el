@@ -6,7 +6,7 @@
 ; Description:  cscope interface for XEmacs
 ; Author:       Darryl Okahata
 ; Created:      Wed Apr 19 17:03:38 2000
-; Modified:     Fri Aug 11 12:04:25 2000 (Darryl Okahata) darrylo@soco.agilent.com
+; Modified:     Tue Mar 13 11:48:17 2001 (Darryl Okahata) darrylo@soco.agilent.com
 ; Language:     Emacs-Lisp
 ; Package:      N/A
 ; Status:       Experimental
@@ -14,7 +14,23 @@
 ; (C) Copyright 2000, Darryl Okahata, all rights reserved.
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ALPHA VERSION 0.92
+;; ALPHA VERSION 0.93
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 2, or (at your option)
+;; any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs; see the file COPYING.  If not, write to
+;; the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; This is a cscope interface for XEmacs.
@@ -711,6 +727,13 @@ Must end with a newline.")
 (make-variable-buffer-local 'cscope-command-args)
 
 
+(defvar cscope-start-directory nil
+  "Internal variable used to save the initial start directory.
+The results buffer gets reset to this directory when a search has
+completely finished.")
+(make-variable-buffer-local 'cscope-start-directory)
+
+
 (defvar cscope-search-list nil
   "A list of (DIR . FLAGS) entries.
 This is a list of database directories to search.  Each entry in the list
@@ -1112,7 +1135,11 @@ using the mouse."
 	  (goto-char (point-max))
 	  (if (and cscope-suppress-empty-matches (= cscope-output-start (point)))
 	      (delete-region cscope-item-start (point-max))
-	    (insert cscope-separator-line))
+	    (progn
+	      (if (not cscope-start-directory)
+		  (setq cscope-start-directory default-directory))
+	      (insert cscope-separator-line)
+	      ))
 	  (setq continue
 		(and cscope-search-list
 		     (not (and cscope-first-match
@@ -1137,6 +1164,8 @@ using the mouse."
 		    ))
 	      (setq cscope-process nil
 		    modeline-process ": Search complete")
+	      (if cscope-start-directory
+		  (setq default-directory cscope-start-directory))
 	      )
 	    ))
 	(set-buffer-modified-p nil)
@@ -1152,7 +1181,7 @@ using the mouse."
 	 (cscope-show-message (car cscope-first-match)
 			      (cdr cscope-first-match) window)
 	 ))
-     ( update-window
+     ( (and update-window cscope-first-match-point)
        (set-window-point window cscope-first-match-point))
      )
     ))
@@ -1261,12 +1290,14 @@ SENTINEL-FUNC are optional process filter and sentinel, respectively."
 	    (setq cscope-start-time (+ (* (car times) 65536.0) (car (cdr times))
 				       (* (car (cdr (cdr times))) 1.0E-6)))))
       (setq default-directory directory
+	    cscope-start-directory nil
 	    cscope-search-list (cscope-find-info directory)
 	    cscope-searched-dirs nil
 	    cscope-command-args args
 	    cscope-filter-func filter-func
 	    cscope-sentinel-func sentinel-func
 	    cscope-first-match nil
+	    cscope-first-match-point nil
 	    cscope-stop-at-first-match-dir-meta (memq t cscope-search-list)
 	    cscope-matched-multiple nil
 	    buffer-read-only nil)
