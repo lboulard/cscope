@@ -53,4 +53,12 @@ Please report build problems at:
   "make CURSES_LIBS=-lHcurses".
 
 
+- On Tru64, formerly known as Digital Unix, formerly known as DEC OSF/1,
+  the system-supplied libcurses causes cscope to terminate itself
+  immediately as it comes back to foreground after being suspended by
+  the user (Ctrl-Z). Using GNU Ncurses instead of OSF1 curses works
+  around the problem. According to the lynx and ncurses people, this
+  is a design problem of curses vs. signal handling, at the heart of it.
+
+
 Browse to http://cscope.sourceforge.net for more current information.
