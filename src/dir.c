@@ -269,6 +269,7 @@ makefilelist(void)
 	FILE	*names;			/* name file pointer */
 	char	dir[PATHLEN + 1];
 	char	path[PATHLEN + 1];
+	char    line[PATHLEN * 10];
 	char	*file;
 	char	*s;
 	int	i;
@@ -307,89 +308,105 @@ makefilelist(void)
 			myexit(1);
 		}
 		/* get the names in the file */
-		while (fscanf(names, "%s", path) == 1) {
-			if (*path == '-') {	/* if an option */
-				i = path[1];
-				switch (i) {
-				case 'c':	/* ASCII characters only in crossref */
-					compress = NO;
-					break;
-				case 'k':	/* ignore DFLT_INCDIR */
-					kernelmode = YES;
-					break;
-				case 'q':	/* quick search */
-					invertedindex = YES;
-					break;
-				case 'T':	/* truncate symbols to 8 characters */
-					trun_syms = YES;
-					break;
-				case 'I':	/* #include file directory */
-				case 'p':	/* file path components to display */
-					s = path + 2;		/* for "-Ipath" */
-					if (*s == '\0') {	/* if "-I path" */
-						(void) fscanf(names, "%s", path);
-						s = path;
-					}
-					switch (i) {
-					case 'I':	/* #include file directory */
-						if (firstbuild == YES) {
-							shellpath(dir, sizeof(dir), s);	/* expand $ and ~ */
-							includedir(dir);
-						}
-						break;
-					case 'p':	/* file path components to display */
-						if (*s < '0' || *s > '9') {
-							(void) fprintf(stderr, "cscope: -p option in file %s: missing or invalid numeric value\n", 
-								namefile);
-						}
-						dispcomponents = atoi(s);
-						break;
-					}
-					break;
-				default:
-					(void) fprintf(stderr, "cscope: only -I, -c, -k, -p, and -T options can be in file %s\n", 
-						namefile);
-				}
-			}
-			else if (*path == '"') {
-				/* handle quoted filenames... */
-				size_t in = 1, out = 0;
-				char *newpath = mymalloc(PATHLEN + 1);
+		while (fgets(line, 10*PATHLEN, names) != NULL) {
+			char *point_in_line = line + (strlen(line) - 1);
 
-				while (in < PATHLEN && path[in] != '\0') {
-					if (path[in] == '"') {
-						newpath[out] = '\0';
-						break;	/* found end of quoted string */
+			/* Kill away \n left at end of fgets()'d string: */
+			if (*point_in_line == '\n')
+				*point_in_line = '\0';
+			
+			/* Parse whitespace-terminated strings in line: */
+			for (point_in_line = line;
+				 sscanf(point_in_line, "%s", path) == 1;
+				 point_in_line += strlen(path)) {
+				if (*path == '-') {	/* if an option */
+					i = path[1];
+					switch (i) {
+					case 'c':	/* ASCII characters only in crossref */
+						compress = NO;
+						break;
+					case 'k':	/* ignore DFLT_INCDIR */
+						kernelmode = YES;
+						break;
+					case 'q':	/* quick search */
+						invertedindex = YES;
+						break;
+					case 'T':	/* truncate symbols to 8 characters */
+						trun_syms = YES;
+						break;
+					case 'I':	/* #include file directory */
+					case 'p':	/* file path components to display */
+						s = path + 2;		/* for "-Ipath" */
+						if (*s == '\0') {	/* if "-I path" */
+							(void) fscanf(names, "%s", path);
+							s = path;
+						}
+						switch (i) {
+						case 'I':	/* #include file directory */
+							if (firstbuild == YES) {
+								shellpath(dir, sizeof(dir), s);	/* expand $ and ~ */
+								includedir(dir);
+							}
+							break;
+						case 'p':	/* file path components to display */
+							if (*s < '0' || *s > '9') {
+								(void) fprintf(stderr, "cscope: -p option in file %s: missing or invalid numeric value\n", 
+											   namefile);
+							}
+							dispcomponents = atoi(s);
+							break;
+						}
+						break;
+					default:
+						(void) fprintf(stderr, "cscope: only -I, -c, -k, -p, and -T options can be in file %s\n", 
+									   namefile);
 					}
-					else if (path[in] == '\\' && in < PATHLEN - 1
-						 && (path[in + 1]== '"' || path[in + 1] == '\\')) {
-						/* un-escape \" or \\ sequence */
-						newpath[out++] = path[in + 1];
-						in += 2;
+				}
+				else if (*path == '"') {
+					/* handle quoted filenames... */
+					size_t in = 1, out = 0;
+					char *newpath = mymalloc(PATHLEN + 1);
+
+					while (in < PATHLEN && point_in_line[in] != '\0') {
+						if (point_in_line[in] == '"') {
+							newpath[out] = '\0';
+							/* Make sure we skip over the part just read */
+							point_in_line += in + 1;
+							/* ... to deactive step by strlen() path at end
+							 * of loop */
+							path[0]='\0';
+							break;	/* found end of quoted string */
+						}
+						else if (point_in_line[in] == '\\' && in < PATHLEN - 1
+								 && (point_in_line[in + 1]== '"' || point_in_line[in + 1] == '\\')) {
+							/* un-escape \" or \\ sequence */
+							newpath[out++] = point_in_line[in + 1];
+							in += 2;
+						}
+						else {
+							newpath[out++] = point_in_line[in++];
+						}
+					} /* while */ 
+					if (in >= PATHLEN) { /* safeguard against almost-overflow */
+						newpath[out]='\0';
+					}
+					if ((s = inviewpath(newpath)) != NULL) {
+						addsrcfile(s);
 					}
 					else {
-						newpath[out++] = path[in++];
+						(void) fprintf(stderr, "cscope: cannot find file %s\n",
+									   newpath);
+						errorsfound = YES;
 					}
-				} /* while */ 
-				if (i >= PATHLEN) { /* safeguard against almost-overflow */
-					newpath[out]='\0';
-				}
-				if ((s = inviewpath(newpath)) != NULL) {
+				} /* if (quoted entry) */
+				else if ((s = inviewpath(path)) != NULL) {
 					addsrcfile(s);
 				}
 				else {
 					(void) fprintf(stderr, "cscope: cannot find file %s\n",
-								   newpath);
+								   path);
 					errorsfound = YES;
 				}
-			} /* if (quoted entry) */
-			else if ((s = inviewpath(path)) != NULL) {
-				addsrcfile(s);
-			}
-			else {
-				(void) fprintf(stderr, "cscope: cannot find file %s\n",
-				    path);
-				errorsfound = YES;
 			}
 		}
 		if (names == stdin)
