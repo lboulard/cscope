@@ -43,6 +43,10 @@
 
 static char const rcsid[] = "$Id$";
 
+
+int   selecting;
+int   curdispline = 0;
+
 BOOL	caseless;		/* ignore letter case when searching */
 BOOL	*change;		/* change this line */
 BOOL	changing;		/* changing text */
@@ -107,6 +111,7 @@ command(int commandc)
 		postmsg("");		/* clear any previous message */
 		totallines = 0;
 		topline = nextline = 1;
+		selecting = 0;
 		break;
 
 #if UNIXPC
@@ -151,17 +156,54 @@ command(int commandc)
 		break;
 
 	case '\t':	/* go to next input field */
-	case '\n':
+		if (disprefs)
+		{
+			selecting = !selecting;
+			if (selecting)
+			{
+				move(displine[curdispline], 0);
+				refresh();
+			}
+			else
+			{
+				atfield();
+				resetcmd();
+			}
+		}
+		return(NO);
+
+#if TERMINFO
+	case KEY_ENTER:
+#endif
 	case '\r':
+	case '\n':	/* go to reference */
+		if (selecting)
+		{
+			editref(curdispline);
+			return(YES);
+		}
+		/* FALLTHROUGH */
+
 	case ctrl('N'):
 #if TERMINFO
 	case KEY_DOWN:
-	case KEY_ENTER:
 	case KEY_RIGHT:
 #endif
-		field = (field + 1) % FIELDS;
-		setfield();
-		resetcmd();
+		if (selecting)
+		{
+			if ((curdispline + 1) < disprefs)
+			{
+				move(displine[++curdispline], 0);
+				refresh();
+			}
+		}
+		else
+		{
+			field = (field + 1) % FIELDS;
+			setfield();
+			atfield();
+			resetcmd();
+		}
 		return(NO);
 
 	case ctrl('P'):	/* go to previous input field */
@@ -169,21 +211,52 @@ command(int commandc)
 	case KEY_UP:
 	case KEY_LEFT:
 #endif
-		field = (field + (FIELDS - 1)) % FIELDS;
-		setfield();
-		resetcmd();
+		if (selecting)
+		{
+			if (curdispline)
+			{
+				move(displine[--curdispline], 0);
+				refresh();
+			}
+		}
+		else
+		{
+			field = (field + (FIELDS - 1)) % FIELDS;
+			setfield();
+			atfield();
+			resetcmd();
+		}
 		return(NO);
 #if TERMINFO
 	case KEY_HOME:	/* go to first input field */
-		field = 0;
-		setfield();
-		resetcmd();
+		if (selecting)
+		{
+			curdispline = 0;
+			move(REFLINE, 0);
+			refresh();
+		}
+		else
+		{
+			field = 0;
+			setfield();
+			atfield();
+			resetcmd();
+		}
 		return(NO);
 
 	case KEY_LL:	/* go to last input field */
-		field = FIELDS - 1;
-		setfield();
-		resetcmd();
+		if (selecting)
+		{
+			move(displine[disprefs - 1], 0);
+			refresh();
+		}
+		else
+		{
+			field = FIELDS - 1;
+			setfield();
+			atfield();
+			resetcmd();
+		}
 		return(NO);
 #endif
 	case ' ':	/* display next page */
@@ -200,8 +273,10 @@ command(int commandc)
 		 * page because display() leaves the file pointer at
 		 * the next page to optimize paging forward
 		 */
+		curdispline = 0;
 		break;
 
+	case ctrl('H'):
 	case '-':	/* display previous page */
 #if TERMINFO
 	case KEY_PPAGE:
@@ -210,6 +285,9 @@ command(int commandc)
 		if (totallines == 0) {
 			return(NO);
 		}
+
+		curdispline = 0;
+
 		/* if there are only two pages, just go to the other one */
 		if (totallines <= 2 * mdisprefs) {
 			break;
@@ -353,6 +431,9 @@ command(int commandc)
 
 	case ctrl('B'):		/* cmd history back */
 	case ctrl('F'):		/* cmd history fwd */
+		if (selecting)
+			return(NO);
+
 		curritem = currentcmd();
 		item = (commandc == ctrl('F')) ? nextcmd() : prevcmd();
 		clearmsg2();
@@ -393,27 +474,16 @@ command(int commandc)
 		atfield();	/* move back to the input field */
 		/* FALLTHROUGH */
 	default:
-		/* edit a selected line */
-		if (isdigit(commandc) && commandc != '0' && !mouse) {
-			editref(commandc - '1');
+
+		if (selecting && !mouse)
+		{
+			extern char	dispchars[];
+			char		*c;
+
+			if ((c = strchr(dispchars, commandc)))
+				editref(c - dispchars);
 		}
-		/* if this is a selected line greater than 9 */
-		else if (commandc == '0' && select_large && !mouse) {
-			commandc = mygetch();
-			if (commandc >= '0' && commandc <= '9') {
-				editref(9 + commandc - '0');
-			}
-			else if (commandc >= 'a' && commandc <='z') {
-				editref(19 + commandc - 'a');
-			}
-			else if (commandc >= 'A' && commandc <='Z') {
-				editref(19 + commandc - 'A');
-			}
-			else {
-				return(NO);
-			}
-			
-		}
+
 		/* if this is the start of a pattern */
 		else if (isprint(commandc)) {
 	ispat:		if (getline(newpat, COLS - fldcolumn - 1, commandc,
@@ -431,6 +501,9 @@ command(int commandc)
 				}
 				/* search for the pattern */
 				if (search() == YES) {
+					curdispline = 0;
+					++selecting;
+
 					switch (field) {
 					case DEFINITION:
 					case FILENAME:
@@ -575,7 +648,7 @@ changestring(void)
 			}
 			goto same;
 
-		case 'a':	/* mark/unmark all lines */
+		case ctrl('A'):	/* mark/unmark all lines */
 			for (i = 0; i < totallines; ++i) {
 				if (change[i] == NO) {
 					change[i] = YES;
@@ -606,23 +679,16 @@ changestring(void)
 			mark(i);
 			goto same;
 		default:
+		{
 			/* if a line was selected */
-			if (isdigit(c) && c != '0' && !mouse) {
-				mark(c - '1');
-			}
-			else if (c == '0' && select_large && !mouse) {
-				c = mygetch ();
-				if (c >= '0' && c <= '9') {
-					mark(9 + c - '0');
-				}
-				else if (c >= 'a' && c <= 'z') {
-					mark(19 + c - 'a');
-				}
-				else if (c >= 'A' && c <= 'Z') {
-					mark(19 + c - 'A');
-				}
-			}
+			extern char	dispchars[];
+			char		*cc;
+
+			if ((cc = strchr(dispchars, c)))
+				mark(cc - dispchars);
+
 			goto same;
+		}
 		}
 	}
 	/* for each line containing the old text */
@@ -717,12 +783,8 @@ mark(int i)
 	
 	j = i + topline - 1;
 	if (j < totallines) {
-		if (select_large == YES) {
-			(void) move(displine[i], 2);
-		}
-		else {
-			(void) move(displine[i], 1);
-		}
+		(void) move(displine[i], 1);
+
 		if (change[j] == NO) {
 			change[j] = YES;
 			(void) addch('>');

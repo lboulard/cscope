@@ -63,11 +63,11 @@ help(void)
 			*tp++ = "\nYou can either use the button 2 menu or these single-character commands:\n\n";
 		}
 		else {
-			*tp++ = "Press the TAB key repeatedly to move to the desired input field, type the\n";
+			*tp++ = "Press the RETURN key repeatedly to move to the desired input field, type the\n";
 			*tp++ = "pattern to search for, and then press the RETURN key.  For the first 4 and\n";
 			*tp++ = "last 2 input fields, the pattern can be a regcmp(3X) regular expression.\n";
 			*tp++ = "If the search is successful, you can use these single-character commands:\n\n";
-			*tp++ = "1-9\t\tEdit the file containing the displayed line.\n";
+			*tp++ = "1-9a-zA-Z\tEdit the file containing the displayed line.\n";
 		}
 		*tp++ = "space bar\tDisplay next set of matching lines.\n";
 		*tp++ = "+\t\tDisplay next set of matching lines.\n";
@@ -81,7 +81,7 @@ help(void)
 		*tp++ = "|\t\tPipe all lines to a shell command.\n";
 		if (!mouse) {
 			*tp++ = "\nAt any time you can use these single-character commands:\n\n";
-			*tp++ = "TAB\t\tMove to the next input field.\n";
+			*tp++ = "TAB\t\tSwap positions between input and output areas.\n";
 			*tp++ = "RETURN\t\tMove to the next input field.\n";
 			*tp++ = "^N\t\tMove to the next input field.\n";
 			*tp++ = "^P\t\tMove to the previous input field.\n";
@@ -109,13 +109,13 @@ help(void)
 		}
 		else {
 			*tp++ = "When changing text, you can use these single-character commands:\n\n";
-			*tp++ = "1-9\t\tMark or unmark the line to be changed.\n";
+			*tp++ = "1-9a-zA-Z\tMark or unmark the line to be changed.\n";
 		}
 		*tp++ = "*\t\tMark or unmark all displayed lines to be changed.\n";
 		*tp++ = "space bar\tDisplay next set of lines.\n";
 		*tp++ = "+\t\tDisplay next set of lines.\n";
 		*tp++ = "-\t\tDisplay previous set of lines.\n";
-		*tp++ = "a\t\tMark or unmark all lines to be changed.\n";
+		*tp++ = "^A\t\tMark or unmark all lines to be changed.\n";
 		*tp++ = "^D\t\tChange the marked lines and exit.\n";
 		*tp++ = "ESC\t\tExit without changing the marked lines.\n";
 		*tp++ = "!\t\tStart an interactive shell (type ^D to return to cscope).\n";

@@ -1,3 +1,5 @@
+(2000/05/17 - sharpe) progress bar, tab between line selection and option,
+                      new support for more than nine line selections
 (2000/05/15 - petr) version 15.0bl3 now, spec file change
 (2000/05/10 - klausner) NetBSD current support
 (2000/05/09 - petr) added packages directory and cscope.spec file

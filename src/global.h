@@ -240,7 +240,7 @@ void	mousereinit(void);
 void	myexit(int sig);
 void	myperror(char *text);
 void	ogsnames(char *file, char **subsystem, char **book);
-void	progress(const char *fmt, ...);
+void	progress(char *what, long current, long max);
 void	putfilename(char *srcfile);
 void	postmsg(char *msg);
 void	postmsg2(char *msg);

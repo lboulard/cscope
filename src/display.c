@@ -66,9 +66,11 @@ int	subsystemlen;		/* OGS subsystem name display field length */
 int	totallines;		/* total reference lines */
 unsigned fldcolumn;		/* input field column */
 
+const char	dispchars[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
 static	int	fldline;		/* input field line */
 static	jmp_buf	env;			/* setjmp/longjmp buffer */
-static	int	lastdispline;		/* last displayed reference line */
+int		lastdispline;		/* last displayed reference line */
 static	char	lastmsg[MSGLEN + 1];	/* last message displayed */
 static	char	helpstring[] = "Press the ? key for help";
 static	char	selprompt[] = 
@@ -114,20 +116,17 @@ void
 dispinit(void)
 {
 	/* calculate the maximum displayed reference lines */
-	lastdispline = FLDLINE - 2;
+	lastdispline = FLDLINE - 3;
 	mdisprefs = lastdispline - REFLINE + 1;
+
+
 	if (mdisprefs <= 0) {
 		(void) fprintf(stderr, "%s: screen too small\n", argv0);
 		myexit(1);
 	}
 
-	if (mouse == NO && mdisprefs > 9 && select_large == NO) {
-		mdisprefs = 9;
-	}
-	else if (mouse == NO && mdisprefs > 45 && select_large == YES) {
-		/* Limit is 45 select lines */
-		mdisprefs = 45;
-	}
+	if (mouse == NO && mdisprefs > strlen(dispchars))
+		mdisprefs = strlen(dispchars);
 
 	/* allocate the displayed line array */
 	displine = mymalloc(mdisprefs * sizeof(int));
@@ -183,14 +182,9 @@ display(void)
 			printw("%-*s ", subsystemlen, "Subsystem");
 			printw("%-*s ", booklen, "Book");
 		}
-		if (dispcomponents > 0) {
-			if (select_large == YES) {
-				printw(" %-*s ", filelen, "File");
-			}
-			else {
-				printw("%-*s ", filelen, "File");
-			}
-		}
+		if (dispcomponents > 0)
+			printw("%-*s ", filelen, "File");
+
 		if (field == SYMBOL || field == CALLEDBY || field == CALLING) {
 			printw("%-*s ", fcnlen, "Function");
 		}
@@ -204,12 +198,9 @@ display(void)
 			seekline(1);
 		}
 		/* calculate the source text column */
-		if (select_large == YES) {
-			width = COLS - numlen - 4;
-		}
-		else {
-			width = COLS - numlen - 3;
-		}
+
+		width = COLS - numlen - 3;
+
 		if (ogs == YES) {
 			width -= subsystemlen + booklen + 2;
 		}
@@ -238,27 +229,9 @@ display(void)
 			if (mouse == YES) {
 				addch(' ');
 			}
-			else {
-				/* print numbers and then letters for
-				   selections */
-				if (disprefs < 9) {
-					if (select_large == YES) {
-						printw(" %d", disprefs + 1);
-					}
-					else {
-						printw("%d", disprefs + 1);
-					}
-				}
-				else if (select_large == YES) {
-					if (disprefs < 19) {
-						printw("0%d", disprefs - 9);
-					}
-					else {
-						printw("0%c",
-							disprefs - 19 + 'A');
-					}
-				}
-			}
+			else
+				printw("%c", dispchars[disprefs]);
+
 			/* display any change mark */
 			if (changing == YES && 
 			    change[topline + disprefs - 1] == YES) {
@@ -391,6 +364,7 @@ display(void)
 		addstr(selprompt);
 	}
 	drawscrollbar(topline, nextline);	/* display the scrollbar */
+	refresh();
 }
 
 /* set the cursor position for the field */
@@ -554,35 +528,48 @@ search(void)
 /* display search progress with default custom format */
 
 void
-progress(const char *fmt, ...)
+progress(char *what, long current, long max)
 {
-	va_list	ap;
 	static	long	start;
 	long	now;
 	char	msg[MSGLEN + 1];
+	long	time();
+	int	i;
 
 	/* save the start time */
 	if (searchcount == 0) {
 		start = time(NULL);
 	}
-	/* display the progress every 3 seconds */
-	else if ((now = time(NULL)) - start >= 3) {
-		if (fmt == NULL) {	/* No arguments, print default msg */
-			start = now;
-			(void) sprintf(msg, "%ld of %d files searched", 
-				searchcount, nsrcfiles);
-			if (linemode == NO) postmsg(msg);
-		} else {		/* Arguments, print custom message */
-			va_start(ap, fmt);
-			start = now;
-#ifdef HAVE_VSNPRINTF
-			(void) vsnprintf(msg, MSGLEN + 1, fmt, ap);
-#else
-			(void) vsprintf(msg, fmt, ap);
-#endif
-			if (linemode == NO) postmsg(msg);
-			va_end(ap);
+	if ((now = time((long *) NULL)) - start >= 1)
+	{
+		if (linemode == NO)
+		{
+			move(MSGLINE, 0);
+			clrtoeol();
+			addstr(what);
+			sprintf(msg, "%ld", current);
+			move(MSGLINE, (COLS / 2) - (strlen(msg) / 2));
+			addstr(msg);
+			sprintf(msg, "%ld", max);
+			move(MSGLINE, COLS - strlen(msg));
+			addstr(msg);
+			refresh();
 		}
+		start = now;
+		if ((linemode == NO) && (incurses == YES))
+		{
+			move(MSGLINE, 0);
+			i = (float)COLS * (float)current / (float)max;
+
+			standout();
+			for (; i > 0; i--)
+				addch(inch());
+			standend();
+			refresh();
+		}
+		else
+			if (linemode == NO)
+				postmsg(msg);
 	}
 	++searchcount;
 }

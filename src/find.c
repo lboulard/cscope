@@ -144,7 +144,7 @@ findsymbol(void)
 				if (*file == '\0') {
 					return;
 				}
-				progress(NULL);
+				progress("Search", searchcount, nsrcfiles);
 				/* FALLTHROUGH */
 				
 			case FCNEND:		/* function end */
@@ -298,7 +298,7 @@ finddef(void)
 			if (*file == '\0') {	/* if end of symbols */
 				return;
 			}
-			progress(NULL);
+			progress("Search", searchcount, nsrcfiles);
 			break;
 
 		case DEFINE:		/* could be a macro */
@@ -338,7 +338,7 @@ findallfcns(void)
 			if (*file == '\0') {	/* if end of symbols */
 				return;
 			}
-			progress(NULL);
+			progress("Search", searchcount, nsrcfiles);
 			/* FALLTHROUGH */
 			
 		case FCNEND:		/* function end */
@@ -394,7 +394,7 @@ findcalling(void)
 			if (*file == '\0') {	/* if end of symbols */
 				return;
 			}
-			progress(NULL);
+			progress("Search", searchcount, nsrcfiles);
 			(void) strcpy(function, global);
 			break;
 			
@@ -484,7 +484,7 @@ findregexp(char *egreppat)
 		/* search the files */
 		for (i = 0; i < nsrcfiles; ++i) {
 			char *file = filepath(srcfiles[i]);
-			progress(NULL);
+			progress("Search", searchcount, nsrcfiles);
 			if (egrep(file, refsfound, "%s <unknown> %ld ") < 0) {
 				move(1, 0);
 				clrtoeol();
@@ -547,7 +547,7 @@ findinclude(void)
 			if (*file == '\0') {	/* if end of symbols */
 				return;
 			}
-			progress(NULL);
+			progress("Search", searchcount, nsrcfiles);
 			break;
 			
 		case INCLUDE:		/* match function called to pattern */
@@ -950,7 +950,7 @@ findcalledby(void)
 			if (*file == '\0') {	/* if end of symbols */
 				return(found_caller);
 			}
-			progress(NULL);
+			progress("Search", searchcount, nsrcfiles);
 			break;
 
 		case DEFINE:		/* could be a macro */
@@ -1045,7 +1045,7 @@ findterm(void)
 		}
 		/* display progress about every three seconds */
 		if (++searchcount % 50 == 0) {
-			progress("%ld of %ld symbols matched", searchcount, totalterms);
+			progress("Symbols matched", searchcount, totalterms);
 		}
 	} while (invforward(&invcontrol));	/* while didn't wrap around */
 	
@@ -1064,7 +1064,7 @@ getposting(void)
 	}
 	/* display progress about every three seconds */
 	if (++searchcount % 100 == 0) {
-		progress("%ld of %ld possible references retrieved", searchcount,
+		progress("Possible references retrieved", searchcount,
 		    postingsfound);
 	}
 	return(postingp++);
