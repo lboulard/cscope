@@ -1,3 +1,4 @@
+(2000/04/25 - petr) Added better support for non-flex lex
 (2000/04/22 - uzi) Added -h option, long usage help screen.
 (2000/04/22 - uzi) Added -c and -k support to cscope.files config file.
 (2000/04/22 - uzi) Added Makefile for Solaris and support for Delete key
