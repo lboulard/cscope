@@ -349,7 +349,7 @@ whitespace	[ \t\n]|{comment}
 			first = s - my_yytext;
 			last = my_yyleng - 1;
 			if (compress == YES) {
-				yytext[0] = '\2';	/* compress the keyword */
+				my_yytext[0] = '\2';	/* compress the keyword */
 			}
 			BEGIN(INITIAL);
 			return(INCLUDE);
@@ -450,7 +450,7 @@ whitespace	[ \t\n]|{comment}
 			ppdefine = YES;
 			token = DEFINE;
 			if (compress == YES) {
-				yytext[0] = '\1';	/* compress the keyword */
+				my_yytext[0] = '\1';	/* compress the keyword */
 			}
 		findident:
 			/* search backwards through yytext[] to find the identifier */
