@@ -76,7 +76,7 @@ extern	int	myylineno;	/* input line number */
 /* HBB 20010430: if lex is used instead of flex, have to simulate the
  * private copies of yytext and yytext for the world outside scanner.l: */
 /* FIXME: there should be a feature test for this! */
-#if defined(__OSF1__) || defined(__sun) 
+#if defined(__OSF1__) || defined(__sun) || defined(_AIX)
 extern	char	yytext[];
 #else
 extern	unsigned char	yytext[];
