@@ -64,9 +64,9 @@ myopen(char *path, int flag, int mode)
 
 	else
 	{
-		// Ensure that if the fcntl fails and fd is valid, then
-		// the file is closed properly. In general this should
-		// not happen.
+		/* Ensure that if the fcntl fails and fd is valid, then
+		   the file is closed properly. In general this should
+		   not happen. */
 		if (fd != -1)
 		{
 			close (fd);

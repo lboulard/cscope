@@ -1,3 +1,4 @@
+(2001/01/24 - petrs) Replaced new style C comments, i.e. //
 (2000/12/12 - petrs) packages/cscope.spec has now no local directory
 (2000/12/12 - petrs) contrib/ocs now checks that cscope is in $PATH
 (2000/12/11 - frost) Safety feature in mypopen.c
