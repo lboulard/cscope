@@ -1,3 +1,6 @@
+(2001/08/27 - broeker) Add C++-style comments to {comment} pattern. Fixes
+	               bug #455441: C++ comments in the middle of a function 
+		       definition caused it not be recognized.
 (2001/08/15 - broeker) Zero out 'disprefs' whenever the count of references, 
 	               'totallines' is set to zero. This makes sure that you 
 		       can't <Tab> into the selection area if there's nothing 

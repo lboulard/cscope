@@ -127,7 +127,7 @@ static	void	my_yymore(void);
 %}
 identifier	[a-zA-Z_$][a-zA-Z_0-9$]*
 number		\.?[0-9][.0-9a-fA-FlLuUxX]*
-comment		"/*"([^*]*("*"+[^/])?)*"*/"
+comment		"/*"([^*]*("*"+[^/])?)*"*/"|"//"[^\n]*\n
 whitespace	[ \t\n]|{comment}
 
 /* flex options: stack of start conditions, and don't use yywrap() */
