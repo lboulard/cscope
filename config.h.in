@@ -62,6 +62,9 @@
 /* Define if you have the regcomp function.  */
 #undef HAVE_REGCOMP
 
+/* Define if you have the snprintf function.  */
+#undef HAVE_SNPRINTF
+
 /* Define if you have the strerror function.  */
 #undef HAVE_STRERROR
 
