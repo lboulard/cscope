@@ -1,3 +1,7 @@
+(2001/08/15 - broeker) Zero out 'disprefs' whenever the count of references, 
+	               'totallines' is set to zero. This makes sure that you 
+		       can't <Tab> into the selection area if there's nothing 
+		       in it.
 (2001/08/13 - jcduell) Revisited inverted index file name fixup routines.
                        (Patch #444669 from SourceForge).
 (2001/08/03 - broeker) Use %option noyywrap in fscanner.l to avoid problems

@@ -111,6 +111,7 @@ command(int commandc)
 		entercurses();
 		postmsg("");		/* clear any previous message */
 		totallines = 0;
+		disprefs = 0;	
 		topline = nextline = 1;
 		selecting = 0;
 		break;
@@ -560,6 +561,7 @@ readrefs(char *filename)
 		return(NO);
 	}
 	totallines = 0;
+	disprefs = 0;
 	nextline = 1;
 	if (writerefsfound() == YES) {
 		(void) putc(c, refsfound);
@@ -862,6 +864,7 @@ countrefs(void)
 		    !isdigit((unsigned char)*linenum)) {
 			postmsg("File does not have expected format");
 			totallines = 0;
+			disprefs = 0;
 			return;
 		}
 		if ((i = strlen(pathcomponents(file, dispcomponents))) > filelen) {

@@ -461,6 +461,7 @@ search(void)
 	(void) freopen(temp1, "rb", refsfound);
 	nextline = 1;
 	totallines = 0;
+	disprefs = 0;
 	
 	/* see if it is empty */
 	if ((c = getc(refsfound)) == EOF) {
