@@ -81,7 +81,7 @@ command(int commandc)
 	FILE	*file;
 	struct	cmd	 *curritem, *item;	/* command history */
 	char	*s;
-	int lines, cols;
+	/* int lines, cols; --- HBB UNUSED 20050314 */
 
 	switch (commandc) {
 
@@ -331,9 +331,10 @@ command(int commandc)
 				c = '\0';
 				s = "a";
 			}
-			if (c != '\r' &&
-			    getline(newpat, COLS - sizeof(appendprompt), c,
-			    NO) > 0) {
+			if (c != '\r' && 
+			    mygetline("", newpat,
+				      COLS - sizeof(appendprompt), c, NO) > 0
+			    ) {
 				shellpath(filename, sizeof(filename), newpat);
 				if ((file = myfopen(filename, s)) == NULL) {
 					cannotopen(filename);
@@ -354,8 +355,8 @@ command(int commandc)
 	case '<':	/* read lines from a file */
 		(void) move(PRLINE, 0);
 		(void) addstr(readprompt);
-		if (getline(newpat, COLS - sizeof(readprompt), '\0',
-		    NO) > 0) {
+		if (mygetline("", newpat, COLS - sizeof(readprompt),
+			      '\0', NO) > 0) {
 			clearprompt();
 			shellpath(filename, sizeof(filename), newpat);
 			if (readrefs(filename) == NO) {
@@ -376,7 +377,8 @@ command(int commandc)
 		/* get the shell command */
 		(void) move(PRLINE, 0);
 		(void) addstr(pipeprompt);
-		if (getline(newpat, COLS - sizeof(pipeprompt), '\0', NO) == 0) {
+		if (mygetline("", newpat, COLS - sizeof(pipeprompt), '\0', NO)
+		    == 0) {
 			clearprompt();
 			return(NO);
 		}
@@ -517,29 +519,28 @@ command(int commandc)
 		atfield();	/* move back to the input field */
 		/* FALLTHROUGH */
 	default:
-
-		if (selecting && !mouse)
-		{
+		if (selecting && !mouse) {
 			char		*c;
 
 			if ((c = strchr(dispchars, commandc)))
 				editref(c - dispchars);
-		}
 
 		/* if this is the start of a pattern */
-		else if (isprint(commandc)) {
-	ispat:		if (getline(newpat, COLS - fldcolumn - 1, commandc,
-			    caseless) > 0) {
-					(void) strcpy(Pattern, newpat);
-					resetcmd();	/* reset command history */
-	repeat:
+		} else if (isprint(commandc)) {
+		ispat:
+			if (mygetline("", newpat, COLS - fldcolumn - 1,
+				      commandc, caseless) > 0) {
+				strcpy(Pattern, newpat);
+				resetcmd();	/* reset command history */
+			repeat:
 				addcmd(field, Pattern);	/* add to command history */
 				if (field == CHANGE) {
-					
 					/* prompt for the new text */
-					(void) move(PRLINE, 0);
-					(void) addstr(toprompt);
-					(void) getline(newpat, COLS - sizeof(toprompt), '\0', NO);
+					move(PRLINE, 0);
+					addstr(toprompt);
+					mygetline("", newpat,
+						  COLS - sizeof(toprompt),
+						  '\0', NO);
 				}
 				/* search for the pattern */
 				if (search() == YES) {
@@ -558,21 +559,19 @@ command(int commandc)
 					case CHANGE:
 						return(changestring());
 					}
-				}
-				/* try to edit the file anyway */
-				else if (field == FILENAME && 
-				    access(newpat, READ) == 0) {
+
+				} else if (field == FILENAME && 
+					   access(newpat, READ) == 0) {
+					/* try to edit the file anyway */
 					edit(newpat, "1");
 				}
-			}
-			else {	/* no pattern--the input was erased */
+			} else {	/* no pattern--the input was erased */
 				return(NO);
 			}
-		}
-		else {	/* control character */
+		} else {	/* control character */
 			return(NO);
 		}
-	}
+	} /* switch(commandc) */
 	return(YES);
 }
 

@@ -406,7 +406,6 @@ struct	cmd *prevcmd(void);
 struct	cmd *nextcmd(void);
 
 int	egrep(char *file, FILE *output, char *format);
-int	getline(char s[], unsigned size, int firstchar, BOOL iscaseless);
 int	mygetline(char p[], char s[], unsigned size, int firstchar, BOOL iscaseless);
 int	mygetch(void);
 int	hash(char *ss);
