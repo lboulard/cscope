@@ -76,8 +76,7 @@
 #define	INVPOST2 "cscope.out.po"/* follows correct naming convention */
 
 #define	STMTMAX	10000		/* maximum source statement length */
-#define	READ	4		/* access(2) parameter */
-#define	WRITE	2		/* access(2) parameter */
+
 /* screen lines */
 #define	FLDLINE	(LINES - FIELDS - 1)	/* first input field line */
 #define	MSGLINE	0			/* message line */

@@ -124,6 +124,36 @@ char	*memset();
 # endif
 #endif 
 
+#undef SETMODE
+#if O_BINARY || O_TEXT
+/* OK, looks like we are on an MSDOS-ish platform ---> define SETMODE
+ * to actually do something */
+# ifdef HAVE_SETMODE
+#  define SETMODE(fildes, mode) setmode(fildes,mode)
+# else 
+#  ifdef HAVE__SETMODE
+#   define SETMODE(fildes, mode) _setmode(fildes,mode)
+#  endif
+# endif
+#endif
+
+/* access(2) parameters. Only make assumptions about their values if
+ * <unistd.h> fails to define them. */
+#ifdef R_OK
+# define	READ	R_OK
+#else
+# define	READ	4	
+#endif
+#ifdef W_OK
+# define	WRITE	W_OK
+#else
+# define	WRITE	2
+#endif
+
+/* This can happen on only vaguely Unix-ish platforms... */
+#ifndef HAVE_LSTAT
+# define	lstat(file,buf)	stat(file,buf)
+#endif
 
 typedef	enum	{		/* boolean data type */
 	NO,

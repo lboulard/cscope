@@ -66,6 +66,9 @@
 /* Define if you have the getcwd function.  */
 #undef HAVE_GETCWD
 
+/* Define if you have the lstat function.  */
+#undef HAVE_LSTAT
+
 /* Define if you have the memcpy function.  */
 #undef HAVE_MEMCPY
 

@@ -42,10 +42,6 @@
 #define	RDR	0
 #define	WTR	1
 
-#if !defined(HAVE_SETMODE) && defined(HAVE__SETMODE)
-# define setmode _setmode
-#endif
-
 /* HBB 20010312: make this a bit safer --- don't blindly assume it's 1 */
 #ifdef FD_CLOEXEC
 # define CLOSE_ON_EXEC FD_CLOEXEC
@@ -107,11 +103,11 @@ myfopen(char *path, char *mode)
 
 	fp = fopen(path, mode);
 
-#if HAVE_SETMODE
+#ifdef SETMODE
 	if (! strchr(mode, 'b')) {
-		setmode(fileno(fp), O_TEXT);
+		SETMODE(fileno(fp), O_TEXT);
 	}
-#endif /* HAVE_SETMODE */
+#endif /* SETMODE */
 	
 #ifdef __DJGPP__ /* FIXME: test feature, not platform */
 	/* HBB 20010312: DOS GCC doesn't have FD_CLOEXEC (yet), so it 

@@ -1,3 +1,9 @@
+(2002/07/10 - broeker) Get rid of assumption about values of access()
+	               parameters W_OK and R_OK --- make assumptions only 
+		       if system doesn't supply values.  Add check for 
+		       existence of lstat(); fall back to stat() if not
+		       available.  Avoid confusion of DOS' setmode() with
+		       BSD function of same name...
 (2002/07/07 - broeker) Delete tempfile before redirecting to it, to avoid 
 	               complaints about clobbering from poorly configured 
 		       default shells.
