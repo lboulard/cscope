@@ -45,6 +45,12 @@
 #include "version.h"		/* for FILEVERSION */
 #include "vp.h"
 
+#if defined(USE_NCURSES) && !defined(RENAMED_NCURSES)
+#include <ncurses.h>
+#else
+#include <curses.h>
+#endif
+
 /* Exported variables: */
 
 BOOL	buildonly = NO;		/* only build the database */

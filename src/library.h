@@ -58,6 +58,7 @@ void	egrepcaseless(int i);
 /* FIXME HBB 20010705: these should never be here. We should just
  * #include the relevant header, instead.  Moreover, they don't seem
  * to be used, anyway ... */
+#if 0
 char	*regcmp(), *regex();
-
+#endif 
 #endif /* CSCOPE_LIBRARY_H */
