@@ -1,3 +1,4 @@
+(2000/05/10 - klausner) NetBSD current support
 (2000/05/09 - petr) added packages directory and cscope.spec file
 (2000/05/09 - broeker) alloc.c, invlib.c, invlib.h: initial 64bit support
 (2000/05/05 - broeker) global.h, invlib.c: change return type of invterm to

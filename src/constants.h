@@ -124,7 +124,7 @@
 #define INCLUDES	8
 #define	FIELDS		9
 
-#if BSD || V9
+#if (BSD || V9) && !__NetBSD__
 #define TERMINFO	0	/* no terminfo curses */
 #else
 #define TERMINFO	1
