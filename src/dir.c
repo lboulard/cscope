@@ -39,7 +39,6 @@
 #include <stdlib.h>
 #include <sys/types.h>	/* needed by stat.h and dirent.h */
 #include <dirent.h>
-#include <stdlib.h>
 #include <sys/stat.h>	/* stat */
 #include "global.h"
 #include "vp.h"		/* vpdirs and vpndirs */
@@ -503,7 +502,7 @@ scan_dir(const char *adir, BOOL recurse_dir)
 #else
 						 entry->d_ino != 0
 #endif
-						 && issrcfile(path)
+						 && issrcfile(mybasename(path))
 						 && infilelist(path) == NO) {
 					  addsrcfile(path);
 					}
@@ -525,7 +524,7 @@ issrcfile(char *file)
 
 	/* if there is a file suffix */
 	if ((s = strrchr(file, '.')) != NULL && *++s != '\0') {
-		
+
 		/* if an SCCS or versioned file */
 		if (file[1] == '.' && file + 2 != s) { /* 1 character prefix */
 			switch (*file) {

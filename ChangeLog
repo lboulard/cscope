@@ -1,3 +1,5 @@
+(2003/06/02 - broeker) Use the basename of files only to test for SCCS/RCS
+	               files in -R traversal.
 (2003/04/29 - broeker) Check that a src file is a regular file before trying to
 	               scan it.  Change from S_IFDIR/S_IFREG bit tests to 
 		       macros S_ISDIR/S_ISREG.
