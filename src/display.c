@@ -41,7 +41,11 @@
 #else
 #include "version.h"	/* FILEVERSION and FIXVERSION */
 #endif
-#include <curses.h>	/* LINES, COLS */
+#if defined(USE_NCURSES) && !defined(RENAMED_NCURSES)
+#include <ncurses.h>
+#else
+#include <curses.h>
+#endif
 #include <setjmp.h>	/* jmp_buf */
 #include <stdarg.h>	/* va_list stuff */
 #include <time.h>

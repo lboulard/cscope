@@ -35,8 +35,12 @@
  *	file editing functions
  */
 
-#include <curses.h>
 #include "global.h"
+#if defined(USE_NCURSES) && !defined(RENAMED_NCURSES)
+#include <ncurses.h>
+#else
+#include <curses.h>
+#endif
 
 static char const rcsid[] = "$Id$";
 

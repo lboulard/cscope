@@ -37,7 +37,11 @@
  */
 
 #include "global.h"
-#include <curses.h>	/* LINES needed by constants.h */
+#if defined(USE_NCURSES) && !defined(RENAMED_NCURSES)
+#include <ncurses.h>
+#else
+#include <curses.h>
+#endif
 /*
 	max num of lines of help screen -
 	this number needs to be increased if more than n help items are needed

@@ -40,7 +40,11 @@
 #include <stdarg.h>
 #include <sys/wait.h>
 #include <sys/types.h>      /* pid_t */
+#if defined(USE_NCURSES) && !defined(RENAMED_NCURSES)
+#include <ncurses.h>
+#else
 #include <curses.h>
+#endif
 
 static char const rcsid[] = "$Id$";
 

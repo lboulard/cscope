@@ -11,4 +11,4 @@ Brent Verner <brent@linux1.org> - -R option to recurse sub directories
 Hans-Bernhard Broeker <broeker@physik.rwth-aachen.de> - autoconf, memory leaks
 Thomas Klausner - NetBSD support
 Andrew Sharpe - progress bar, tab between line selection and prompts and more
-               
+Carl Mascott - FreeBSD support

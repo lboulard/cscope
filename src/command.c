@@ -37,7 +37,11 @@
 
 #include "global.h"
 #include <stdlib.h>
-#include <curses.h>	/* KEY_.* */
+#if defined(USE_NCURSES) && !defined(RENAMED_NCURSES)
+#include <ncurses.h>
+#else
+#include <curses.h>
+#endif
 #include <fcntl.h>	/* O_RDONLY */
 #include <ctype.h>
 

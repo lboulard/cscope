@@ -36,7 +36,11 @@
  */
 
 #include "global.h"
+#if defined(USE_NCURSES) && !defined(RENAMED_NCURSES)
+#include <ncurses.h>
+#else
 #include <curses.h>
+#endif
 #include <regex.h>
 
 static char const rcsid[] = "$Id$";

@@ -39,7 +39,11 @@
 #include "global.h"
 #include "version.h"	/* FILEVERSION and FIXVERSION */
 #include <stdlib.h>	/* atoi */
-#include <curses.h>	/* stdscr and TRUE */
+#if defined(USE_NCURSES) && !defined(RENAMED_NCURSES)
+#include <ncurses.h>
+#else
+#include <curses.h>
+#endif
 #include <fcntl.h>	/* O_RDONLY */
 #include <sys/types.h>	/* needed by stat.h */
 #include <sys/stat.h>	/* stat */
