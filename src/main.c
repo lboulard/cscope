@@ -311,6 +311,14 @@ lastarg:
 	shell = mygetenv("SHELL", SHELL);
 	tmpdir = mygetenv("TMPDIR", TMPDIR);
 
+	/* XXX remove if/when clearerr() in dir.c does the right thing. */
+	if (namefile && strcmp(namefile, "-") == 0 && !buildonly)
+	{
+	    fprintf (stderr, "cscope: Must use -b if file list comes from stdin
+	    n");
+	    exit(1);
+	}
+
 	/* make sure that tmpdir exists */
 	if (stat (tmpdir, &stat_buf))
 	{

@@ -291,7 +291,9 @@ makefilelist(void)
 	}
 	/* if there is a file of source file names */
 	if (namefile != NULL) {
-		if ((names = vpfopen(namefile, "r")) == NULL) {
+		if (strcmp(namefile, "-") == 0)
+		    names = stdin;
+		else if ((names = vpfopen(namefile, "r")) == NULL) {
 			cannotopen(namefile);
 			myexit(1);
 		}
@@ -349,7 +351,10 @@ makefilelist(void)
 				errorsfound = YES;
 			}
 		}
-		(void) fclose(names);
+		if (names == stdin)
+		    clearerr(stdin);
+		else
+		    (void) fclose(names);
 		firstbuild = NO;
 		return;
 	}
