@@ -73,7 +73,9 @@ bin_PROGRAMS = cscope
 cscope_SOURCES = scanner.l egrep.y 		alloc.c basename.c command.c compath.c constants.h 		crossref.c dir.c display.c edit.c exec.c find.c 		global.h help.c history.c input.c invlib.c invlib.h 		library.h logdir.c lookup.c main.c mouse.c mygetenv.c 		mypopen.c version.h vp.h vpaccess.c vpfopen.c 		vpinit.c vpopen.c
 
 
-cscope_LDADD = @LEXLIB@ @CURSES_LIBS@
+LEXLIB = @LEXLIB@
+
+cscope_LDADD = $(LEXLIB) $(CURSES_LIBS)
 
 INCLUDES = $(CURSES_INCLUDEDIR)
 
@@ -98,7 +100,6 @@ mypopen.o vpaccess.o vpfopen.o vpinit.o vpopen.o
 cscope_DEPENDENCIES = 
 cscope_LDFLAGS = 
 LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
-LEXLIB = @LEXLIB@
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -218,7 +219,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
