@@ -1,0 +1,4 @@
+- Autoconf/Automake setup
+- Add --help option
+- In a screen with more than 25 lines extend the selectable options
+  to fill the gap
