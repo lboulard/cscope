@@ -482,7 +482,9 @@ invnewterm(void)
 			nextsupfing += strlen(thisterm) + 1;
 		}
 	}
-	lastinblk -= (numwilluse - 8);
+	/* HBB 20010501: Fixed bug by replacing magic number '8' by
+	 * what it actually represents. */
+	lastinblk -= (numwilluse - 2 * sizeof(long));
 	iteminfo.e.offset = lastinblk;
 	iteminfo.e.size = len;
 	iteminfo.e.space = 0;
