@@ -1,3 +1,5 @@
+(2000/04/26 - uzi) Changes in preparation of autoconf/automake setup
+(2000/04/26 - uzi) Added k to terse args in cscope man page
 (2000/04/25 - petr) Added h to terse args in cscope man page
 (2000/04/25 - petr) Fixed build break with flex
 (2000/04/25 - petr) Added better support for non-flex lex
