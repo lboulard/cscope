@@ -131,6 +131,7 @@ dnl set up variable used to choose between the two lexer sources...
 	LEXER_SOURCE="fscanner"
     else
 	LEXER_SOURCE="scanner"
+	AC_DEFINE(USING_LEX)
     fi
     AC_SUBST(LEXER_SOURCE)
 ])

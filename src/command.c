@@ -855,7 +855,7 @@ countrefs(void)
 	fcnlen = 8;		/* strlen("Function") */
 	numlen = 0;
 	while ((i = fscanf(refsfound, "%250s%250s%6s %5000[^\n]", file,
-	    function, linenum, yytext)) != EOF) {
+	    function, linenum, tempstring)) != EOF) {
 		if (i != 4 ||
 		    !isgraph((unsigned char)*file) ||
 		    !isgraph((unsigned char)*function) ||

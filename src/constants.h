@@ -37,7 +37,7 @@
  *	preprocessor macro and constant definitions
  */
 
-#include <config.h>		/* Get OS defines */
+#include "config.h"		/* Get OS defines */
 
 #define ctrl(x)	(x & 037)	/* control character macro */
 
@@ -80,32 +80,6 @@
 #define	STMTMAX	10000		/* maximum source statement length */
 #define	READ	4		/* access(2) parameter */
 #define	WRITE	2		/* access(2) parameter */
-#undef	YYLMAX		
-#define YYLMAX	STMTMAX + PATLEN + 1	/* scanner line buffer size */
-
-/* cross-reference database mark characters (when new ones are added, 
- * update the cscope.out format description in cscope.1)
- */
-#define CLASSDEF	'c'
-#define	DEFINE		'#'
-#define	DEFINEEND	')'
-#define ENUMDEF		'e'
-#define FCNCALL		'`'
-#define FCNDEF		'$'
-#define FCNEND		'}'
-#define GLOBALDEF	'g'
-#define	INCLUDE		'~'
-#define MEMBERDEF	'm'
-#define NEWFILE		'@'
-#define STRUCTDEF	's'
-#define TYPEDEF		't'
-#define UNIONDEF	'u'
-
-/* other scanner token types */
-#define LEXEOF	0
-#define	IDENT	1
-#define	NEWLINE	2
-
 /* screen lines */
 #define	FLDLINE	(LINES - FIELDS - 1)	/* first input field line */
 #define	MSGLINE	0			/* message line */

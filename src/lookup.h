@@ -1,5 +1,5 @@
 /*===========================================================================
- Copyright (c) 1998-2000, The Santa Cruz Operation 
+ Copyright (c) 2001, The Santa Cruz Operation 
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without
@@ -32,34 +32,17 @@
 
 /* $Id$ */
 
-/* library function return value declarations */
 
-#ifndef CSCOPE_LIBRARY_H
-#define CSCOPE_LIBRARY_H
+#ifndef CSCOPE_LOOKUP_H
+#define CSCOPE_LOOKUP_H
 
-#if BSD
-#define	strchr	index
-#define strrchr	rindex
-#undef	tolower		/* BSD toupper and tolower don't test the character */
-#undef	toupper
-#define	tolower(c)	(islower(c) ? (c) : (c) - 'A' + 'a')	
-#define	toupper(c)	(isupper(c) ? (c) : (c) - 'a' + 'A')	
-#endif
+/* declarations for objects defined in lookup.c */
 
-/* private library */
-char	*mybasename(char *path);
-char	*compath(char *pathname);
-char	*egrepinit(char *egreppat);
-char	*logdir(char *name);
-void	*mycalloc(int nelem, int size);
-void	*mymalloc(int size);
-void	*myrealloc(void *p, int size);
-char	*stralloc(char *s);
-FILE	*mypopen(char *cmd, char *mode);
-FILE	*vpfopen(char *filename, char *type);
-void	egrepcaseless(int i);
+/* keyword text for fast testing of keywords in the scanner */
+extern	char	enumtext[];
+extern	char	externtext[];
+extern	char	structtext[];
+extern	char	typedeftext[];
+extern	char	uniontext[];
 
-/* Programmer's Workbench library (-lPW) */
-char	*regcmp(), *regex();
-
-#endif /* CSCOPE_LIBRARY_H */
+#endif /* CSCOPE_LOOKUP_H */

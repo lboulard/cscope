@@ -36,6 +36,8 @@
  *	C symbol scanner
  */
 #include "global.h"
+#include "scanner.h"
+#include "lookup.h"
 
 /* the line counting has been moved from character reading for speed */
 /* comments are discarded */
@@ -43,13 +45,6 @@
 #define	IFLEVELINC	5	/* #if nesting level size increment */
 
 static char const rcsid[] = "$Id$";
-
-/* keyword text for fast testing of keywords in the scanner */
-extern	char	enumtext[];
-extern	char	externtext[];
-extern	char	structtext[];
-extern	char	typedeftext[];
-extern	char	uniontext[];
 
 int	first;	/* buffer index for first char of symbol */
 int	last;	/* buffer index for last char of symbol */
@@ -567,7 +562,9 @@ class[ \t]+{identifier}[ \t\na-zA-Z0-9_():]*\{	{	/* class definition */
 			
 			s = strpbrk(yytext, "\"<");
 			incfile(s + 1, s);
-			first = s - yytext;
+			/* HBB: avoid pointer mismatch if yytext is
+			 * unsigned, or a pointer */
+			first = s - (char *)&(yytext[0]);
 			last = yyleng;
 			if (compress == YES) {
 				yytext[0] = '\2';	/* compress the keyword */

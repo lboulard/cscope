@@ -36,6 +36,7 @@
  */
 
 #include "global.h"
+#include "lookup.h"
 
 static char const rcsid[] = "$Id$";
 

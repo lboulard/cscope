@@ -39,6 +39,7 @@
 #include "global.h"
 #include "vp.h"
 #include "version.h"	/* FILEVERSION and FIXVERSION */
+#include "scanner.h" 
 #include <stdlib.h>	/* atoi */
 #if defined(USE_NCURSES) && !defined(RENAMED_NCURSES)
 #include <ncurses.h>
@@ -103,6 +104,8 @@ char	temp1[PATHLEN + 1];	/* temporary file name */
 char	temp2[PATHLEN + 1];	/* temporary file name */
 long	totalterms;		/* total inverted index terms */
 BOOL	trun_syms;		/* truncate symbols to 8 characters */
+char	tempstring[8192];	/* use this as a buffer, instead of 'yytext', 
+				 * which had better be left alone */
 
 static	BOOL	buildonly = NO;		/* only build the database */
 static	BOOL	fileschanged;		/* assume some files changed */

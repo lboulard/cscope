@@ -36,26 +36,32 @@
  *	C symbol scanner
  */
 #include "global.h"
+#include "scanner.h"
+#include "lookup.h"
 
+#include <assert.h>
 
 /* the line counting has been moved from character reading for speed */
 /* comments are discarded */
+
+#ifndef FLEX_SCANNER
+# error Sorry, this scanner needs flex. It is not usable with AT&T Lex.
+#endif
 
 #define	IFLEVELINC	5	/* #if nesting level size increment */
 
 static char const rcsid[] = "$Id$";
 
-/* keyword text for fast testing of keywords in the scanner */
-extern	char	enumtext[];
-extern	char	externtext[];
-extern	char	structtext[];
-extern	char	typedeftext[];
-extern	char	uniontext[];
-
 int	first;	/* buffer index for first char of symbol */
 int	last;	/* buffer index for last char of symbol */
 int	lineno;	/* symbol line number */
 int	myylineno = 1;
+
+/* HBB 20001007: new variables, emulating yytext in a way that allows 
+ * the yymore() simulation, my_yymore(), to be used even in the presence of 
+ * yyless(). */
+size_t my_yyleng = 0;
+char *my_yytext = NULL;
 
 static	BOOL	arraydimension;		/* inside array dimension declaration */
 static	BOOL	bplisting;		/* breakpoint listing */
@@ -88,57 +94,54 @@ static	int	typedefbraces = -1;	/* initial typedef brace count */
 static	int	token;			/* token found */
 static	int 	ident_start;		/* begin of preceding identifier */
 
+/* If this is defined to 1, use flex rules rather than the input
+ * function to discard comments. The scanner gains quite a bit of
+ * speed this way, because of a large reduction of the number of I/O
+ * system/library calls.  The original skipcomment_input() called
+ * getc() so often that the call overhead of shared libraries
+ * vs. static linking, alone, already caused a sizeable performance
+ * hit (up to 40% gross gain on a cscope -cub of its own source
+ * dir). */
+#define COMMENTS_BY_FLEX 1
 
-static	void	multicharconstant(char terminator);
+#if !COMMENTS_BY_FLEX
 static	int	skipcomment_input(void);
 static	int	comment(void);
-static	int	comment_input(void);
-
-#ifdef FLEX_SCANNER
-#define YY_INPUT(buf,result,max_size) \
-	{\
-		int c = skipcomment_input (); \
-		result = (c == EOF) ? YY_NULL : (buf[0] = c, 1); \
-	}
-#else
-/* Assume this is the AT&T/SCO style lex */
-#undef	input
-#define input()  \
-	((yytchar=\
-	  (yytchar=yysptr>yysbuf\
-	   ?*(unsigned char *)--yysptr\
-	   :getc(yyin)\
-          )=='/'\
-	  ?comment()\
-	  :yytchar\
-         )==EOF\
-	 ?0\
-	 :yytchar\
-        )
-#define noncommentinput()  ((yytchar=yysptr>yysbuf?*--yysptr:getc(yyin))==EOF?0:yytchar)
-#undef	unput
-#define unput(c) (*yysptr++=(c))
-
+static	int	insidestring_input(int);
 #endif
+
+static	void	my_yymore(void);
+
+#if COMMENTS_BY_FLEX
+# define skipcomment_input input
+#else
+
+# define YY_INPUT(buf,result,max_size)				\
+{								\
+	int c = skipcomment_input ();				\
+	result = (c == EOF) ? YY_NULL : (buf[0] = c, 1);	\
+}
+
+#endif /* !COMMENTS_BY_FLEX*/
 
 %}
 identifier	[a-zA-Z_$][a-zA-Z_0-9$]*
 number		\.?[0-9][.0-9a-fA-FlLuUxX]*
+comment		"/*"([^*]*("*"+[^/])?)*"*/"
+whitespace	[ \t\n]|{comment}
+
+/* flex-only: stack of start conditions */
+%option stack
 
 %start SDL
 %a 4000
 %o 7000
-/* flex only options, to avoid incompatibilities with AT&T lex: */
-%array
-/* 'flex -B' (batch mode) doesn't work, for this scanner. Probably 
- * a usage bug, but let's stay conservative: */
-%option always-interactive
 
-/* Exclusive initial states (not available in 'lex'!) */
-%x WAS_ENDIF WAS_IDENTIFIER
-
+/* exclusive start conditions. not available in AT&T lex -> use flex! */
+%x WAS_ENDIF WAS_IDENTIFIER WAS_ESU IN_DQUOTE IN_SQUOTE COMMENT
 
 %%
+
 %\{		{	/* lex/yacc C declarations/definitions */
 			global = YES;
 			goto more;
@@ -152,37 +155,42 @@ number		\.?[0-9][.0-9a-fA-FlLuUxX]*
 ^%%		{	/* lex/yacc rules delimiter */
 			braces = 0;
 			if (rules == NO) {
+				/* this %% starts the section containing the rules */
 				rules = YES;
-				
+
+				/* Copy yytext to private buffer, to be able to add further
+				 * content following it: */
+				my_yymore();
+
 				/* simulate a yylex() or yyparse() definition */
-				(void) strcat(yytext, " /* ");
-				first = strlen(yytext);
+				(void) strcat(my_yytext, " /* ");
+				first = strlen(my_yytext);
 				if (lex == YES) {
-					(void) strcat(yytext, "yylex");
-				}
-				else {	/* yacc: yyparse implicitly calls yylex */
+					(void) strcat(my_yytext, "yylex");
+				} else {	
+					/* yacc: yyparse implicitly calls yylex */
 					char *s = " yylex()";
 					char *cp = s + strlen(s);
 					while (--cp >= s) {
 						unput(*cp);
 					}
-					(void) strcat(yytext, "yyparse");
+					(void) strcat(my_yytext, "yyparse");
 				}
-				last = strlen(yytext);
-				(void) strcat(yytext, " */");
-				yyleng = strlen(yytext);
-				yymore();
+				last = strlen(my_yytext);
+				(void) strcat(my_yytext, " */");
+				my_yyleng = strlen(my_yytext);
 				return(FCNDEF);
-			}
-			else {
+			} else {
+				/* were in the rules section, now comes the closing one */
 				rules = NO;
 				global = YES;
 				last = first;
-				yymore();
+				my_yymore();
 				return(FCNEND);
 				/* NOTREACHED */
 			}
 		}
+
 <SDL>STATE[ \t]+({identifier}|\*)	{ /* sdl state, treat as function def */
 			braces = 1;
 			fcndef = YES;
@@ -194,6 +202,7 @@ number		\.?[0-9][.0-9a-fA-FlLuUxX]*
 			goto endstate;
 			/* NOTREACHED */
 		}
+
 \{		{	/* count unmatched left braces for fcn def detection */
 			++braces;
 			
@@ -206,13 +215,21 @@ number		\.?[0-9][.0-9a-fA-FlLuUxX]*
 				token = tagdef;
 				tagdef = '\0';
 				last = first;
-				yymore();
+				my_yymore();
 				return(token);
 			}
 			goto more;
 			/* NOTREACHED */
 		}
-<WAS_ENDIF>.*\n[ \t\n]*#[ \t]*ifn?(def)?	{
+
+\#[ \t]*endif([ \t].*)?		{	/* #endif */
+			/* delay treatment of #endif depending on whether an
+			 * #if comes right after it, or not */
+			BEGIN(WAS_ENDIF);
+			goto more;
+			/* NOTREACHED */
+		}
+<WAS_ENDIF>\n{whitespace}*#[ \t]*if(ndef|def)?[ \t]+		{
 			/* attempt to correct erroneous brace count caused by:
 			 * 
 			 * #if ...
@@ -229,10 +246,29 @@ number		\.?[0-9][.0-9a-fA-FlLuUxX]*
 			}
 			pseudoelif = YES;
 			BEGIN(INITIAL);
-			goto more;
+			yyless(1);	/* rescan all but the line ending */
+			yy_set_bol(1);
+			goto eol;
 			/* NOTREACHED */
 		}
-<INITIAL>\#[ \t]*ifn?(def)?	{ /* #if, #ifdef or #ifndef */
+<WAS_ENDIF>\n{whitespace}*		 { 	/* an #endif with no #if right after it */
+		endif:
+			if (iflevel > 0) {
+				/* get the maximum brace count for this #if */
+				if (braces < maxifbraces[--iflevel]) {
+					braces = maxifbraces[iflevel];
+				}
+			}
+			BEGIN(INITIAL);
+			yyless(1);
+			yy_set_bol(1);
+			goto eol;
+			/* NOTREACHED */
+		}
+
+\#[ \t]*ifndef[ \t]+	|
+\#[ \t]*ifdef[ \t]+		|
+\#[ \t]*if[ \t]+		{ /* #if directive */
 			elseelif = NO;
 			if (pseudoelif == YES) {
 				pseudoelif = NO;
@@ -251,8 +287,22 @@ number		\.?[0-9][.0-9a-fA-FlLuUxX]*
 			goto more;
 			/* NOTREACHED */
 		}
-\#[ \t]*el(se|if)	{ /* #elif or #else */
+\#[ \t]*else([ \t].*)?	{ /* #else --- eat up whole line */
 			elseelif = YES;
+			if (iflevel > 0) {
+				
+				/* save the maximum brace count for this #if */
+				if (braces > maxifbraces[iflevel - 1]) {
+					maxifbraces[iflevel - 1] = braces;
+				}
+				/* restore the brace count to before the #if */
+				braces = preifbraces[iflevel - 1];
+			}
+			goto more;
+			/* NOTREACHED */
+		}
+\#[ \t]*elif[ \t]+	{ /* #elif */
+			/* elseelif = YES; --- HBB I doubt this is correct */
 		elif:
 			if (iflevel > 0) {
 				
@@ -266,28 +316,7 @@ number		\.?[0-9][.0-9a-fA-FlLuUxX]*
 			goto more;
 			/* NOTREACHED */
 		}
-<WAS_ENDIF>.*\n		{ 	/* an #endif with no #if right after it */
-		endif:
-			if (iflevel > 0) {
-				
-				/* get the maximum brace count for this #if */
-				if (braces < maxifbraces[--iflevel]) {
-					braces = maxifbraces[iflevel];
-				}
-			}
-			BEGIN(INITIAL);
-			yyless(0); /* rescan */
-			goto more;
-			/* NOTREACHED */
-		}
-			
-\#[ \t]*endif	{	/* #endif */
-			/* delay treatment of #endif depending on whether an
-			 * #if comes right after it, or not */
-			BEGIN(WAS_ENDIF);
-			goto more;
-			/* NOTREACHED */
-		}
+
 \}		{
 			/* could be the last enum member initializer */
 			if (braces == initializerbraces) {
@@ -309,13 +338,14 @@ number		\.?[0-9][.0-9a-fA-FlLuUxX]*
 				else if (fcndef == YES) {
 					fcndef = NO;
 					last = first;
-					yymore();
+					my_yymore();
 					return(FCNEND);
 				}
 			}
 			goto more;
 			/* NOTREACHED */
 		}
+
 \(		{	/* count unmatched left parentheses for function templates */
 			++parens;
 			goto more;
@@ -334,7 +364,7 @@ number		\.?[0-9][.0-9a-fA-FlLuUxX]*
 			/* NOTREACHED */
 		}
 =		{	/* if a global definition initializer */
-			if (global == YES && ppdefine == NO && yytext[0] != '#') {
+			if (global == YES && ppdefine == NO && my_yytext[0] != '#') {
 				initializerbraces = braces;
 				initializer = YES;
 			}
@@ -342,7 +372,7 @@ number		\.?[0-9][.0-9a-fA-FlLuUxX]*
 			/* NOTREACHED */
 		}
 :		{	/* a if global structure field */
-			if (global == YES && ppdefine == NO && yytext[0] != '#') {
+			if (global == YES && ppdefine == NO && my_yytext[0] != '#') {
 				structfield = YES;
 			}
 			goto more;
@@ -384,41 +414,51 @@ number		\.?[0-9][.0-9a-fA-FlLuUxX]*
 				yytext[0] = '\1';	/* compress the keyword */
 			}
 		findident:
-			first = yyleng - 1;
-			while (yytext[first] != ' ' && yytext[first] != '\t') {
+			/* search backwards through yytext[] to find the identifier */
+			/* NOTE: this had better be left to flex, by use of
+			 * yet another starting condition */
+			my_yymore();
+			first = my_yyleng - 1;
+			while (my_yytext[first] != ' ' && my_yytext[first] != '\t') {
 				--first;
 			}
 			++first;
-			goto fcn;
+			last = my_yyleng;
+			goto definition;
 			/* NOTREACHED */
 		}
-class[ \t]+{identifier}[ \t\na-zA-Z0-9_():]*\{	{	/* class definition */
+class{whitespace}+{identifier}({whitespace}|{identifier}|[():])*\{	{	/* class definition */
 			classdef = YES;
 			tagdef =  'c';
-			/* RE!JECT; */
-			yyless(5); /* eat up 'class', and re-scan */
+			yyless(5);		/* eat up 'class', and re-scan */
+			yy_set_bol(0);
 			goto more;
 			/* NOTREACHED */
 		}
 
-		/* Notice: three copies of essentially same rule may seem
-		 * strange, but they help flex to avoid slowing down the
-	         * scan (--> 'variable trailing context rules') */
-enum/([ \t\n]+{identifier})?[ \t\n]*\{	{ /* enum definition */
-			tagdef = 'e';
-			goto ident;
-			/* NOTREACHED */
+("enum"|"struct"|"union")	{
+			ident_start = first;
+			BEGIN(WAS_ESU);
+			goto more;
 		}
-struct/([ \t\n]+{identifier})?[ \t\n]*\{	{ /* struct definition */
-			tagdef = 's';
+<WAS_ESU>{
+({whitespace}+{identifier})?{whitespace}*\{		{ /* e/s/u definition */
+			tagdef = my_yytext[ident_start];
+			BEGIN(WAS_IDENTIFIER);
 			goto ident;
-			/* NOTREACHED */
 		}
-union/([ \t\n]+{identifier})?[ \t\n]*\{	{ /* union definition */
-			tagdef = 'u';
+({whitespace}+{identifier})?{whitespace}* 	|   
+.|\n										{   /* e/s/u usage */
+			BEGIN(WAS_IDENTIFIER);
 			goto ident;
-			/* NOTREACHED */
 		}
+}
+
+if{whitespace}*\(	{ 	/* ignore 'if' */
+			yyless(2);
+			yy_set_bol(0);
+			goto more;
+}	
 
 {identifier}	{	/* identifier found: do nothing, yet. (!) */
 			BEGIN(WAS_IDENTIFIER);
@@ -426,15 +466,20 @@ union/([ \t\n]+{identifier})?[ \t\n]*\{	{ /* union definition */
 			goto more;
 			/* NOTREACHED */
 		}
-<WAS_IDENTIFIER>[ \t]*\([ \t\na-zA-Z0-9_*&[\]=,.]*\)[ \t\n()]*[:a-zA-Z_#{]	{
-
-			/* warning: "if (...)" must not overflow yytext, so the content
-			   of function argument definitions is restricted, in particular
-			   parentheses are not allowed */
-
-			/* if a function definition */
-			/* note: "#define a (b) {" and "#if defined(a)\n#" are not */
-			if ((braces == 0 && ppdefine == NO && yytext[0] != '#' && rules == NO) ||
+<WAS_IDENTIFIER>{       
+[ \t]*\(({whitespace}|{identifier}|[*&[\]=,.])*\)([()]|{whitespace})*[:a-zA-Z_#{]	{
+			/* a function definition */
+			/* note: "#define a (b) {" and "#if defined(a)\n#" 
+			 * are not fcn definitions! */
+			/* warning: "if (...)" must not overflow yytext, 
+			 * so the content of function argument definitions 
+			 * is restricted, in particular parentheses are 
+			 * not allowed */
+			/* FIXME HBB 20001003: the above 'not allowed' may well be the
+			 * reason for the parsing bug concerning function pointer usage,
+			 * I suspect. --- I think my new special-case rule for 'if'
+			 * could be helpful in removing that limitation */
+			if ((braces == 0 && ppdefine == NO && my_yytext[0] != '#' && rules == NO) ||
 			    (braces == 1 && classdef == YES)) {
 				fcndef = YES;
 				token = FCNDEF;
@@ -444,7 +489,7 @@ union/([ \t\n]+{identifier})?[ \t\n]*\{	{ /* union definition */
 			goto fcncal;
 			/* NOTREACHED */
 		}
-<WAS_IDENTIFIER>[ \t]*\(	{ /* if a function call */
+[ \t]*\(([*&[\]=,.]|{identifier}|{whitespace})*		{ 	/* function call */
 		fcncal:	if (fcndef == YES || ppdefine == YES || rules == YES) {
 				token = FCNCALL;
 				goto fcn;
@@ -457,36 +502,45 @@ union/([ \t\n]+{identifier})?[ \t\n]*\{	{ /* union definition */
 			goto ident;
 			/* NOTREACHED */
 		}
-<WAS_IDENTIFIER>[* \t\n]+[a-zA-Z0-9_]	{	/* typedef name use */
+("*"|{whitespace})+{identifier}		{	/* typedef name or modifier use */
 			goto ident;
 			/* NOTREACHED */
 		}
-
-<WAS_IDENTIFIER>.|\n	{		/* the old {identifier} rule */
+.|\n	{		/* general identifer usage */
 			char	*s;
 
-			if (global == YES && ppdefine == NO && yytext[0] != '#' &&
+			if (global == YES && ppdefine == NO && my_yytext[0] != '#' &&
 			    external == NO && initializer == NO && 
 			    arraydimension == NO && structfield == NO &&
 			    template == NO && fcndef == NO) {
-				if (esudef == YES) {	/* if enum/struct/union */
+				if (esudef == YES) {	
+					/* if enum/struct/union */
 					token = MEMBERDEF;
-				}
-				else {
+				} else {
 					token = GLOBALDEF;
 				}
-			}
-			else {
-		ident:		token = IDENT;
+			} else {
+		ident:
+				token = IDENT;
 			}
 		fcn:
 			if (YYSTATE == WAS_IDENTIFIER) {
 				/* Position back to the actual identifier: */
-				yyleng = first; 
+				last = first; 
 				first = ident_start;
-				BEGIN(INITIAL);
 				yyless(0);
+				/* HBB 20001008: if the anti-backup-pattern above matched,
+				 * and the matched context ended with a \n, then the scanner
+				 * believes it's at the start of a new line. But the yyless()
+				 * should feeds that \n back into the input, so that's
+				 * wrong. --> force 'beginning-of-line' status off. */
+				yy_set_bol(0);
+				BEGIN(INITIAL);
+			} else {
+				my_yymore();
+				last = my_yyleng;
 			}
+		definition:
 
 			/* if a long line */
 			if (yyleng > STMTMAX) {
@@ -494,7 +548,7 @@ union/([ \t\n]+{identifier})?[ \t\n]*\{	{ /* union definition */
 				
 				/* skip to the end of the line */
 				warning("line too long");
-				while ((c = skipcomment_input()) != LEXEOF) { 
+				while ((c = skipcomment_input()) > LEXEOF) { 
 					if (c == '\n') {
 						unput(c);
 						break;
@@ -502,15 +556,15 @@ union/([ \t\n]+{identifier})?[ \t\n]*\{	{ /* union definition */
 				}
 			}
 			/* truncate a long symbol */
-			if (yyleng - first > PATLEN) {
+			if (yyleng > PATLEN) {
 				warning("symbol too long");
-				yyleng = first + PATLEN;
-				yytext[yyleng] = '\0';
+				my_yyleng = first + PATLEN;
+				my_yytext[my_yyleng] = '\0';
 			}
-			/* if a keyword */
-			yymore();
-			if ((s = lookup(yytext + first)) != NULL) {
-				first = yyleng;
+
+			/* if found word was a keyword: */
+			if ((s = lookup(my_yytext + first)) != NULL) {
+				first = my_yyleng;
 				
 				/* if the start of a typedef */
 				if (s == typedeftext) {
@@ -521,44 +575,47 @@ union/([ \t\n]+{identifier})?[ \t\n]*\{	{ /* union definition */
 				/* (needed for "typedef struct tag name;" so
 				   tag isn't marked as the typedef name) */
 				else if (s == enumtext || s == structtext || s == uniontext) {
-				}
-				/* if an external definition */
-				else if (s == externtext) {
+					/* do nothing */
+				} else if (s == externtext) {
+					/* if an external definition */
 					externalbraces = braces;
 					external = YES;
-				}
-				/* keyword doesn't start a function template */
-				else if (templateparens == parens && template == YES) {
+				} else if (templateparens == parens && template == YES) {
+					/* keyword doesn't start a function 
+					 * template */
 					templateparens = -1;
 					template = NO;
-				}
-				else {	/* next identifier after typedef was a keyword */
+				} else {	
+					/* identifier after typedef was a 
+					 * keyword */
 					oldtype = NO;
 				}
-			}
-			else {	/* identifier */
-				last = yyleng;
+			} else {	
+				/* not a keyword --> found an identifier */
+				/* last = yyleng; */
 				
 				/* if a class/enum/struct/union tag definition */
-				if (tagdef && strnotequal(yytext + first, "class")) {
+				/* FIXME HBB 20001001: why reject "class"? */
+				if (tagdef && strnotequal(my_yytext + first, "class")) {
 					token = tagdef;
 					tagdef = '\0';
 					if (braces == 0) {
 						esudef = YES;
 					}
-				}
-				/* if a typedef name */
-				else if (braces == typedefbraces && oldtype == NO &&
-				    arraydimension == NO) {
+				} else if (braces == typedefbraces && oldtype == NO &&
+				           arraydimension == NO) {
+					/* if a typedef name */
 					token = TYPEDEF;
-				}
-				else {
+				} else {
 					oldtype = NO;
 				}
+				/* my_yymore(); */
 				return(token);
 				/* NOTREACHED */
 			}
 		}
+}
+
 \[		{	/* array dimension (don't worry or about subscripts) */
 			arraydimension = YES;
 			goto more;
@@ -570,15 +627,18 @@ union/([ \t\n]+{identifier})?[ \t\n]*\{	{ /* union definition */
 			/* NOTREACHED */
 		}
 \\\n		{	/* preprocessor statement is continued on next line */
+			/* save the '\\' to the output file, but not the '\n': */
+			yyleng = 1;
+			my_yymore();
 			goto eol;
 			/* NOTREACHED */
 		}
 \n		{	/* end of the line */
 			if (ppdefine == YES) {	/* end of a #define */
 				ppdefine = NO;
-				yyless(yyleng - 1);	/* rescan \n */
+				yyless(yyleng - 1);
 				last = first;
-				yymore();
+				my_yymore();
 				return(DEFINEEND);
 			}
 			/* skip the first 8 columns of a breakpoint listing line */
@@ -586,16 +646,17 @@ union/([ \t\n]+{identifier})?[ \t\n]*\{	{ /* union definition */
 			if (bplisting == YES) {
 				int	c, i;
 
+				/* FIXME HBB 20001007: should call input() instead */
 				switch (skipcomment_input()) {	/* tab and EOF just fall through */
 				case ' ':	/* breakpoint number line */
 				case '[':
-					for (i = 1; i < 8 && skipcomment_input() != LEXEOF; ++i)
+					for (i = 1; i < 8 && skipcomment_input() > LEXEOF; ++i)
 						;
 					break;
 				case '.':	/* header line */
 				case '/':
 					/* skip to the end of the line */
-					while ((c = skipcomment_input()) != LEXEOF) {
+					while ((c = skipcomment_input()) > LEXEOF) {
 						if (c == '\n') {
 							unput(c);
 							break;
@@ -612,44 +673,111 @@ union/([ \t\n]+{identifier})?[ \t\n]*\{	{ /* union definition */
 			first = 0;
 			last = 0;
 			if (symbols > 0) {
+				/* no my_yymore(): \n doesn't need to be in my_yytext */
 				return(NEWLINE);
 			}
+			/* line ended --> flush my_yytext */
+			if (my_yytext)
+				*my_yytext = '\0';
+			my_yyleng = 0;
 			lineno = myylineno;
 		}
+
 \'		{	/* character constant */
-			if (sdl == NO) {
-				multicharconstant('\'');
-			}
+			if (sdl == NO) 
+				BEGIN(IN_SQUOTE);
+			goto more;
+			/* NOTREACHED */
+		}
+<IN_SQUOTE>\'	{	
+			BEGIN(INITIAL);
 			goto more;
 			/* NOTREACHED */
 		}
 \"		{	/* string constant */
-			multicharconstant('"');
+			BEGIN(IN_DQUOTE);
 			goto more;
 			/* NOTREACHED */
 		}
+<IN_DQUOTE>\"	{	
+			BEGIN(INITIAL);
+			goto more;
+			/* NOTREACHED */
+		}
+<IN_DQUOTE,IN_SQUOTE>{
+\n	  	{	/* syntax error: unexpected EOL */
+			BEGIN(INITIAL);
+			goto eol;
+			/* NOTREACHED */
+		}
+\\.	|
+.		{
+			goto more;
+			/* NOTREACHED */
+		}
+\\\n 	{				/* line continuation inside a string! */
+			myylineno++;
+			goto more;
+			/* NOTREACHED */
+		}
+}
+	
 ^[ \t\f]+	{	/* don't save leading white space */
 		}
-\#[ \t]*include[ \t]*["<][^"> \t\n]+	{ /* #include file */
+
+\#[ \t]*include[ \t]*\"[^"\n]+\" |
+\#[ \t]*include[ \t]*<[^>\n]+> 	{ /* #include file */
 			char	*s;
+			char remember = yytext[yyleng-1];
 			
-			s = strpbrk(yytext, "\"<");
+			my_yymore();
+			s = strpbrk(my_yytext, "\"<");
+			my_yytext[my_yyleng-1] = '\0';
 			incfile(s + 1, s);
-			first = s - yytext;
-			last = yyleng;
+			my_yytext[my_yyleng-1] = remember;
+			first = s - my_yytext;
+			last = my_yyleng - 1;
 			if (compress == YES) {
 				yytext[0] = '\2';	/* compress the keyword */
 			}
-			yymore();
 			return(INCLUDE);
 			/* NOTREACHED */
 		}
-\#[ \t]*{identifier}	|	/* preprocessor keyword */
-{number}	|	/* number */
-.		{	/* punctuation and operators */
-		more:	first = yyleng;
-			yymore();
+
+"/*"					yy_push_state(COMMENT);
+<COMMENT>{
+[^*\n]*			|
+"*"+[^*/\n]*	; /* do nothing */
+[^*\n]*\n		|
+"*"+[^*/\n]*\n	{
+			if (ppdefine == NO) {
+				goto eol;
+			} else {
+				++myylineno;
+			}
+			/* NOTREACHED */
 		}
+"*"+"/"		{
+			/* replace the comment by a single blank */
+			unput(' ');
+			yy_pop_state();
+		}
+}		
+
+"//".*\n?		{
+			goto eol;
+			/* NOTREACHED */
+		}
+
+{number}				|	/* number */
+<SDL>STATE[ \t]+		|   /* ... and other syntax error catchers... */
+\#[ \t]*{identifier}	|   /* unknown preprocessor line */
+.						{	/* punctuation and operators */
+						more:	
+							my_yymore();
+							first = my_yyleng;
+						}
+
 %%
 
 void
@@ -690,8 +818,12 @@ initscanner(char *srcfile)
 	template = NO;		/* function template */
 	templateparens = -1;	/* function template outer parentheses count */
 	typedefbraces = -1;	/* initial typedef braces count */
-	ident_start = 0;
+	ident_start = 0;	/* start of previously found identifier */
 
+	if (my_yytext)
+		*my_yytext = '\0';
+	my_yyleng = 0;
+	
 	BEGIN 0;
 
 	/* if this is not a C file */
@@ -723,59 +855,99 @@ initscanner(char *srcfile)
 	}
 }
 
-static int
-skipcomment_input(void)
-{
-	int	c;
+#if !COMMENTS_BY_FLEX
 
-	if ((c = getc (yyin)) == '/') {
-		return comment ();
-	}
-	else {
+/* A micro-scanner that serves as the input() function of the
+ * scanner. It throws away any comments in the input, correctly
+ * avoiding doing this inside string/character constants, and knows
+ * about backslash sequences. Now that the main scanner doesn't use
+ * yymore() any longer, this could be replaced by lex rules. Left for
+ * trying later. */
+
+/* Status variable: If this is non-NUL, it's the character that
+* terminates a string we're currently in. */
+static int string_terminator = '\0';
+
+/* Helper routine: treat 'c' as a character found inside a
+ * string. Check if this character might be the end of that
+ * string. Backslashes have to be taken care of, for the sake of
+ * "quotes like \"these\" found inside a string". */
+static int
+insidestring_input(int c)
+{
+	static BOOL was_backslash = NO;
+	
+	if ((c == '\\') && (was_backslash == NO)) {
+		/* escape character found --> treat next char specially */
+		/* FIXME HBB 20001003: need treatment of backslash in the main
+		 * scanner, too. It'll get false line counts in case of "\\'",
+		 * otherwise --- they can occur as part of a lex pattern */
+		was_backslash = YES;
 		return c;
 	}
+
+	if (((c == '\t') && (lex == YES))
+	    /* Note: "\\\n" is removed even inside strings! */
+	    || ((c == '\n') && (was_backslash == NO))
+		|| (c == EOF)
+		|| ((c == string_terminator) && (was_backslash == NO))
+	   ) {
+		/* Line ended, or end-of-string was found. That is a syntax
+		 * error.  To recover, stop treatment as a string constant: */
+		string_terminator = '\0';
+	} else if (!isprint((unsigned char)c)) {
+		/* mask unprintable characters */
+		c = ' ';
+	}
 	
-}
-
-static int
-comment_input(void)
-{
-	int c;
-
-	c = getc (yyin);
-
+	was_backslash = NO;
 	return c;
 }
 
+/* Helper function: skip over input until end of comment is found (or
+ * we find that it wasn't really comment, in the first place): */
 static int
 comment(void)
 {
 	int	c, lastc;
 
+	/* Coming here, we've just read in the opening '/' of a
+	 * comment. */
 	do {
 		if ((c = getc(yyin)) == '*') {	/* C comment */
 			lastc = '\0';
-			while ((c = getc(yyin)) != EOF &&
-			    (c != '/' || lastc != '*')) { /* fewer '/'s */
+			while ((c = getc(yyin)) != EOF
+				   /* fewer '/'s --> test them first! */
+			       && (c != '/' || lastc != '*')
+			      ) { 
 				if (c == '\n') {
+					/* keep the line number count */
+					/* FIXME HBB 20001008: this is not synchronized
+					 * properly with myylineno changes by the main
+					 * scanner. A strong point in favour of moving
+					 * this to lex-code that is, IMHO */
 					++myylineno;
 				}
 				lastc = c;
 			}
 			/* return a blank for Reiser cpp token concatenation */
+			/* FIXME HBB 20001008: what on earth is 'Reiser cpp'? ANSI
+			 * C defines cpp to explicitly replace any comment by a
+			 * blank. Pre-ANSI cpp's behaved differently, but do we
+			 * really want that? If at all, it should only ever be a
+			 * non-default option (like gcc's "-traditional-cpp")
+			 * */
 			if ((c = getc(yyin)) == '_' || isalnum(c)) {
 				(void) ungetc(c, yyin);
 				c = ' ';
 				break;
 			}
-		}
-		else if (c == '/') {		/* C++ comment */
+		} else if (c == '/') {		/* C++ comment */
 			while ((c = getc(yyin)) != EOF && c != '\n') {
-				;
+				; /* do nothing else */
 			}
 			break;
-		}
-		else {	/* not a comment */
+		} else {					/* not a comment */
 			(void) ungetc(c, yyin);
 			c = '/';
 			break;
@@ -787,59 +959,45 @@ comment(void)
 	return(c);
 }
 
-static void
-multicharconstant(char terminator)
+/* The core of the actual input() function to be used by (f)lex. The
+ * calling scheme between this and the actual input() redefinition is
+ * a bit different for lex and flex. See the #ifdef FLEX_SCANNER part
+ * in the head section. */
+static int
+skipcomment_input(void)
 {
-	char	c;
+	int	c;
 
-	/* scan until the terminator is found */
-	while ((c = yytext[yyleng++] = comment_input()) != terminator) {
-		switch (c) {
-		case '\\':	/* escape character */
-			if ((yytext[yyleng++] = comment_input()) == '\n') {
-				++myylineno;
-			}
-			break;
-		case '\t':	/* tab character */
-		
-			/* if not a lex program, continue */
-			if (lex == NO) {
-				break;
-			}
-			/* fall through */
-			
-		case '\n':	/* illegal character */
-			
-			/* assume the terminator is missing, so put
-			   this character back */
-			unput(c);
-			yytext[--yyleng] = '\0';
-			/* fall through */
-			
-		case LEXEOF:	/* end of file */
-			return;
-			
-		default:
-			/* change a control character to a blank */
-			if (!isprint((unsigned char)c)) {
-				yytext[yyleng - 1] = ' ';
-			}
-		}
-		/* if this token will overflow the line buffer */
-		/* note: '\\' may cause yyleng to be > STMTMAX */
-		if (yyleng >= STMTMAX) {
-			
-			/* truncate the token */
-			while ((c = comment_input()) != LEXEOF) {
-				if (c == terminator) {
-					unput(c);
-					break;
-				}
-				else if (c == '\n') {
-					++myylineno;
-				}
-			}
-		}
+	c = getc (yyin);
+	if (string_terminator != '\0') {
+		/* don't look for comments inside strings! */
+		return insidestring_input(c);
+	} else if (c == '/') {
+		/* swallow everything until end of comment, if this is one */
+		return comment (); 
+	} else if (c == '"' || c == '\'') {
+		/* a string is beginning here, so switch input method */
+		string_terminator = c;
 	}
-	yytext[yyleng] = '\0';
+	
+	return c;
+}
+
+#endif /* !COMMENTS_BY_FLEX */
+
+#define MY_YY_ALLOCSTEP 1000
+static void
+my_yymore(void)
+{
+	static size_t yytext_size = 0;
+	
+	/* my_yytext is an ever-growing buffer. It will not ever
+	 * shrink, nor will it be freed at end of program, for now */
+	while (my_yyleng + yyleng + 1 >= yytext_size) {
+		my_yytext = myrealloc(my_yytext, 
+				      		  yytext_size += MY_YY_ALLOCSTEP);
+	}
+	
+	strncpy (my_yytext + my_yyleng, yytext, yyleng+1);
+	my_yyleng += yyleng;
 }

@@ -41,11 +41,11 @@
 /* postings temporary file long number coding into characters */
 /* FIXME HBB: where would these definitions come from ? */
 #if u3b || u3b2 || u3b5 || u3b15 || uts
-#define	BASE		223	/* 255 - ' ' */
-#define	PRECISION	4	/* maximum digits after converting a long */
+# define	BASE		223	/* 255 - ' ' */
+# define	PRECISION	4	/* maximum digits after converting a long */
 #else	/* assume sign-extension of a char when converted to an int */
-#define	BASE		95	/* 127 - ' ' */
-#define	PRECISION	5	/* maximum digits after converting a long */
+#  define	BASE		95	/* 127 - ' ' */
+#  define	PRECISION	5	/* maximum digits after converting a long */
 #endif
 
 /* inverted index access parameters */
@@ -80,11 +80,11 @@ typedef	struct {
 	long	keypnt;		/* number item in present block found */
 } INVCONTROL;
 
-typedef	struct	{
-	short	offset;		/* offset in this logical block */
-	unsigned char size;	/* size of term */
-	unsigned char space;	/* number of longs of growth space */
-	long	post;		/* number of postings for this entry */
+typedef        struct  {
+       short   offset;         /* offset in this logical block */
+       unsigned char size;     /* size of term */
+       unsigned char space;    /* number of longs of growth space */
+       long    post;           /* number of postings for this entry */
 } ENTRY;
 
 typedef	struct {
@@ -96,13 +96,10 @@ typedef	struct {
 
 extern	long	*srcoffset;	/* source file name database offsets */
 extern	int	nsrcoffset;	/* number of file name database offsets */
+extern	INVCONTROL invcontrol;	/* inverted file control structure */
 
-/*
-POSTING	*boolinfo();
-POSTING	*boolmem();
-POSTING	*boolsave();
-*/
-extern	void	boolclear(void);
+
+void	boolclear(void);
 POSTING	*boolfile(INVCONTROL *invcntl, long *num, int boolarg);
 void	invclose(INVCONTROL *invcntl);
 void	invdump(INVCONTROL *invcntl, char *term);
@@ -111,6 +108,5 @@ int	invforward(INVCONTROL *invcntl);
 int	invopen(INVCONTROL *invcntl, char *invname, char *invpost, int stat);
 long	invmake(char *invname, char *invpost, FILE *infile);
 long	invterm(INVCONTROL *invcntl, char *term);
-INVCONTROL invcontrol;	/* inverted file control structured */
 
 #endif /* CSCOPE_INVLIB_H */

@@ -214,7 +214,7 @@ display(void)
 			
 			/* read the reference line */
 			if (fscanf(refsfound, "%s%s%s %[^\n]", file, function, 
-			    linenum, yytext) < 4) {
+			    linenum, tempstring) < 4) {
 				break;
 			}
 			++nextline;
@@ -264,11 +264,11 @@ display(void)
 			printw("%*s ", numlen, linenum);
 
 			/* there may be tabs in egrep output */
-			while ((s = strchr(yytext, '\t')) != NULL) {
+			while ((s = strchr(tempstring, '\t')) != NULL) {
 				*s = ' ';
 			}
 			/* display the source line */
-			s = yytext;
+			s = tempstring;
 
 			for (;;) {
 				/* see if the source line will fit */

@@ -37,6 +37,8 @@
  */
 
 #include "global.h"
+#include "scanner.h"
+
 #include <stdlib.h>
 
 static char const rcsid[] = "$Id$";
@@ -62,8 +64,8 @@ BOOL	errorsfound;		/* prompt before clearing messages */
 long	fileindex;		/* source file name index */
 long	lineoffset;		/* source line database offset */
 long	npostings;		/* number of postings */
-int	nsrcoffset;		/* number of file name database offsets */
-long	*srcoffset;		/* source file name database offsets */
+int	nsrcoffset;             /* number of file name database offsets */
+long	*srcoffset;             /* source file name database offsets */
 int	symbols;		/* number of symbols */
 
 static	char	*filename;	/* file name for warning messages */
@@ -132,11 +134,13 @@ crossref(char *srcfile)
 			}
 			/* see if the symbol is already in the list */
 			for (i = 0; i < symbols; ++i) {
-				if (length == symbol[i].length &&
-				    strncmp(yytext + first, yytext +
-					symbol[i].first, length) == 0 &&
-					entry_no == symbol[i].fcn_level &&
-				    token == symbol[i].type) {	/* could be a::a() */
+				if (length == symbol[i].length
+				    && strncmp(my_yytext + first,
+					       my_yytext + symbol[i].first,
+					       length) == 0 
+				    && entry_no == symbol[i].fcn_level
+				    && token == symbol[i].type
+				    ) {	/* could be a::a() */
 					break;
 				}
 			}
@@ -147,9 +151,17 @@ crossref(char *srcfile)
 
 		case NEWLINE:	/* end of line containing symbols */
 			entry_no = 0;	/* reset entry_no for each line */
-			--yyleng;	/* remove the newline */
+#ifdef USING_LEX
+			--yyleng; 	/* remove the newline */
+#endif
 			putcrossref();	/* output the symbols and source line */
 			lineno = myylineno;	/* save the symbol line number */
+#ifndef USING_LEX
+			/* HBB 20010425: replaced yyleng-- by this chunk: */
+			if (my_yytext)
+				*my_yytext = '\0';
+			my_yyleng = 0;
+#endif
 			break;
 			
 		case LEXEOF:	/* end of file; last line may not have \n */
@@ -223,11 +235,15 @@ putcrossref(void)
 #if BSD && !sun && !__FreeBSD__
 	dboffset = ftell(newrefs); /* fprintf doesn't return chars written */
 #endif
+
+	/* HBB 20010425: added this line: */
+	my_yytext[my_yyleng] = '\0';
+
 	blank = NO;
-	for (i = 0; i < yyleng; ++i) {
+	for (i = 0; i < my_yyleng; ++i) {
 		
 		/* change a tab to a blank and compress blanks */
-		if ((c = yytext[i]) == ' ' || c == '\t') {
+		if ((c = my_yytext[i]) == ' ' || c == '\t') {
 			blank = YES;
 		}
 		/* look for the start of a symbol */
@@ -250,19 +266,39 @@ putcrossref(void)
 			}
 			/* output the symbol */
 			j = symbol[symput].last;
-			c = yytext[j];
-			yytext[j] = '\0';
+			c = my_yytext[j];
+			my_yytext[j] = '\0';
 			if (invertedindex == YES) {
-				putposting(yytext + i, type);
+				putposting(my_yytext + i, type);
 			}
-			writestring(yytext + i);
+			writestring(my_yytext + i);
 			dbputc('\n');
-			yytext[j] = c;
+			my_yytext[j] = c;
 			i = j - 1;
 			++symput;
 		}
 		else {
-                       /* check for compressed blanks */
+                       /* HBB: try to save some time by early-out handling of 
+                        * non-compressed mode */
+			if (compress == NO) {
+				if (blank == YES) {
+					dbputc(' ');
+					blank = NO;
+				}
+				j = i + strcspn(my_yytext+i, "\t ");
+				if (symput < symbols
+				    && j >= symbol[symput].first)
+					j = symbol[symput].first;
+				c = my_yytext[j];
+				my_yytext[j] = '\0';
+				writestring(my_yytext + i);
+				my_yytext[j] = c;
+				i = j - 1;
+				/* finished this 'i', continue with the blank */
+				continue;
+			}
+
+			/* check for compressed blanks */
 			if (blank == YES) {
 				if (dicode2[c]) {
 					c = DICODE_COMPRESS(' ', c);
@@ -272,11 +308,11 @@ putcrossref(void)
 				}
 			}
 			/* compress digraphs */
-			else if (IS_A_DICODE(c, yytext[i + 1])
+			else if (IS_A_DICODE(c, my_yytext[i + 1])
 				 && symput < symbols
 				 && i + 1 != symbol[symput].first
 				 ) {
-				c = DICODE_COMPRESS(c, yytext[i + 1]);
+				c = DICODE_COMPRESS(c, my_yytext[i + 1]);
 				++i;
 			}
 			dbputc((int) c);
@@ -289,27 +325,29 @@ putcrossref(void)
 				/* skip blanks before a preprocesor keyword */
 				/* note: don't use isspace() because \f and \v
 				   are used for keywords */
-				while ((j = yytext[i]) == ' ' || j == '\t') {
+				while ((j = my_yytext[i]) == ' ' || j == '\t') {
 					++i;
 				}
 				/* skip the rest of the keyword */
-				while (isalpha((unsigned char)yytext[i])) {
+				while (isalpha((unsigned char)my_yytext[i])) {
 					++i;
 				}
 				/* skip space after certain keywords */
 				if (keyword[c].delim != '\0') {
-					while ((j = yytext[i]) == ' ' || j == '\t') {
+					while ((j = my_yytext[i]) == ' ' || j == '\t') {
 						++i;
 					}
 				}
 				/* skip a '(' after certain keywords */
-				if (keyword[c].delim == '(' && yytext[i] == '(') {
+				if (keyword[c].delim == '('
+				    && my_yytext[i] == '(') {
 					++i;
 				}
 				--i;	/* compensate for ++i in for() */
-			}
-		}
-	}
+			} /* if compressed char */
+		} /* else: not a symbol */
+	} /* for(i) */
+
 	/* ignore trailing blanks */
 	dbputc('\n');
 	dbputc('\n');
@@ -419,6 +457,11 @@ writestring(char *s)
 	unsigned char c;
 	int	i;
 	
+	if (compress == NO) {
+		/* Save some I/O overhead by using puts() instead of putc(): */
+		dbfputs(s);
+		return;
+	} 
 	/* compress digraphs */
 	for (i = 0; (c = s[i]) != '\0'; ++i) {
 		if (/* dicode1[c] && dicode2[(unsigned char) s[i + 1]] */

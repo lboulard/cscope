@@ -134,7 +134,7 @@ extern	char	temp1[];	/* temporary file name */
 extern	char	temp2[];	/* temporary file name */
 extern	long	totalterms;	/* total inverted index terms */
 extern	BOOL	trun_syms;	/* truncate symbols to 8 characters */
-
+extern	char	tempstring[8192]; /* global dummy string buffer */
 
 /* command.c global data */
 extern	BOOL	caseless;	/* ignore letter case when searching */
@@ -203,16 +203,6 @@ extern	BOOL	mouse;		/* mouse interface */
 extern	BOOL	unixpcmouse;		/* UNIX PC mouse interface */
 #endif
 
-/* scanner.l global data */
-extern	int	first;		/* buffer index for first char of symbol */
-extern	int	last;		/* buffer index for last char of symbol */
-extern	int	lineno;		/* symbol line number */
-extern	FILE	*yyin;		/* input file descriptor */
-extern	FILE	*yyout;		/* output file */
-extern	int	yyleng;		/* input line length */
-extern	int	myylineno;	/* input line number */
-extern	char	yytext[];	/* input line text */
-
 /* cscope functions called from more than one function or between files */ 
 
 char	*filepath(char *file);
@@ -258,7 +248,6 @@ void	freefilelist(void);
 void	help(void);
 void	incfile(char *file, char *type);
 void    includedir(char *dirname);
-void	initscanner(char *srcfile);
 void    initsymtab(void);
 void	makefilelist(void);
 void	mousecleanup(void);
@@ -304,11 +293,6 @@ int	mygetch(void);
 int	myopen(char *path, int flag, int mode);
 int	hash(char *ss);
 int	execute(char *a, ...);
-int 	yylex(void);
 long	dbseek(long offset);
 
-/*
-extern int atoi(const char *nptr);
-extern int access(const char *pathname, int mode);
-*/
 
