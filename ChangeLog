@@ -1,3 +1,12 @@
+(2001/06/01 - broeker) New version of fscanner.l, and lots of
+	               small changes to other source files, too. Avoids
+		       (ab)use of yytext[] as a temporary buffer by unrelated
+		       pieces of code, and changes exported variables of the
+		       scanned line from lex-internal yyleng and my_yyleng 
+		       to my_yytext and my_yyleng. New header files scanner.h
+		       and lookup.h. 
+(2001/06/01 - broeker) Fix 64bit-related bug in invlib.c that caused the symbol
+                       'sun' to not be found on DigitalUnix/Alpha platform.
 (2001/05/30 - dixon) arrow and editing keys can be now used at the input line
 (2001/05/30 - duell) invname database issue fix.
 (2001/05/20 - garret)  Fixed some mishaps in ocs.
