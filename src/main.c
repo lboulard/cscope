@@ -53,6 +53,7 @@
 
 /* defaults for unset environment variables */
 #define	EDITOR	"vi"
+#define HOME	"/"     /* no $HOME --> use root directory */
 #define	SHELL	"sh"
 #define LINEFLAG "+%s"	/* default: used by vi and emacs */
 #define TMPDIR	"/tmp"
@@ -297,7 +298,7 @@ lastarg:
 	editor = mygetenv("EDITOR", EDITOR);
 	editor = mygetenv("VIEWER", editor);		/* use viewer if set */
 	editor = mygetenv("CSCOPE_EDITOR", editor);	/* has last word */
-	home = getenv("HOME");
+	home = mygetenv("HOME", HOME);
 	shell = mygetenv("SHELL", SHELL);
 	lineflag = mygetenv("CSCOPE_LINEFLAG", LINEFLAG);
 	lineflagafterfile = getenv("CSCOPE_LINEFLAG_AFTER_FILE")?1:0;
