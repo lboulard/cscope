@@ -1,11 +1,6 @@
-+ Add --help option
-
-? Apply added capability from osr5 codebase
+Open
 
 + Display the current case mode (^C) onscreen
-
-? Change to full screen target display and use bottom line for command,
-    control or fn keys for operations (cf pine)
 
 + emacs like key bindings
     ^S for searching (^Y)
@@ -17,3 +12,13 @@
 + Same capabilities as interactive in non interactive (one shot) mode
 
 + Provide some how-do-I-use-this-thing doc.
+
++ Replace invlib.[ch] by real database.  Failing that, at least sanitize it.
+
+Possible changes:
+
+? Change to full screen target display and use bottom line for command,
+    control or fn keys for operations (cf pine)
+
+? Apply added capability from osr5 codebase
+

@@ -1,7 +1,7 @@
 (2003/08/14 - broeker) Cleaned up man page, INSTALL and TODO files.
 (2003/08/14 - broeker) Have configure check for <regex.h>.  Bail out if none
 	               found.
-(2003/08/14 - broeker) New options --help and --version.  	
+(2003/08/14 - broeker) New options --help and --version.
 (2003/06/12 - broeker) New option -v to output progress updates even in
 		       line mode.  To be used by interface kscope.
 (2003/06/02 - broeker) Use the basename of files only to test for SCCS/RCS
