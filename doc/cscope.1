@@ -88,12 +88,14 @@ appears, the directories are searched in the order they appear
 on the command line.
 .TP
 .B -i namefile
-Browse through all source files whose names are listed in
-namefile (file names separated by spaces, tabs, or new-lines)
-instead of the default (cscope.files). If this option is
-specified, cscope ignores any files appearing on the command
-line. The argument namefile can be set to ``-'' to accept a list of
-files from stdio.
+Browse through all source files whose names are listed in namefile
+(file names separated by spaces, tabs, or new-lines) instead of the
+default (cscope.files). If this option is specified, cscope ignores
+any files appearing on the command line. The argument namefile can be
+set to ``-'' to accept a list of files from stdio.  Filenames in the
+namefile that contain whitespace have to be enclosed in "double
+quotes".  Inside such quoted filenames, any double-quote and backslash
+characters have to be escaped by backslashes.
 .TP
 .B -k
 ``Kernel Mode'', turns off the use of the default include dir
