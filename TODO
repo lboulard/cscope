@@ -5,8 +5,6 @@
 
 - Apply added capability from osr5 codebase
 
-- Support BS as well as DEL for backspace handling
-
 - Display the current case mode (^C) onscreen
 
 - Change to full screen target display and use bottom line for command,
