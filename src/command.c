@@ -55,7 +55,9 @@ BOOL	caseless;		/* ignore letter case when searching */
 BOOL	*change;		/* change this line */
 BOOL	changing;		/* changing text */
 char	newpat[PATLEN + 1];	/* new pattern */
-char	pattern[PATLEN + 1];	/* symbol or text pattern */
+/* HBB 20040430: renamed to avoid lots of clashes with function arguments
+ * also named 'pattern' */
+char	Pattern[PATLEN + 1];	/* symbol or text pattern */
 
 static	char	appendprompt[] = "Append to file: ";
 static	char	pipeprompt[] = "Pipe to shell command: ";
@@ -174,7 +176,7 @@ command(int commandc)
 		}
 		return(NO);
 
-#if TERMINFO
+#ifdef KEY_ENTER
 	case KEY_ENTER:
 #endif
 	case '\r':
@@ -187,8 +189,10 @@ command(int commandc)
 		/* FALLTHROUGH */
 
 	case ctrl('N'):
-#if TERMINFO
+#ifdef KEY_DOWN
 	case KEY_DOWN:
+#endif		
+#ifdef KEY_RIGHT
 	case KEY_RIGHT:
 #endif
 		if (selecting)
@@ -209,8 +213,10 @@ command(int commandc)
 		return(NO);
 
 	case ctrl('P'):	/* go to previous input field */
-#if TERMINFO
+#ifdef KEY_UP
 	case KEY_UP:
+#endif
+#ifdef KEY_LEFT		
 	case KEY_LEFT:
 #endif
 		if (selecting)
@@ -229,7 +235,7 @@ command(int commandc)
 			resetcmd();
 		}
 		return(NO);
-#if TERMINFO
+#ifdef KEY_HOME
 	case KEY_HOME:	/* go to first input field */
 		if (selecting)
 		{
@@ -260,11 +266,11 @@ command(int commandc)
 			resetcmd();
 		}
 		return(NO);
-#endif
+#endif /* def(KEY_HOME) */
 	case ' ':	/* display next page */
 	case '+':
 	case ctrl('V'):
-#if TERMINFO
+#ifdef KEY_NPAGE
 	case KEY_NPAGE:
 #endif
 		/* don't redisplay if there are no lines */
@@ -280,7 +286,7 @@ command(int commandc)
 
 	case ctrl('H'):
 	case '-':	/* display previous page */
-#if TERMINFO
+#ifdef KEY_PPAGE
 	case KEY_PPAGE:
 #endif
 		/* don't redisplay if there are no lines */
@@ -406,7 +412,7 @@ command(int commandc)
 		break;
 
 	case ctrl('L'):	/* redraw screen */
-#if TERMINFO
+#ifdef KEY_CLEAR
 	case KEY_CLEAR:
 #endif
                 (void) clearmsg2();
@@ -432,8 +438,8 @@ command(int commandc)
 		break;
 
 	case ctrl('Y'):	/* repeat last pattern */
-		if (*pattern != '\0') {
-			(void) addstr(pattern);
+		if (*Pattern != '\0') {
+			(void) addstr(Pattern);
 			goto repeat;
 		}
 		break;
@@ -454,7 +460,7 @@ command(int commandc)
 			setfield();
 			atfield();
 			(void) addstr(item->text);
-			(void) strcpy(pattern, item->text);
+			(void) strcpy(Pattern, item->text);
 			switch (c = mygetch()) {
 			case '\r':
 			case '\n':
@@ -467,8 +473,8 @@ command(int commandc)
 				break;
 			default:
 				(void) myungetch(c);
-				if (mygetline(pattern, newpat, COLS - fldcolumn - 1, '\0', caseless )) {
-					strcpy (pattern, newpat);
+				if (mygetline(Pattern, newpat, COLS - fldcolumn - 1, '\0', caseless )) {
+					strcpy (Pattern, newpat);
 					resetcmd();
 				}
 				goto repeat;
@@ -505,10 +511,10 @@ command(int commandc)
 		else if (isprint(commandc)) {
 	ispat:		if (getline(newpat, COLS - fldcolumn - 1, commandc,
 			    caseless) > 0) {
-					(void) strcpy(pattern, newpat);
+					(void) strcpy(Pattern, newpat);
 					resetcmd();	/* reset command history */
 	repeat:
-				addcmd(field, pattern);	/* add to command history */
+				addcmd(field, Pattern);	/* add to command history */
 				if (field == CHANGE) {
 					
 					/* prompt for the new text */
@@ -627,7 +633,9 @@ changestring(void)
 		atchange();
 		
 		/* get a character from the terminal */
-		if ((c = mygetch()) == EOF || c == ctrl('D') || c == ctrl('Z')) {
+		if ((c = mygetch()) == EOF
+		    || c == ctrl('D') 
+		    || c == ctrl('Z')) {
 			break;	/* change lines */
 		}
 		/* see if the input character is a command */
@@ -635,11 +643,11 @@ changestring(void)
 		case ' ':	/* display next page */
 		case '+':
 		case ctrl('V'):
-#if TERMINFO
+#ifdef KEY_NPAGE
 		case KEY_NPAGE:
 #endif
 		case '-':	/* display previous page */
-#if TERMINFO
+#ifdef KEY_PPAGE
 		case KEY_PPAGE:
 #endif
 		case '!':	/* shell escape */
@@ -648,7 +656,7 @@ changestring(void)
 			break;
 
 		case ctrl('L'):	/* redraw screen */
-#if TERMINFO
+#ifdef KEY_CLEAR
 		case KEY_CLEAR:
 #endif
 			(void) command(c);
@@ -742,7 +750,8 @@ changestring(void)
 			}
 			/* output substitute command */
 			(void) fprintf(script, "%ss/", linenum);	/* change */
-			for (s = pattern; *s != '\0'; ++s) {	/* old text */
+			for (s = Pattern; *s != '\0'; ++s) {
+				/* old text */
 				if (strchr("/\\[.^*", *s) != NULL) {
 					(void) putc('\\', script);
 				}
