@@ -88,8 +88,8 @@ char	*memset();
 #if BSD
 # undef	tolower		/* BSD toupper and tolower don't test the character */
 # undef	toupper
-# define	tolower(c)	(isupper(c) : (c) - 'A' + 'a' : (c))	
-# define	toupper(c)	(islower(c) : (c) - 'a' + 'A' : (c))
+# define	tolower(c)	(isupper(c) ? (c) - 'A' + 'a' : (c))	
+# define	toupper(c)	(islower(c) ? (c) - 'a' + 'A' : (c))
 # if !sun 
 #  if !__FreeBSD__
 /* in traditional BSD, *printf() doesn't return the number of bytes
