@@ -1,3 +1,5 @@
+(2002/03/13 - broeker) Add AC_PREREQ() call to configure.in.  Enables Cygwin
+	               automagic hack to call the right autoconf for us.
 (2002/03/13 - broeker) Replace all references to manpage 'regcmp(3X)' in
 	               messages and comments by regcomp(3), which is what 
 		       cscope actually uses.
