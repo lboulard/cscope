@@ -54,6 +54,12 @@
 #include <errno.h>
 #include <stdarg.h>
 
+#ifndef HAVE_SIGSETJMP
+# define sigsetjmp(a,b) setjmp(a)
+# define siglongjmp(a,b) longjmp(a,b)
+# typedef jmp_buf sigjmp_buf;
+#endif
+
 static char const rcsid[] = "$Id$";
 
 int	booklen;		/* OGS book name display field length */
@@ -76,7 +82,7 @@ unsigned fldcolumn;		/* input field column */
 const char	dispchars[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 static	int	fldline;		/* input field line */
-static	jmp_buf	env;			/* setjmp/longjmp buffer */
+static	sigjmp_buf	env;		/* setjmp/longjmp buffer */
 static	int	lastdispline;		/* last displayed reference line */
 static	char	lastmsg[MSGLEN + 1];	/* last message displayed */
 static	char	helpstring[] = "Press the ? key for help";
@@ -399,7 +405,7 @@ jumpback(int sig)
 	/* HBB NEW 20031008: try whether reinstating signal handler
 	 * helps... */
 	signal(sig, jumpback);
-	longjmp(env, 1);
+	siglongjmp(env, 1);
 }
 
 BOOL
@@ -413,7 +419,7 @@ search(void)
 	char	*findresult = NULL;	/* find function output */
 	BOOL	funcexist = YES;		/* find "function" error */
 	FINDINIT rc = NOERROR;		/* findinit return code */
-	RETSIGTYPE	(*savesig)(int);		/* old value of signal */
+	sighandler_t savesig;		/* old value of signal */
 	FP	f;			/* searching function */
 	int	c, i;
 	
@@ -426,13 +432,12 @@ search(void)
 		postmsg("Searching");
 	}
 	searchcount = 0;
-	if (setjmp(env) == 0) {
-		savesig = signal(SIGINT, jumpback);
+	savesig = signal(SIGINT, jumpback);
+	if (sigsetjmp(env,1) == 0) {
 		f = fields[field].findfcn;
 		if (f == findregexp || f == findstring) {
 			findresult = (*f)(pattern);
-		}
-		else {
+		} else {
 			if ((nonglobalrefs = myfopen(temp2, "wb")) == NULL) {
 				cannotopen(temp2);
 				return(NO);
@@ -446,9 +451,10 @@ search(void)
 
 				/* append the non-global references */
 				(void) fclose(nonglobalrefs);
-				if ( (nonglobalrefs = myfopen(temp2, "rb")) == NULL) {
-				  cannotopen(temp2);
-				  return(NO);
+				if ((nonglobalrefs = myfopen(temp2, "rb"))
+				     == NULL) {
+					cannotopen(temp2);
+					return(NO);
 				}
 				while ((c = getc(nonglobalrefs)) != EOF) {
 					(void) putc(c, refsfound);
@@ -464,7 +470,7 @@ search(void)
 	
 	/* reopen the references found file for reading */
 	(void) fclose(refsfound);
-	if ( (refsfound = myfopen(temp1, "rb")) == NULL) {
+	if ((refsfound = myfopen(temp1, "rb")) == NULL) {
 		cannotopen(temp1);
 		return(NO);
 	}
@@ -476,24 +482,20 @@ search(void)
 	if ((c = getc(refsfound)) == EOF) {
 		if (findresult != NULL) {
 			(void) sprintf(lastmsg, "Egrep %s in this pattern: %s", 
-				findresult, pattern);
-		}
-		else if (rc == NOTSYMBOL) {
+				       findresult, pattern);
+		} else if (rc == NOTSYMBOL) {
 			(void) sprintf(lastmsg, "This is not a C symbol: %s", 
-				pattern);
-		}
-		else if (rc == REGCMPERROR) {
+				       pattern);
+		} else if (rc == REGCMPERROR) {
 			(void) sprintf(lastmsg, "Error in this regcomp(3) regular expression: %s", 
-				pattern);
+				       pattern);
 			
-		}
-		else if (funcexist == NO) {
+		} else if (funcexist == NO) {
 			(void) sprintf(lastmsg, "Function definition does not exist: %s", 
-				pattern);
-		}
-		else {
+				       pattern);
+		} else {
 			(void) sprintf(lastmsg, "Could not find the %s: %s", 
-				fields[field].text2, pattern);
+				       fields[field].text2, pattern);
 		}
 		return(NO);
 	}
