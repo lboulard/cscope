@@ -1,3 +1,8 @@
+2004-11-22  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	* doc/cscope.1: Make ESR happy: change man page summary section to
+	avoid [0-9] syntax.
+
 2004-10-27  Hans-Bernhard Broeker  <broeker@accip02.physik.rwth-aachen.de>
 
 	* src/display.c (search): Replace duplicated code by a call to
