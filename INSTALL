@@ -1,0 +1,13 @@
+
+This program's build procedure is fairly standard...
+
+./configure
+make
+make install
+
+Options to the configure script are up to you... run
+./configure --help
+for details.
+
+Please report build problems to uzi@linuxcare.com
+(yes, even non-Linux problems).
