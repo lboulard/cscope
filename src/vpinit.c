@@ -52,7 +52,7 @@ char	vpdirs[MAXDIR][DIRLEN + 1];
 int	vpndirs;	/* number of directories in view path */
 
 void
-vpinit(char *currentdir)
+vpinit(char *current_dir)
 {
 	char	*suffix;	/* path from view path node */
 	char	*vpath;		/* VPATH environment variable value */
@@ -65,7 +65,7 @@ vpinit(char *currentdir)
 #endif
 	
 	/* if an existing directory list is to be updated, free it */
-	if (currentdir != NULL && vpndirs > 0) {
+	if (current_dir != NULL && vpndirs > 0) {
 #if !NOMALLOC
 		for (i = 0; i < vpndirs; ++i) {
 			free(vpdirs[i]);
@@ -81,19 +81,19 @@ vpinit(char *currentdir)
 		return;
 	}
 	/* if not given, get the current directory name */
-	if (currentdir == NULL && (currentdir = getcwd(buf, MAXPATH)) == NULL) {
+	if (current_dir == NULL && (current_dir = getcwd(buf, MAXPATH)) == NULL) {
 		(void) fprintf(stderr, "%s: cannot get current directory name\n", argv0);
 		return;
 	}
 	/* see if this directory is in the first view path node */
-	for (i = 0; vpath[i] == currentdir[i] && vpath[i] != '\0'; ++i) {
+	for (i = 0; vpath[i] == current_dir[i] && vpath[i] != '\0'; ++i) {
 		;
 	}
 	if ((vpath[i] != ':' && vpath[i] != '\0') ||
-	    (currentdir[i] != '/' && currentdir[i] != '\0')) {
+	    (current_dir[i] != '/' && current_dir[i] != '\0')) {
 		return;
 	}
-	suffix = &currentdir[i];
+	suffix = &current_dir[i];
 #if !NOMALLOC
 
 	/* count the nodes in the view path */
