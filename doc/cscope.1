@@ -91,6 +91,11 @@ instead of the default (cscope.files). If this option is
 specified, cscope ignores any files appearing on the command
 line.
 .TP
+.B -k
+``Kernel Mode'', turns off the use of the default include dir
+(usually /usr/include) when building the database, since kernel
+source trees generally do not use it.
+.TP
 .B -L
 Do a single search with line-oriented output when used with the
 -num pattern option.

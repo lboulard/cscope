@@ -3,4 +3,6 @@ Simon Cozens - autoconf setup
 garp@digi.com - .cc .hh support
 jens persson <cscope@persson.cx> - new man page
 Edgar Toernig - cscope stability
+Martin Kraemer - various improvments
+Joshua Uzi - code clean up, -k (kernel) option
 
