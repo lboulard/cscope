@@ -269,7 +269,7 @@ char	*scanpast(char c);
 
 
 void	addcmd(int f, char *s);
-void	addsrcfile(char *name, char *path);
+void	addsrcfile(char *path);
 void	askforchar(void);
 void	askforreturn(void);
 void	atchange(void);

@@ -608,7 +608,7 @@ lastarg:
 				(void) strcpy(path, buf + 1);
 				if (infilelist(path) == NO &&
 				    (s = inviewpath(path)) != NULL) {
-					addsrcfile(path, s);
+					addsrcfile(s);
 				}
 				(void) putchar('\n');
 				break;

@@ -296,7 +296,7 @@ build(void)
 		/* the old cross-reference is up-to-date */
 		/* so get the list of included files */
 		while (i++ < oldnum && fscanf(oldrefs, "%s", oldname) == 1) {
-			addsrcfile(mybasename(oldname), oldname);
+			addsrcfile(oldname);
 		}
 		(void) fclose(oldrefs);
 		return;
