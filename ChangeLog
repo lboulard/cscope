@@ -1,3 +1,5 @@
+(2001/07/09 - petrs)   Substituted lstat() for stat() to prevent core
+                       dumps on looping symbolic references.
 (2001/07/06 - broeker) Code dealing with database creation ripped out of
 		       main.c and moved to a new module build.c. New
 		       header file build.h to go with it.

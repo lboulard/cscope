@@ -288,7 +288,7 @@ build(void)
 		for (i = 0; i < nsrcfiles; ++i) {
 			if (fscanf(oldrefs, "%s", oldname) != 1 ||
 			    strnotequal(oldname, srcfiles[i]) ||
-			    stat(srcfiles[i], &statstruct) != 0 ||
+			    lstat(srcfiles[i], &statstruct) != 0 ||
 			    statstruct.st_mtime > reftime) {
 				goto outofdate;
 			}
@@ -374,7 +374,7 @@ build(void)
 				++built;
 			}
 			/* if this file was modified */
-			else if (stat(file, &statstruct) == 0 &&
+			else if (lstat(file, &statstruct) == 0 &&
 			    statstruct.st_mtime > reftime) {
 				crossref(file);
 				++built;

@@ -312,7 +312,7 @@ lastarg:
 	}
 
 	/* make sure that tmpdir exists */
-	if (stat (tmpdir, &stat_buf))
+	if (lstat (tmpdir, &stat_buf))
 	{
 		fprintf (stderr, "cscope: Temporary directory %s does not exist or cannot be accessed\n", tmpdir);
 		fprintf (stderr, "cscope: Please create the directory or set the environment variable\ncscope: TMPDIR to a valid directory\n");
