@@ -711,7 +711,7 @@ fi
 
 PACKAGE=cscope
 
-VERSION=15.0bl3
+VERSION=15.1
 
 if test "`cd $srcdir && pwd`" != "`pwd`" && test -f $srcdir/config.status; then
   { echo "configure: error: source directory already configured; run "make distclean" there first" 1>&2; exit 1; }

@@ -177,18 +177,31 @@ After the cross-reference is ready, cscope will display this menu:
 .B  Find files #including this file:
 .PD 1
 .PP
-Press the <Tab> key repeatedly to move to the desired input field,
-type the text to search for, and then press the <Return> key.
+Press the <Up> or <Down> keys repeatedly to move to the desired input
+field, type the text to search for, and then press the <Return> key.
 .PP
 .SH "Issuing subsequent requests"
 If the search is successful, any of these single-character commands
 can be used:
 .TP
-.B 1-9
+.B 1-9a-zA-Z
 Edit the file referenced by the given line number.
 .TP
 .B <Space>
 Display next set of matching lines.
+.TP
+.B <Tab>
+Alternate between the menu and the list of matching lines
+.TP
+.B <Up>
+Move to the previous menu item (if the cursor is in the menu)
+or move to the previous matching line (if the cursor is in the
+matching line list.)
+.TP
+.B <Down>
+Move to the next menu item (if the cursor is in the menu)
+or move to the next matching line (if the cursor is in the
+matching line list.)
 .TP
 .B +
 Display next set of matching lines.
@@ -218,9 +231,6 @@ Pipe all lines to a shell command and display them without
 changing them.
 .PP
 At any time these single-character commands can also be used:
-.TP
-.B <Tab>
-Move to next input field.
 .TP
 .B <Return>
 Move to next input field.
@@ -272,7 +282,7 @@ text. Select the lines to be changed with these single-character
 commands:
 .PP
 .TP
-.B 1-9
+.B 1-9a-zA-Z
 Mark or unmark the line to be changed.
 .TP
 .B * 

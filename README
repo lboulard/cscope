@@ -14,5 +14,10 @@ If the build fails contact petr@users.sourceforge.net
 
 TIPS:
 - Try to use flex as the lexical analyzer. There may be some problems with using the native lex (due to some problems). The has been reported as a problem on Solaris.
+- On Linux systems (and possibly others) configure may fail if lex is a synomyn for flex. To fix, do the following:
+
+	make distclean
+	./configure --with-flex
+	make
 
 Browse to http://cscope.sourceforge.net for more current information
