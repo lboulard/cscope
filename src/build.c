@@ -339,10 +339,9 @@ build(void)
 	}
 	putheader(newdir);
 	fileversion = FILEVERSION;
-	if (buildonly == YES && !isatty(0)) {
+	if (buildonly == YES && verbosemode != YES && !isatty(0)) {
 		interactive = NO;
-	}
-	else {
+	} else {
 		searchcount = 0;
 	}
 	/* output the leading tab expected by crossref() */
