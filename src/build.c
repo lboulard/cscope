@@ -443,7 +443,7 @@ build(void)
 		}
 		(void) fstat(fileno(postings), &statstruct);
 		(void) fclose(postings);
-		(void) sprintf(sortcommand, "env LC_ALL=C sort -y -T %s %s", tmpdir, temp1);
+		(void) sprintf(sortcommand, "env LC_ALL=C sort -T %s %s", tmpdir, temp1);
 		if ((postings = mypopen(sortcommand, "r")) == NULL) {
 			(void) fprintf(stderr, "cscope: cannot open pipe to sort command\n");
 			cannotindex();
