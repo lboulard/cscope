@@ -43,6 +43,7 @@
 #endif
 #include <setjmp.h>	/* jmp_buf */
 #include <stdlib.h>
+#include <sys/termios.h>
 
 static char const rcsid[] = "$Id$";
 

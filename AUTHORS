@@ -17,3 +17,4 @@ Stephane Fritsch - BeOS support
 Andy Newman <atrn> - FreeBSD support patch
 Sascha Blank - FreeBSD support
 Bruce Frost - Stability
+Chuck Marco and Wilfredo Sanchez - Darwin support

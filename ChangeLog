@@ -1,3 +1,5 @@
+(2001/02/09 - petrs) Updated version number to 15.2b (for beta)
+(2001/02/09 - chuck & wilfredo) Darwin support
 (2001/01/24 - petrs) Replaced new style C comments, i.e. //
 (2000/12/12 - petrs) packages/cscope.spec has now no local directory
 (2000/12/12 - petrs) contrib/ocs now checks that cscope is in $PATH
