@@ -307,7 +307,7 @@
 ;;    If you have a lot of source files, you may want to manually run
 ;;    cscope to build the database:
 ;;
-;;            cd top-level-directory    # or whereever
+;;            cd top-level-directory    # or wherever
 ;;            rm -f cscope.out          # not always necessary
 ;;            cscope -b
 ;;
@@ -316,7 +316,7 @@
 ;;    places, you'll have to manually create cscope.files and put a
 ;;    list of all pathnames into it.  Then build the database using:
 ;;
-;;            cd some-directory         # whereever cscope.files exists
+;;            cd some-directory         # wherever cscope.files exists
 ;;            rm -f cscope.out          # not always necessary
 ;;            cscope -b
 ;;
@@ -1172,7 +1172,7 @@ directory should begin.")
 		    [ "Previous file"   	cscope-prev-file t ]
 		    [ "Pop mark"        	cscope-pop-mark t ]
 		    "-----------"
-		    ( "More ..."
+		    ( "Cscope Database"
 		      [ "Set initial directory"
 			cscope-set-initial-directory t ]
 		      [ "Unset initial directory"
@@ -1331,7 +1331,7 @@ Returns the window displaying BUFFER."
 				      ;; Use whichever of forward-point or
 				      ;; backward-point is closest to old-point.
 				      ;; Give forward-point a line-length advantage
-				      ;; so that if the symbol is on the currrent
+				      ;; so that if the symbol is on the current
 				      ;; line the current line is chosen.
 				      (if (<= (- (- forward-point line-length)
 						 old-point)
@@ -1419,12 +1419,19 @@ Push current point on mark ring and select the entry window."
   (interactive "e")
   (let ((ep (cscope-event-point event))
 	(win (cscope-event-window event))
-	buffer file line-number)
-    (setq buffer (window-buffer win)
-	  file (get-text-property ep 'cscope-file buffer)
-	  line-number (get-text-property ep 'cscope-line-number buffer))
-    (select-window win)
-    (select-window (cscope-show-entry-internal file line-number t))
+	buffer file line-number window)
+    (if ep
+        (progn
+          (setq buffer (window-buffer win)
+                file (get-text-property ep 'cscope-file buffer)
+                line-number (get-text-property ep 'cscope-line-number buffer))
+          (select-window win)
+          (setq window (cscope-show-entry-internal file line-number t))
+          (if (windowp window)
+              (select-window window))
+          )
+      (message "No entry found at point.")
+      )
     ))
 
 
@@ -1882,7 +1889,7 @@ using the mouse."
      ( cscope-first-match
        (if cscope-display-cscope-buffer
            (if (and cscope-edit-single-match (not cscope-matched-multiple))
-               (cscope-show-entry-internal (car cscope-first-match)
+               (cscope-show-entry-internal(car cscope-first-match)
                                            (cdr cscope-first-match) t))
          (cscope-select-entry-specified-window old-buffer-window))
        )
@@ -2339,7 +2346,7 @@ file."
 		(cscope-prompt-for-symbol
 		 "Find functions called by this function: " nil)
 		))
-  (let ( (cscope-adjust nil) )	 ;; Suppress fuzzy matching.
+  (let ( (cscope-adjust nil) )	 ;; Disable fuzzy matching.
     (setq cscope-symbol symbol)
     (cscope-call (format "Finding functions called by: %s" symbol)
 		 (list "-2" symbol) nil 'cscope-process-filter
@@ -2409,8 +2416,7 @@ file."
 		  (cscope-prompt-for-symbol
 		   "Find files #including this file: " t))
 		))
-  (let ( (cscope-adjust nil) )	;; Disable fuzzy matching.
-    				;; Is this needed?
+  (let ( (cscope-adjust t) )	;; Use fuzzy matching.
     (setq cscope-symbol symbol)
     (cscope-call (format "Finding files #including file: %s" symbol)
 		 (list "-8" symbol) nil 'cscope-process-filter
