@@ -1,3 +1,10 @@
+(2001/03/29 - broeker) Some further MSDOS/DJGPP patches. Close file 
+	               'refsfound' before unlinking it. Avoid calling curses
+ 	               function nonl().  Replace fork/exec/wait machinery in 
+	               exec.c by call to lib function spawnvp().
+(2001/03/28 - broeker) Added flex-able version of scanner.l to the project, as
+	               file src/fscanner.l. Changed configure.in and 
+		       src/Makefile.am to use it if using 'flex'.
 (2001/03/27 - broeker) Remove 'extern' declaration of yylval from
                        egrep.y:yylex(). It's not needed, as this is inside the
 	               Yacc source itself, where the definition of yylval is
