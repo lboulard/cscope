@@ -220,7 +220,7 @@ putcrossref(void)
 	/* output the source line */
 	lineoffset = dboffset;
 	dboffset += fprintf(newrefs, "%d ", lineno);
-#if BSD && !sun
+#if BSD && !sun && !__FreeBSD__
 	dboffset = ftell(newrefs); /* fprintf doesn't return chars written */
 #endif
 	blank = NO;

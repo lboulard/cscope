@@ -1,3 +1,4 @@
+(2000/10/09 - atrn) better FreeBSD support
 (2000/10/02 - fritsch) better BeOS support
 (2000/10/02 - salz) -i now accepts '-' for a list of files from stdio
 (2000/09/19 - brent) fixed -R to handle similarly named files
