@@ -7,3 +7,5 @@ ocs - wrapper for cscope providing database generation through recursive
 
 webcscope - a web cgi interface to cscope. Contributed by Ragho Mahalingam,
 		using code from Dmitry Obukhovi and Steven E. Brenner.
+
+xcscope - An (X)Emacs interface to cscope.
