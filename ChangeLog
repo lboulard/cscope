@@ -1,3 +1,13 @@
+2005-04-29  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	* src/command.c (command): Additional hotkey mapping of Ctrl-A to
+	same function as Ctrl-Y, like AT&T cscope, to evade Ctrl-Y
+	occupied as the DSUSP signal key on BSD'ish platforms.
+
+	* src/help.c (help): Document additonal hotkey ^A.  Mention
+	possible unavailability of some Ctrl keys because of terminal
+	settings.
+
 2005-03-14  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	* src/input.c (getline): Removed.  Was just a minimally simplified

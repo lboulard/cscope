@@ -250,7 +250,7 @@ command(int commandc)
 			atfield();
 			resetcmd();
 		}
-		return(NO);
+ 		return(NO);
 
 	case KEY_LL:	/* go to last input field */
 		if (selecting)
@@ -458,6 +458,7 @@ command(int commandc)
 		editall();
 		break;
 
+	case ctrl('A'):		/* HBB 20050428: added alt. keymapping */
 	case ctrl('Y'):	/* repeat last pattern */
 		if (*Pattern != '\0') {
 			(void) addstr(Pattern);
