@@ -122,7 +122,7 @@ static	void	usage(void);
 void	fixkeypad();
 #endif
 
-#ifdef KEY_RESIZE
+#if defined(KEY_RESIZE) && !defined(__DJGPP__)
 void sigwinch_handler(int sig, siginfo_t *info, void *unused)
 {
 	ungetch(KEY_RESIZE);
@@ -140,7 +140,7 @@ main(int argc, char **argv)
 	int	c, i;
 	pid_t	pid;
 	struct stat	stat_buf;
-#ifdef KEY_RESIZE
+#if defined(KEY_RESIZE) && !defined(__DJGPP__)
 	struct sigaction winch_action;
 #endif
 	mode_t orig_umask;
@@ -149,7 +149,7 @@ main(int argc, char **argv)
 	yyout = stdout;
 	/* save the command name for messages */
 	argv0 = argv[0];
-#ifdef KEY_RESIZE	
+#if defined(KEY_RESIZE) && !defined(__DJGPP__)
 	winch_action.sa_sigaction = sigwinch_handler;
 	sigemptyset(&winch_action.sa_mask);
 	winch_action.sa_flags = SA_SIGINFO;

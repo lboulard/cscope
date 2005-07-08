@@ -412,7 +412,7 @@ command(int commandc)
 		askforreturn();
 		entercurses();
 		break;
-#ifdef KEY_RESIZE
+#if defined(KEY_RESIZE) && !defined(__DJGPP__)
 	case KEY_RESIZE:
 		exitcurses();
 		initscr();
