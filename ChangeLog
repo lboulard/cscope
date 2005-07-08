@@ -1,13 +1,19 @@
 2005-07-08  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
+	* src/build.c (invname_buf, invpost_buf, reffile_buf): Make
+	modifiable copies of the default file names.
+	(invname, invpost, reffile): Initialize pointers to modifiable
+	copies, rather than to string literals.
+
 	* packages/MSDOS/djmake.bat: Adapt to modern position of ylwrap
 	script.
 
-	* src/command.c(command) [KEY_RESIZE]: Protect by !defined(__DJGPP__).
-	That platform doesn't have sigaction() and associated machinery, nor does
-	it really support terminal size changes to begin with.
+	* src/command.c (command) [KEY_RESIZE]: Protect by
+	!defined(__DJGPP__).  That platform doesn't have sigaction() and
+	associated machinery, nor does it really support terminal size
+	changes to begin with.
 
-	* src/main.c(sigwinch_handler): Likewise.
+	* src/main.c (sigwinch_handler): Likewise.
 	(main): Likewise.
 
 2005-04-29  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>

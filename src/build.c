@@ -57,9 +57,14 @@ BOOL	buildonly = NO;		/* only build the database */
 BOOL	unconditional = NO;	/* unconditionally build database */
 BOOL	fileschanged;		/* assume some files changed */
 
-char	*invname = INVNAME;	/* inverted index to the database */
-char	*invpost = INVPOST;	/* inverted index postings */
-char	*reffile = REFFILE;	/* cross-reference file path name */
+/* variable copies of the master strings... */
+char	invname_buf[] = INVNAME;
+char	invpost_buf[] = INVPOST;
+char	reffile_buf[] = REFFILE;
+char	*invname = invname_buf;	/* inverted index to the database */
+char	*invpost = invpost_buf;	/* inverted index postings */
+char	*reffile = reffile_buf;	/* cross-reference file path name */
+
 char	*newreffile;		/* new cross-reference file name */
 FILE	*newrefs;		/* new cross-reference */
 FILE	*postings;		/* new inverted index postings */
