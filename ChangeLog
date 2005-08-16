@@ -1,3 +1,11 @@
+2005-08-16  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	* src/main.c: Uncluttered by removing nitpicky (void) casts.
+	(longusage): Reworked for source legibility even on 80-column
+	displays.
+	(main): If in verbose linemode, print number of references found,
+	first off.  Patch from Elad Lahav, for Kscope
+
 2005-07-08  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	* src/build.c (invname_buf, invpost_buf, reffile_buf): Make

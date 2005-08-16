@@ -190,7 +190,7 @@ main(int argc, char **argv)
 					postfatal("cscope: pattern too long, cannot be > %d characters\n", PATLEN);
 					/* NOTREACHED */
 				}
-				(void) strcpy(Pattern, s);
+				strcpy(Pattern, s);
 				goto nextarg;
 			}
 			switch (*s) {
@@ -258,14 +258,14 @@ main(int argc, char **argv)
 					s = *++argv;
 				}
 				if (*s == '\0') {
-					(void) fprintf(stderr, "%s: -%c option: missing or empty value\n", 
+					fprintf(stderr, "%s: -%c option: missing or empty value\n", 
 						argv0, c);
 					goto usage;
 				}
 				switch (c) {
 				case 'f':	/* alternate cross-reference file */
 					reffile = s;
-					(void) strcpy(path, s);
+					strcpy(path, s);
 #ifdef SHORT_NAMES_ONLY
 					/* System V has a 14 character limit */
 					s = mybasename(path);
@@ -274,9 +274,9 @@ main(int argc, char **argv)
 					}
 #endif
 					s = path + strlen(path);
-					(void) strcpy(s, ".in");
+					strcpy(s, ".in");
 					invname = stralloc(path);
-					(void) strcpy(s, ".po");
+					strcpy(s, ".po");
 					invpost = stralloc(path);
 					break;
 				case 'F':	/* symbol reference lines file */
@@ -290,7 +290,7 @@ main(int argc, char **argv)
 					break;
 				case 'p':	/* file path components to display */
 					if (*s < '0' || *s > '9' ) {
-						(void) fprintf(stderr, "%s: -p option: missing or invalid numeric value\n", 
+						fprintf(stderr, "%s: -p option: missing or invalid numeric value\n", 
 							argv0);
 						goto usage;
 					}
@@ -311,11 +311,11 @@ main(int argc, char **argv)
 				break;
 #endif
 			default:
-				(void) fprintf(stderr, "%s: unknown option: -%c\n", argv0, 
+				fprintf(stderr, "%s: unknown option: -%c\n", argv0, 
 					*s);
 			usage:
-				(void) usage();
-				(void) fprintf(stderr, "Try the -h option for more information.\n");
+				usage();
+				fprintf(stderr, "Try the -h option for more information.\n");
 				myexit(1);
 			}
 		}
@@ -350,7 +350,7 @@ lastarg:
 	/* create the temporary file names */
 	orig_umask = umask(S_IRWXG|S_IRWXO);
 	pid = getpid();
-	(void) sprintf(tempdirpv, "%s/cscope.%d", tmpdir, pid);
+	sprintf(tempdirpv, "%s/cscope.%d", tmpdir, pid);
 	if(mkdir(tempdirpv,S_IRWXU)) 
 	{
 		fprintf(stderr, "cscope: Could not create private temp dir %s\n",tempdirpv);
@@ -358,17 +358,17 @@ lastarg:
 	}
 	umask(orig_umask);
 
-	(void) sprintf(temp1, "%s/cscope.1", tempdirpv, pid);
-	(void) sprintf(temp2, "%s/cscope.2", tempdirpv, pid);
+	sprintf(temp1, "%s/cscope.1", tempdirpv, pid);
+	sprintf(temp2, "%s/cscope.2", tempdirpv, pid);
 
 	/* if running in the foreground */
 	if (signal(SIGINT, SIG_IGN) != SIG_IGN) {
 		/* cleanup on the interrupt and quit signals */
-		(void) signal(SIGINT, myexit);
-		(void) signal(SIGQUIT, myexit);
+		signal(SIGINT, myexit);
+		signal(SIGQUIT, myexit);
 	}
 	/* cleanup on the hangup signal */
-	(void) signal(SIGHUP, myexit);
+	signal(SIGHUP, myexit);
 
 	/* if the database path is relative and it can't be created */
 	if (reffile[0] != '/' && access(".", WRITE) != 0) {
@@ -379,26 +379,26 @@ lastarg:
 		 * used instead of failing to open a non-existant database in
 		 * the home directory
 		 */
-		(void) sprintf(path, "%s/%s", home, reffile);
+		sprintf(path, "%s/%s", home, reffile);
 		if (isuptodate == NO || access(path, READ) == 0) {
 			reffile = stralloc(path);
-			(void) sprintf(path, "%s/%s", home, invname);
+			sprintf(path, "%s/%s", home, invname);
 			invname = stralloc(path);
-			(void) sprintf(path, "%s/%s", home, invpost);
+			sprintf(path, "%s/%s", home, invpost);
 			invpost = stralloc(path);
 		}
 	}
 
 	if (linemode == NO)
 	{
-		(void) signal(SIGINT, SIG_IGN);	/* ignore interrupts */
-		(void) signal(SIGPIPE, SIG_IGN);/* | command can cause pipe signal */
+		signal(SIGINT, SIG_IGN);	/* ignore interrupts */
+		signal(SIGPIPE, SIG_IGN);/* | command can cause pipe signal */
 
 		/* initialize the curses display package */
-		(void) initscr();	/* initialize the screen */
+		initscr();	/* initialize the screen */
 		entercurses();
 #if TERMINFO
-		(void) keypad(stdscr, TRUE);	/* enable the keypad */
+		keypad(stdscr, TRUE);	/* enable the keypad */
 # ifdef HAVE_FIXKEYPAD
 		fixkeypad();	/* fix for getch() intermittently returning garbage */
 # endif
@@ -432,9 +432,9 @@ lastarg:
 
 			/* see if there are options in the database */
 			for (;;) {
-				(void) getc(oldrefs);	/* skip the blank */
+				getc(oldrefs);	/* skip the blank */
 				if ((c = getc(oldrefs)) != '-') {
-					(void) ungetc(c, oldrefs);
+					ungetc(c, oldrefs);
 					break;
 				}
 				switch (c = getc(oldrefs)) {
@@ -443,7 +443,7 @@ lastarg:
 					break;
 				case 'q':	/* quick search */
 					invertedindex = YES;
-					(void) fscanf(oldrefs, "%ld", &totalterms);
+					fscanf(oldrefs, "%ld", &totalterms);
 					break;
 				case 'T':	/* truncate symbols to 8 characters */
 					dbtruncated = YES;
@@ -473,7 +473,7 @@ lastarg:
 				/* NOTREACHED */
 			}
 			s = (char *)mymalloc((unsigned) oldnum);
-			(void) getc(oldrefs);	/* skip the newline */
+			getc(oldrefs);	/* skip the newline */
 			
 			/* read the strings */
 			if (fread(s, oldnum, 1, oldrefs) != 1) {
@@ -498,7 +498,7 @@ lastarg:
 					i = path[1];
 					s = path + 2;		/* for "-Ipath" */
 					if (*s == '\0') {	/* if "-I path" */
-						(void) fscanf(names, "%s", path);
+						fscanf(names, "%s", path);
 						s = path;
 					}
 					switch (i) {
@@ -510,7 +510,7 @@ lastarg:
 					    dispcomponents = atoi(s);
 					}
 				}
-				(void) fclose(names);
+				fclose(names);
 			}
 		}
 		else {
@@ -522,7 +522,7 @@ lastarg:
 				srcfiles[i] = stralloc(path);
 			}
 		}
-		(void) fclose(oldrefs);
+		fclose(oldrefs);
 	}
 	else {
 		/* save the file arguments */
@@ -574,19 +574,24 @@ lastarg:
 	if (linemode == YES) {
 		if (*Pattern != '\0') {		/* do any optional search */
 			if (search() == YES) {
-				while ((c = getc(refsfound)) != EOF) {
-					(void) putchar(c);
-				}
+				/* print the total number of lines in
+				 * verbose mode */
+				if (verbosemode == YES)
+					printf("cscope: %d lines\n",
+					       totallines);
+
+				while ((c = getc(refsfound)) != EOF)
+					putchar(c);
 			}
 		}
-		if (onesearch == YES) {
+		if (onesearch == YES)
 			myexit(0);
-		}
+		
 		for (;;) {
 			char buf[PATLEN + 2];
 			
-			(void) printf(">> ");
-			(void) fflush(stdout);
+			printf(">> ");
+			fflush(stdout);
 			if (fgets(buf, sizeof(buf), stdin) == NULL) {
 				myexit(0);
 			}
@@ -606,11 +611,11 @@ lastarg:
 			case '8':
 			case '9':	/* samuel only */
 				field = *buf - '0';
-				(void) strcpy(Pattern, buf + 1);
-				(void) search();
-				(void) printf("cscope: %d lines\n", totallines);
+				strcpy(Pattern, buf + 1);
+				search();
+				printf("cscope: %d lines\n", totallines);
 				while ((c = getc(refsfound)) != EOF) {
-					(void) putchar(c);
+					putchar(c);
 				}
 				break;
 
@@ -633,21 +638,21 @@ lastarg:
 
 			case 'R':	/* rebuild database samuel style */
 				rebuild();
-				(void) putchar('\n');
+				putchar('\n');
 				break;
 
 			case 'C':	/* clear file names */
 				freefilelist();
-				(void) putchar('\n');
+				putchar('\n');
 				break;
 
 			case 'F':	/* add a file name */
-				(void) strcpy(path, buf + 1);
+				strcpy(path, buf + 1);
 				if (infilelist(path) == NO &&
 				    (s = inviewpath(path)) != NULL) {
 					addsrcfile(s);
 				}
-				(void) putchar('\n');
+				putchar('\n');
 				break;
 
 			case 'q':	/* quit */
@@ -656,7 +661,7 @@ lastarg:
 				myexit(0);
 
 			default:
-				(void) fprintf(stderr, "cscope: unknown command '%s'\n", buf);
+				fprintf(stderr, "cscope: unknown command '%s'\n", buf);
 				break;
 			}
 		}
@@ -670,10 +675,10 @@ lastarg:
 	/* do any optional search */
 	if (*Pattern != '\0') {
 		atfield();		/* move to the input field */
-		(void) command(ctrl('Y'));	/* search */
+		command(ctrl('Y'));	/* search */
 	} else if (reflines != NULL) {
 		/* read any symbol reference lines file */
-		(void) readrefs(reflines);
+		readrefs(reflines);
 	}
 	display();		/* update the display */
 	for (;;) {
@@ -714,12 +719,12 @@ cannotwrite(char *file)
 #if HAVE_SNPRINTF
 	char	msg[MSGLEN + 1];
 
-	(void) snprintf(msg, sizeof(msg),
+	snprintf(msg, sizeof(msg),
             "Removed file %s because write failed", file);
 #else
 	char *msg = mymalloc(50+strlen(file));
 
-	(void) sprintf(msg, "Removed file %s because write failed", file);
+	sprintf(msg, "Removed file %s because write failed", file);
 #endif
 
 	myperror(msg);	/* display the reason */
@@ -728,7 +733,7 @@ cannotwrite(char *file)
 	free(msg);
 #endif
 
-	(void) unlink(file);
+	unlink(file);
 	myexit(1);	/* calls exit(2), which closes files */
 }
 
@@ -775,11 +780,11 @@ entercurses(void)
 {
 	incurses = YES;
 #ifndef __MSDOS__ /* HBB 20010313 */
-	(void) nonl();		/* don't translate an output \n to \n\r */
+	nonl();		/* don't translate an output \n to \n\r */
 #endif
-	(void) cbreak();	/* single character input */
-	(void) noecho();	/* don't echo input characters */
-	(void) clear();		/* clear the screen */
+	cbreak();	/* single character input */
+	noecho();	/* don't echo input characters */
+	clear();		/* clear the screen */
 	mouseinit();		/* initialize any mouse interface */
 	drawscrollbar(topline, nextline);
 }
@@ -790,61 +795,69 @@ void
 exitcurses(void)
 {
 	/* clear the bottom line */
-	(void) move(LINES - 1, 0);
-	(void) clrtoeol();
-	(void) refresh();
+	move(LINES - 1, 0);
+	clrtoeol();
+	refresh();
 
 	/* exit curses and restore the terminal modes */
-	(void) endwin();
+	endwin();
 	incurses = NO;
 
 	/* restore the mouse */
 	mousecleanup();
-	(void) fflush(stdout);
+	fflush(stdout);
 }
 
-/* normal usage message */
 
+/* normal usage message */
 static void
 usage(void)
 {
-	(void) fprintf(stderr, "Usage: cscope [-bcCdehklLqRTuUvV] [-f file] [-F file] [-i file] [-I dir] [-s dir]\n");
-	(void) fprintf(stderr, "              [-p number] [-P path] [-[0-8] pattern] [source files]\n");
+	fprintf(stderr, "Usage: cscope [-bcCdehklLqRTuUvV] [-f file] [-F file] [-i file] [-I dir] [-s dir]\n");
+	fprintf(stderr, "              [-p number] [-P path] [-[0-8] pattern] [source files]\n");
 }
 
-/* long usage message */
 
+/* long usage message */
 static void
 longusage(void)
 {
-	(void) usage();
-	(void) fprintf(stderr, "\n");
-	(void) fprintf(stderr, "-b            Build the cross-reference only.\n");
-	(void) fprintf(stderr, "-C            Ignore letter case when searching.\n");
-	(void) fprintf(stderr, "-c            Use only ASCII characters in the cross-ref file (don't compress).\n");
-	(void) fprintf(stderr, "-d            Do not update the cross-reference.\n");
-	(void) fprintf(stderr, "-e            Suppress the <Ctrl>-e command prompt between files.\n");
-	(void) fprintf(stderr, "-F symfile    Read symbol reference lines from symfile.\n");
-	(void) fprintf(stderr, "-f reffile    Use reffile as cross-ref file name instead of %s.\n", REFFILE);
-	(void) fprintf(stderr, "-h            This help screen.\n");
-	(void) fprintf(stderr, "-I incdir     Look in incdir for any #include files.\n");
-	(void) fprintf(stderr, "-i namefile   Browse through files listed in namefile, instead of %s\n", NAMEFILE);
-	(void) fprintf(stderr, "-k            Kernel Mode - don't use %s for #include files.\n", DFLT_INCDIR);
-	(void) fprintf(stderr, "-L            Do a single search with line-oriented output.\n");
-	(void) fprintf(stderr, "-l            Line-oriented interface.\n");
-	(void) fprintf(stderr, "-num pattern  Go to input field num (counting from 0) and find pattern.\n");
-	(void) fprintf(stderr, "-P path       Prepend path to relative file names in pre-built cross-ref file.\n");
-	(void) fprintf(stderr, "-p n          Display the last n file path components.\n");
-	(void) fprintf(stderr, "-q            Build an inverted index for quick symbol searching.\n");
-	(void) fprintf(stderr, "-R            Recurse directories for files.\n");
-	(void) fprintf(stderr, "-s dir        Look in dir for additional source  files.\n");
-	(void) fprintf(stderr, "-T            Use only the first eight characters to match against C symbols.\n");
-	(void) fprintf(stderr, "-U            Check file time stamps.\n");
-	(void) fprintf(stderr, "-u            Unconditionally build the cross-reference file.\n");
-	(void) fprintf(stderr, "-v            Be more verbose in line mode.\n");
-	(void) fprintf(stderr, "-V            Print the version number.\n");
-	(void) fprintf(stderr, "\n");
-	(void) fprintf(stderr, "Please see the manpage for more information.\n");
+	usage();
+	fprintf(stderr, "\
+\n\
+-b            Build the cross-reference only.\n\
+-C            Ignore letter case when searching.\n\
+-c            Use only ASCII characters in the cross-ref file (don't compress).\n\
+-d            Do not update the cross-reference.\n\
+-e            Suppress the <Ctrl>-e command prompt between files.\n\
+-F symfile    Read symbol reference lines from symfile.\n\
+-f reffile    Use reffile as cross-ref file name instead of %s.\n",
+		REFFILE);
+	fprintf(stderr, "\
+-h            This help screen.\n\
+-I incdir     Look in incdir for any #include files.\n\
+-i namefile   Browse through files listed in namefile, instead of %s\n",
+		NAMEFILE);
+	fprintf(stderr, "\
+-k            Kernel Mode - don't use %s for #include files.\n",
+		DFLT_INCDIR);
+	fputs("\
+-L            Do a single search with line-oriented output.\n\
+-l            Line-oriented interface.\n\
+-num pattern  Go to input field num (counting from 0) and find pattern.\n\
+-P path       Prepend path to relative file names in pre-built cross-ref file.\n\
+-p n          Display the last n file path components.\n\
+-q            Build an inverted index for quick symbol searching.\n\
+-R            Recurse directories for files.\n\
+-s dir        Look in dir for additional source  files.\n\
+-T            Use only the first eight characters to match against C symbols.\n\
+-U            Check file time stamps.\n\
+-u            Unconditionally build the cross-reference file.\n\
+-v            Be more verbose in line mode.\n\
+-V            Print the version number.\n\
+\n\
+Please see the manpage for more information.\n",
+	      stderr);
 }
 
 /* cleanup and exit */
@@ -859,9 +872,9 @@ myexit(int sig)
 	
 	/* remove any temporary files */
 	if (temp1[0] != '\0') {
-		(void) unlink(temp1);
-		(void) unlink(temp2);
-		(void) rmdir(tempdirpv);		
+		unlink(temp1);
+		unlink(temp2);
+		rmdir(tempdirpv);		
 	}
 	/* restore the terminal to its original mode */
 	if (incurses == YES) {
@@ -869,7 +882,7 @@ myexit(int sig)
 	}
 	/* dump core for debugging on the quit signal */
 	if (sig == SIGQUIT) {
-		(void) abort();
+		abort();
 	}
 	/* HBB 20000421: be nice: free allocated data */
 	freefilelist();
