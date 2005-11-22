@@ -1,3 +1,15 @@
+2005-11-22  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	* src/dir.c (issrcfile): Finally added auto-searching for
+	three-letter C++ file extensions *.tcc, *.cpp, *.cxx.  Test all
+	matches to be regular files, not just those with two- and
+	three-character extensions.
+
+	* src/invlib.c: Some cleanup.  Replace 0 third argument to fseek
+	by proper SEEK_SET.  Got rid of (void) result casts and some
+	function argument casts.
+	(invmake): Fix one sizeof(long)==4 assumption.
+
 2005-08-16  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	* src/main.c: Uncluttered by removing nitpicky (void) casts.
