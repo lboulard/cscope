@@ -1,3 +1,8 @@
+2006-02-21  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	* src/vpinit.c (vpinit): Fix handling of slightly malformed VPATH
+	environment variable contents.
+
 2005-11-22  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	* src/dir.c (issrcfile): Finally added auto-searching for

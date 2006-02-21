@@ -99,7 +99,7 @@ vpinit(char *current_dir)
 	/* count the nodes in the view path */
 	vpndirs = 1;
 	for (i = 0; vpath[i] != '\0'; ++i) {
-		if (vpath[i] == ':') {
+		if (vpath[i] == ':' && vpath[i + 1]) {
 			++vpndirs;
 		}
 	}
