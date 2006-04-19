@@ -1,3 +1,14 @@
+2006-04-19  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
+
+	* src/dir.c (scan_dir): Get rid of d_ino check --- this field is
+	not reliably present in struct dirent, and doesn't achieve enough
+	to be worth autoconf-ing around.  Works around problems compiling on
+	Cygwin release 1.5.19.
+
+	* Makefile.in, aclocal.m4, configure, contrib/Makefile.in,
+	doc/Makefile.in, src/Makefile.in: Regenerated with current auto
+	tools (autoconf-2.59, automake 1.9.6).
+
 2006-02-21  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	* src/vpinit.c (vpinit): Fix handling of slightly malformed VPATH
