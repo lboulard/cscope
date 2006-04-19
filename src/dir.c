@@ -98,8 +98,7 @@ makevpsrcdirs(void)
 	vpinit(currentdir);
 	if (vpndirs > 1) {
 		nsrcdirs = vpndirs;
-	}
-	else {
+	} else {
 		nsrcdirs = 1;
 	}
 	/* create the source directory list */
@@ -230,8 +229,7 @@ addincdir(char *name, char *path)
 		if (incdirs == NULL) {
 			incdirs = mymalloc(mincdirs * sizeof(char *));
 			incnames = mymalloc(mincdirs * sizeof(char *));
-		}
-		else if (nincdirs == mincdirs) {
+		} else if (nincdirs == mincdirs) {
 			mincdirs += DIRINC;
 			incdirs = myrealloc(incdirs, 
 				mincdirs * sizeof(char *));
@@ -284,8 +282,7 @@ makefilelist(void)
 			if (infilelist(file) == NO) {
 				if ((s = inviewpath(file)) != NULL) {
 					addsrcfile(s);
-				}
-				else {
+				} else {
 					(void) fprintf(stderr, "cscope: cannot find file %s\n",
 						       file);
 					errorsfound = YES;
@@ -504,17 +501,10 @@ scan_dir(const char *adir, BOOL recurse_dir)
 					if (recurse_dir 
                                             && S_ISDIR(buf.st_mode) ) {
 						scan_dir(path, recurse_dir);
-					}
-					else if (
-#ifdef __DJGPP__ /* FIXME: should test for feature, not platform */
-						 1 /* DJGPP doesn't have this field in dirent */
-#else
-						 entry->d_ino != 0
-#endif
-						 && issrcfile(path)
-						 && infilelist(path) == NO) {
-						if(access(path,R_OK) == 0)
-							addsrcfile(path);
+					} else if (issrcfile(path)
+						   && infilelist(path) == NO
+						   && access(path, R_OK) == 0)
+						addsrcfile(path);
 					}
 				}
 			}
@@ -606,8 +596,7 @@ incfile(char *file, char *type)
 	/* look in current directory if it was #include "file" */
 	if (type[0] == '"' && (s = inviewpath(file)) != NULL) {
 		addsrcfile(s);
-	}
-	else {
+	} else {
 		int file_len = strlen(file);
 
 		/* search for the file in the #include directory list */
@@ -711,10 +700,10 @@ freefilelist(void)
 		while (nsrcfiles > 0) {
 			free (srcfiles[--nsrcfiles]);
 		}
-	}
-	else {
+	} else {
 		/* for '-d' option free the string space block */
-	    if (nsrcfiles > 0)		/* protect against empty list */
+		/* protect against empty list */
+		if (nsrcfiles > 0)
 			free (srcfiles[0]);
 		nsrcfiles = 0;
 	}
