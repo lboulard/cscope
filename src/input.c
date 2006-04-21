@@ -63,7 +63,8 @@ static RETSIGTYPE
 catchint(int sig)
 {
  	(void) sig;		/* 'use' it, to avoid a warning */
-	(void) signal(SIGINT, catchint);
+
+	signal(SIGINT, catchint);
 	longjmp(env, 1);
 }
 
@@ -78,164 +79,164 @@ myungetch(int c)
 int
 mygetch(void)
 {
-	sighandler_t savesig; /* old value of signal */
-	int	c;
+    sighandler_t savesig; /* old value of signal */
+    int c;
 
-	/* change an interrupt signal to a break key character */
-	if (setjmp(env) == 0) {
-		savesig = signal(SIGINT, catchint);
-		refresh();	/* update the display */
-		mousereinit();	/* curses can change the menu number */
-		if(prevchar) {
-			c = prevchar;
-			prevchar = 0;
-		} else {
-			c = -1;
-			while (c == -1) {
-				/* get a character from the terminal */
-				c = getch();
-				if ((c == -1) && (errno != EINTR))
-					break;
-			}
-		}
-	} else {	/* longjmp to here from signal handler */
-		c = KEY_BREAK;
+    /* change an interrupt signal to a break key character */
+    if (setjmp(env) == 0) {
+	savesig = signal(SIGINT, catchint);
+	refresh();	/* update the display */
+	mousereinit();	/* curses can change the menu number */
+	if(prevchar) {
+	    c = prevchar;
+	    prevchar = 0;
+	} else {
+	    c = -1;
+	    while (c == -1) {
+		/* get a character from the terminal */
+		c = getch();
+		if ((c == -1) && (errno != EINTR))
+		    break;
+	    }
 	}
-	(void) signal(SIGINT, savesig);
-	return(c);
+    } else {	/* longjmp to here from signal handler */
+	c = KEY_BREAK;
+    }
+    signal(SIGINT, savesig);
+    return(c);
 }
 
-/* get a line from the terminal in non-canonical mode */
 
+/* get a line from the terminal in non-canonical mode */
 int
 mygetline(char p[], char s[], unsigned size, int firstchar, BOOL iscaseless)
 {
-	int	c, i = 0;
-	int	j;
-	char *sright;	/* substring to the right of the cursor */
-	int ri = 0;		/* position in right-string */
+    int	c;
+    unsigned int i = 0, j;
+    char *sright;	/* substring to the right of the cursor */
+    unsigned int ri = 0;		/* position in right-string */
 
-	/* Inserts and deletes are always performed on the left-string,
-	 * but we'll also have a right-string 'sright' to hold characters
-	 * which are on the right of the cursor [insertion point].
-	 *
-	 * Think of 'sright' as a stack -- we push chars into it when the cursor
-	 * moves left, and we pop chars off it when the cursor moves right again.
-	 * At the end of the function, we'll pop off any remaining characters
-	 * onto the end of 's'
-	 */
-	sright = calloc(sizeof(char), size );
+    /* Inserts and deletes are always performed on the left-string,
+     * but we'll also have a right-string 'sright' to hold characters
+     * which are on the right of the cursor [insertion point].
+     *
+     * Think of 'sright' as a stack -- we push chars into it when the cursor
+     * moves left, and we pop chars off it when the cursor moves right again.
+     * At the end of the function, we'll pop off any remaining characters
+     * onto the end of 's'
+     */
+    sright = calloc(sizeof(char), size );
 
-	strcpy ( s, p);
-	i += strlen(p);
-	/* if a character already has been typed */
-	if (firstchar != '\0') {
-		if(iscaseless == YES) {
-			firstchar = tolower(firstchar);
-		}
-		addch(firstchar);	/* display it */
-		s[i++] = firstchar;	/* save it */
+    strcpy ( s, p);
+    i += strlen(p);
+    /* if a character already has been typed */
+    if (firstchar != '\0') {
+	if(iscaseless == YES) {
+	    firstchar = tolower(firstchar);
 	}
-	/* until the end of the line is reached */
-	while ((c = mygetch()) != '\r' && c != '\n' && c != KEY_ENTER) {
-		if (c == KEY_LEFT || c == ctrl('B')) {	/* left */
-			if (i > 0) {
-				addch('\b');
-				/* move this char into the second (rhs) string */
-				sright[ri++] = s[--i];
-			}
-		} else if (c == KEY_RIGHT || c == ctrl('F')) {	/* right */
-			if (i < size && ri > 0) {
-				/* move this char to the left of the cursor */
-				s[i++] = sright[--ri];
-				addch(s[i-1]);
-			}
-		} else if (
-		#ifdef KEY_HOME
-			c == KEY_HOME ||
-		#endif
-			c == ctrl('A') ) {
-			while (i > 0) {
-				sright[ri++] = s[--i];
-				addch('\b');
-				addch(s[i]);
-				addch('\b');
-			}
-		} else if (
-		#ifdef KEY_END
-			c == KEY_END ||
-		#endif
-			c == ctrl('E') ) {
-			while (ri > 0) {
-				s[i++] = sright[--ri];
-				addch(s[i-1]);
-			}
-		} else if (c == erasechar() || c == KEY_BACKSPACE
-			   || c == DEL || c == ctrl('H') ) {
-			/* erase */
-			if (i > 0) {
-				if (ri == 0)  {
-					addstr("\b \b");
-				} else {
-					addch('\b');
-					delch();
-				}
-				s[i] = '\0';
-				--i;
-			}
-		} else if (c == killchar() || c == KEY_BREAK) {
-			/* kill */
-			for (j = 0; j < i; ++j) {
-				addch('\b');
-			}
-			for (j = 0; j < i; ++j) {
-				addch(' ');
-			}
-			for (j = 0; j < i; ++j) {
-				addch('\b');
-			}
-			i = 0;
-		} else if (isprint(c) || c == '\t') {
-			/* printable */
-			if(iscaseless == YES) {
-				c = tolower(c);
-			}
-			/* if it will fit on the line */
-			if (i < size) {
-				s[i++] = c;	/* save it */
-				if (ri == 0) {
-					addch(c);	/* display it */
-				} else {
-					insch(c);	/* display it */
-					addch(c);	/* advance cursor */
-				}
-			}
-#if UNIXPC
-		} else if (unixpcmouse == YES && c == ESC) {	/* mouse */
-			getmouseaction(ESC);	/* ignore it */
-#endif
-		} else if (mouse == YES && c == ctrl('X')) {
-			getmouseaction(ctrl('X'));	/* ignore it */
-		} else if (c == EOF) {				/* end-of-file */
-			break;
-		}
-
-		/* return on an empty line to allow a command to be entered */
-		if (firstchar != '\0' && (i+ri) == 0) {
-			break;
-		}
-	}
-
-	/* move any remaining chars on the rhs of the cursor
-	 * onto the end of our string
-	 */
-	while (ri > 0) {
+	addch(firstchar);	/* display it */
+	s[i++] = firstchar;	/* save it */
+    }
+    /* until the end of the line is reached */
+    while ((c = mygetch()) != '\r' && c != '\n' && c != KEY_ENTER) {
+	if (c == KEY_LEFT || c == ctrl('B')) {	/* left */
+	    if (i > 0) {
+		addch('\b');
+		/* move this char into the second (rhs) string */
+		sright[ri++] = s[--i];
+	    }
+	} else if (c == KEY_RIGHT || c == ctrl('F')) {	/* right */
+	    if (i < size && ri > 0) {
+		/* move this char to the left of the cursor */
 		s[i++] = sright[--ri];
+		addch(s[i-1]);
+	    }
+	} else if (
+#ifdef KEY_HOME
+		   c == KEY_HOME ||
+#endif
+		   c == ctrl('A') ) {
+	    while (i > 0) {
+		sright[ri++] = s[--i];
+		addch('\b');
+		addch(s[i]);
+		addch('\b');
+	    }
+	} else if (
+#ifdef KEY_END
+		   c == KEY_END ||
+#endif
+		   c == ctrl('E') ) {
+	    while (ri > 0) {
+		s[i++] = sright[--ri];
+		addch(s[i-1]);
+	    }
+	} else if (c == erasechar() || c == KEY_BACKSPACE
+		   || c == DEL || c == ctrl('H') ) {
+	    /* erase */
+	    if (i > 0) {
+		if (ri == 0)  {
+		    addstr("\b \b");
+		} else {
+		    addch('\b');
+		    delch();
+		}
+		s[i] = '\0';
+		--i;
+	    }
+	} else if (c == killchar() || c == KEY_BREAK) {
+	    /* kill */
+	    for (j = 0; j < i; ++j) {
+		addch('\b');
+	    }
+	    for (j = 0; j < i; ++j) {
+		addch(' ');
+	    }
+	    for (j = 0; j < i; ++j) {
+		addch('\b');
+	    }
+	    i = 0;
+	} else if (isprint(c) || c == '\t') {
+	    /* printable */
+	    if(iscaseless == YES) {
+		c = tolower(c);
+	    }
+	    /* if it will fit on the line */
+	    if (i < size) {
+		s[i++] = c;	/* save it */
+		if (ri == 0) {
+		    addch(c);	/* display it */
+		} else {
+		    insch(c);	/* display it */
+		    addch(c);	/* advance cursor */
+		}
+	    }
+#if UNIXPC
+	} else if (unixpcmouse == YES && c == ESC) {	/* mouse */
+	    getmouseaction(ESC);	/* ignore it */
+#endif
+	} else if (mouse == YES && c == ctrl('X')) {
+	    getmouseaction(ctrl('X'));	/* ignore it */
+	} else if (c == EOF) {				/* end-of-file */
+	    break;
 	}
-	free(sright);
 
-	s[i] = '\0';
-	return(i);
+	/* return on an empty line to allow a command to be entered */
+	if (firstchar != '\0' && (i+ri) == 0) {
+	    break;
+	}
+    }
+
+    /* move any remaining chars on the rhs of the cursor
+     * onto the end of our string
+     */
+    while (ri > 0) {
+	s[i++] = sright[--ri];
+    }
+    free(sright);
+
+    s[i] = '\0';
+    return(i);
 }
 
 /* ask user to enter a character after reading the message */
@@ -243,8 +244,8 @@ mygetline(char p[], char s[], unsigned size, int firstchar, BOOL iscaseless)
 void
 askforchar(void)
 {
-	addstr("Type any character to continue: ");
-	(void) mygetch();
+    addstr("Type any character to continue: ");
+    mygetch();
 }
 
 /* ask user to press the RETURN key after reading the message */
@@ -252,8 +253,12 @@ askforchar(void)
 void
 askforreturn(void)
 {
-	(void) fprintf(stderr, "Press the RETURN key to continue: ");
-	(void) getchar();
+    fprintf(stderr, "Press the RETURN key to continue: ");
+    getchar();
+    /* HBB 20060419: message probably messed up the screen --- redraw */
+    if (incurses == YES) {
+	redrawwin(curscr);
+    }
 }
 
 /* expand the ~ and $ shell meta characters in a path */
@@ -261,70 +266,70 @@ askforreturn(void)
 void
 shellpath(char *out, int limit, char *in) 
 {
-	char	*lastchar;
-	char	*s, *v;
+    char	*lastchar;
+    char	*s, *v;
 
-	/* skip leading white space */
-	while (isspace((unsigned char)*in)) {
-		++in;
+    /* skip leading white space */
+    while (isspace((unsigned char)*in)) {
+	++in;
+    }
+    lastchar = out + limit - 1;
+
+    /* a tilde (~) by itself represents $HOME; followed by a name it
+       represents the $LOGDIR of that login name */
+    if (*in == '~') {
+	*out++ = *in++;	/* copy the ~ because it may not be expanded */
+
+	/* get the login name */
+	s = out;
+	while (s < lastchar && *in != '/' && *in != '\0' && !isspace((unsigned char)*in)) {
+	    *s++ = *in++;
 	}
-	lastchar = out + limit - 1;
+	*s = '\0';
 
-	/* a tilde (~) by itself represents $HOME; followed by a name it
-	   represents the $LOGDIR of that login name */
-	if (*in == '~') {
-		*out++ = *in++;	/* copy the ~ because it may not be expanded */
-
-		/* get the login name */
-		s = out;
-		while (s < lastchar && *in != '/' && *in != '\0' && !isspace((unsigned char)*in)) {
-			*s++ = *in++;
-		}
-		*s = '\0';
-
-		/* if the login name is null, then use $HOME */
-		if (*out == '\0') {
-			v = getenv("HOME");
-		}
-		else {	/* get the home directory of the login name */
-			v = logdir(out);
-		}
-		/* copy the directory name */
-		if (v != NULL) {
-			(void) strcpy(out - 1, v);
-			out += strlen(v) - 1;
-		}
-		else {	/* login not found, so ~ must be part of the file name */
-			out += strlen(out);
-		}
+	/* if the login name is null, then use $HOME */
+	if (*out == '\0') {
+	    v = getenv("HOME");
 	}
-	/* get the rest of the path */
-	while (out < lastchar && *in != '\0' && !isspace((unsigned char)*in)) {
+	else {	/* get the home directory of the login name */
+	    v = logdir(out);
+	}
+	/* copy the directory name */
+	if (v != NULL) {
+	    strcpy(out - 1, v);
+	    out += strlen(v) - 1;
+	}
+	else {	/* login not found, so ~ must be part of the file name */
+	    out += strlen(out);
+	}
+    }
+    /* get the rest of the path */
+    while (out < lastchar && *in != '\0' && !isspace((unsigned char)*in)) {
 
-		/* look for an environment variable */
-		if (*in == '$') {
-			*out++ = *in++;	/* copy the $ because it may not be expanded */
+	/* look for an environment variable */
+	if (*in == '$') {
+	    *out++ = *in++;	/* copy the $ because it may not be expanded */
 
-			/* get the variable name */
-			s = out;
-			while (s < lastchar && *in != '/' && *in != '\0' &&
-			    !isspace((unsigned char)*in)) {
-				*s++ = *in++;
-			}
-			*s = '\0';
+	    /* get the variable name */
+	    s = out;
+	    while (s < lastchar && *in != '/' && *in != '\0' &&
+		   !isspace((unsigned char)*in)) {
+		*s++ = *in++;
+	    }
+	    *s = '\0';
 	
-			/* get its value */
-			if ((v = getenv(out)) != NULL) {
-				(void) strcpy(out - 1, v);
-				out += strlen(v) - 1;
-			}
-			else {	/* var not found, so $ must be part of the file name */
-				out += strlen(out);
-			}
-		}
-		else {	/* ordinary character */
-			*out++ = *in++;
-		}
+	    /* get its value */
+	    if ((v = getenv(out)) != NULL) {
+		strcpy(out - 1, v);
+		out += strlen(v) - 1;
+	    }
+	    else {	/* var not found, so $ must be part of the file name */
+		out += strlen(out);
+	    }
 	}
-	*out = '\0';
+	else {	/* ordinary character */
+	    *out++ = *in++;
+	}
+    }
+    *out = '\0';
 }
