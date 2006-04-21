@@ -47,7 +47,6 @@
 
 #define	DEBUG		0	/* debugging code and realloc messages */
 #define BLOCKSIZE	2 * BUFSIZ	/* logical block size */
-#define	LINEMAX		1000	/* sorted posting line max size */
 #define	POSTINC		10000	/* posting buffer size increment */
 #define SEP		' '	/* sorted posting field separator */
 #define	SETINC		100	/* posting set size increment */
@@ -83,8 +82,8 @@ static	long	numitems, totterm, zerolong;
 static	char	*indexfile, *postingfile;
 static	FILE	*outfile, *fpost;
 static	unsigned supersize = SUPERINC, supintsize;
-static	int	numpost, numlogblk, amtused, nextpost,
-		lastinblk, numinvitems;
+static  unsigned int numpost, numlogblk, amtused, nextpost;
+static  unsigned int lastinblk, numinvitems;
 static	POSTING	*POST, *postptr;
 static	unsigned long	*SUPINT, *supint, nextsupfing;
 static	char	*SUPFING, *supfing;
@@ -112,7 +111,7 @@ invmake(char *invname, char *invpost, FILE *infile)
 	long	fileindex = 0;	/* initialze, to avoid warning */
 	unsigned postsize = POSTINC * sizeof(POSTING);
 	unsigned long	*intptr;
-	char	line[LINEMAX];
+	char	line[TERMMAX];
 	long	tlong;
 	PARAM	param;
 	POSTING	posting;
@@ -177,7 +176,7 @@ invmake(char *invname, char *invpost, FILE *infile)
 	lastinblk = sizeof(t_logicalblk);
 
 	/* now loop as long as more to read (till eof)  */
-	while (fgets(line, LINEMAX, infile) != NULL) {
+	while (fgets(line, TERMMAX, infile) != NULL) {
 #if DEBUG || STATS
 		++totpost;
 #endif
@@ -353,155 +352,158 @@ invmake(char *invname, char *invpost, FILE *infile)
 static int
 invnewterm(void)
 {
-	int	backupflag, i, j, maxback, holditems, gooditems, howfar;
-	int	len, numwilluse, wdlen;
-	char	*tptr, *tptr2, *tptr3;
-	union {
-		unsigned long	packword[2];
-		ENTRY		e;
-	} iteminfo;
+    int	backupflag, i, j, holditems, gooditems, howfar;
+    unsigned int maxback, len, numwilluse, wdlen;
+    char	*tptr, *tptr2, *tptr3;
 
-	gooditems = 0;		/* initialize, to avoid warning */
-	totterm++;
+    union {
+	unsigned long	packword[2];
+	ENTRY		e;
+    } iteminfo;
+
+    gooditems = 0;		/* initialize, to avoid warning */
+    totterm++;
 #if STATS
-	/* keep zipfian info on the distribution */
-	if (numpost <= ZIPFSIZE)
-		zipf[numpost]++;
-	else
-		zipf[0]++;
+    /* keep zipfian info on the distribution */
+    if (numpost <= ZIPFSIZE)
+	zipf[numpost]++;
+    else
+	zipf[0]++;
 #endif
-	len = strlen(thisterm);
-	wdlen = (len + (sizeof(long) - 1)) / sizeof(long);
-	numwilluse = (wdlen + 3) * sizeof(long);
-	/* new block if at least 1 item in block */
-	if (numinvitems && numwilluse + amtused > sizeof(t_logicalblk)) {
-		/* set up new block */
-		if (supfing + 500 > SUPFING + supersize) {
-			i = supfing - SUPFING;
-			supersize += 20000;
-			if ((SUPFING = (char *)realloc(SUPFING, supersize)) == NULL) {
-				invcannotalloc(supersize);
-				return(0);
-			}
-			supfing = i + SUPFING;
+    len = strlen(thisterm);
+    wdlen = (len + (sizeof(long) - 1)) / sizeof(long);
+    /* HBB FIXME 20060419: magic number: 3 */
+    numwilluse = (wdlen + 3) * sizeof(long);
+    /* new block if at least 1 item in block */
+    if (numinvitems && numwilluse + amtused > sizeof(t_logicalblk)) {
+	/* set up new block */
+	if (supfing + 500 > SUPFING + supersize) {
+	    i = supfing - SUPFING;
+	    supersize += 20000;
+	    if ((SUPFING = (char *)realloc(SUPFING, supersize)) == NULL) {
+		invcannotalloc(supersize);
+		return(0);
+	    }
+	    supfing = i + SUPFING;
 #if DEBUG
-			printf("reallocated superfinger space to %d, totpost=%ld\n", 
-			    supersize, totpost);
+	    printf("reallocated superfinger space to %d, totpost=%ld\n", 
+		   supersize, totpost);
 #endif
-		}
-		/* check that room for the offset as well */
-		/* FIXME HBB: magic number alert (10) */
-		if ((numlogblk + 10) > supintsize) {
-			i = supint - SUPINT;
-			supintsize += SUPERINC;
-			if ((SUPINT = realloc(SUPINT, supintsize * sizeof(long))) == NULL) {
-				invcannotalloc(supintsize * sizeof(long));
-				return(0);
-			}
-			supint = i + SUPINT;
-#if DEBUG
-			printf("reallocated superfinger offset to %d, totpost = %ld\n",
-			    supintsize * sizeof(long), totpost);
-#endif
-		}
-		/* See if backup is efficatious  */
-		backupflag = 0;
-		maxback = (int) strlen(thisterm) / 10;
-		holditems = numinvitems;
-		if (maxback > numinvitems)
-			maxback = numinvitems - 2;
-		howfar = 0;
-		while (--maxback > 0) {
-			howfar++;
-			iteminfo.packword[0] = logicalblk.invblk[--holditems * 2+(sizeof(long) - 1)];
-			if ((i = iteminfo.e.size / 10) < maxback) {
-				maxback = i;
-				backupflag = howfar;
-				gooditems = holditems;
-				tptr2 = logicalblk.chrblk + iteminfo.e.offset;
-			}
-		}
-		/* see if backup will occur  */
-		if (backupflag) {
-			numinvitems = gooditems;
-		}
-		logicalblk.invblk[0] = numinvitems;
-		/* set forward pointer pointing to next */
-		logicalblk.invblk[1] = numlogblk + 1; 
-		/* set back pointer to last block */
-		logicalblk.invblk[2] = numlogblk - 1;
-		if (fwrite(logicalblk.chrblk, 1, sizeof(t_logicalblk), outfile) == 0) {
-			invcannotwrite(indexfile);
-			return(0);
-		}
-		amtused = 16;
-		numlogblk++;
-		/* check if had to back up, if so do it */
-		if (backupflag) {
-			/* find out where the end of the new block is */
-			iteminfo.packword[0] = logicalblk.invblk[numinvitems*2+1];
-			tptr3 = logicalblk.chrblk + iteminfo.e.offset;
-			/* move the index for this block */
-			for (i = 3; i <= (backupflag * 2 + 2); i++)
-				logicalblk.invblk[i] = logicalblk.invblk[numinvitems*2+i];
-			/* move the word into the super index */
-			iteminfo.packword[0] = logicalblk.invblk[3];
-			iteminfo.packword[1] = logicalblk.invblk[4];
-			tptr2 = logicalblk.chrblk + iteminfo.e.offset;
-			strncpy(supfing, tptr2, (int) iteminfo.e.size);
-			*(supfing + iteminfo.e.size) = '\0';
-#if DEBUG
-			printf("backup %d at term=%s to term=%s\n",
-			    backupflag, thisterm, supfing);
-#endif
-			*supint++ = nextsupfing;
-			nextsupfing += strlen(supfing) + 1;
-			supfing += strlen(supfing) + 1;
-			/* now fix up the logical block */
-			tptr = logicalblk.chrblk + lastinblk;
-			lastinblk = sizeof(t_logicalblk);
-			tptr2 = logicalblk.chrblk + lastinblk;
-			j = tptr3 - tptr;
-			while (tptr3 > tptr)
-				*--tptr2 = *--tptr3;
-			lastinblk -= j;
-			amtused += (8 * backupflag + j);
-			for (i = 3; i < (backupflag * 2 + 2); i += 2) {
-				iteminfo.packword[0] = logicalblk.invblk[i];
-				iteminfo.e.offset += (tptr2 - tptr3);
-				logicalblk.invblk[i] = iteminfo.packword[0];
-			}
-			numinvitems = backupflag;
-		} else { /* no backup needed */
-			numinvitems = 0;
-			lastinblk = sizeof(t_logicalblk);
-			/* add new term to superindex */
-			strcpy(supfing, thisterm);
-			supfing += strlen(thisterm) + 1;
-			*supint++ = nextsupfing;
-			nextsupfing += strlen(thisterm) + 1;
-		}
 	}
-	/* HBB 20010501: Fixed bug by replacing magic number '8' by
-	 * what it actually represents. */
-	lastinblk -= (numwilluse - 2 * sizeof(long));
-	iteminfo.e.offset = lastinblk;
-	iteminfo.e.size = len;
-	iteminfo.e.space = 0;
-	iteminfo.e.post = numpost;
-	strncpy(logicalblk.chrblk + lastinblk, thisterm, len);
-	amtused += numwilluse;
-	logicalblk.invblk[(lastinblk/sizeof(long))+wdlen] = nextpost;
-	if ((i = postptr - POST) > 0) {
-		if (fwrite(POST, sizeof(POSTING), i, fpost) == 0) {
-			invcannotwrite(postingfile);
-			return(0);
-		}
-		nextpost += i * sizeof(POSTING);
+	/* check that room for the offset as well */
+	/* FIXME HBB: magic number alert (10) */
+	if ((numlogblk + 10) > supintsize) {
+	    i = supint - SUPINT;
+	    supintsize += SUPERINC;
+	    if ((SUPINT = realloc(SUPINT, supintsize * sizeof(long))) == NULL) {
+		invcannotalloc(supintsize * sizeof(long));
+		return(0);
+	    }
+	    supint = i + SUPINT;
+#if DEBUG
+	    printf("reallocated superfinger offset to %d, totpost = %ld\n",
+		   supintsize * sizeof(long), totpost);
+#endif
 	}
-	logicalblk.invblk[3+2*numinvitems++] = iteminfo.packword[0];
-	logicalblk.invblk[2+2*numinvitems] = iteminfo.packword[1];
-	return(1);
+	/* See if backup is efficatious  */
+	backupflag = 0;
+	maxback = (int) strlen(thisterm) / 10;
+	holditems = numinvitems;
+	if (maxback > numinvitems)
+	    maxback = numinvitems - 2;
+	howfar = 0;
+	while (--maxback > 0) {
+	    howfar++;
+	    iteminfo.packword[0] =
+		logicalblk.invblk[--holditems * 2 + (sizeof(long) - 1)];
+	    if ((i = iteminfo.e.size / 10) < maxback) {
+		maxback = i;
+		backupflag = howfar;
+		gooditems = holditems;
+		tptr2 = logicalblk.chrblk + iteminfo.e.offset;
+	    }
+	}
+	/* see if backup will occur  */
+	if (backupflag) {
+	    numinvitems = gooditems;
+	}
+	logicalblk.invblk[0] = numinvitems;
+	/* set forward pointer pointing to next */
+	logicalblk.invblk[1] = numlogblk + 1; 
+	/* set back pointer to last block */
+	logicalblk.invblk[2] = numlogblk - 1;
+	if (fwrite(logicalblk.chrblk, 1, sizeof(t_logicalblk), outfile) == 0) {
+	    invcannotwrite(indexfile);
+	    return(0);
+	}
+	amtused = 16;
+	numlogblk++;
+	/* check if had to back up, if so do it */
+	if (backupflag) {
+	    /* find out where the end of the new block is */
+	    iteminfo.packword[0] = logicalblk.invblk[numinvitems*2+1];
+	    tptr3 = logicalblk.chrblk + iteminfo.e.offset;
+	    /* move the index for this block */
+	    for (i = 3; i <= (backupflag * 2 + 2); i++)
+		logicalblk.invblk[i] = logicalblk.invblk[numinvitems*2+i];
+	    /* move the word into the super index */
+	    iteminfo.packword[0] = logicalblk.invblk[3];
+	    iteminfo.packword[1] = logicalblk.invblk[4];
+	    tptr2 = logicalblk.chrblk + iteminfo.e.offset;
+	    strncpy(supfing, tptr2, (int) iteminfo.e.size);
+	    *(supfing + iteminfo.e.size) = '\0';
+#if DEBUG
+	    printf("backup %d at term=%s to term=%s\n",
+		   backupflag, thisterm, supfing);
+#endif
+	    *supint++ = nextsupfing;
+	    nextsupfing += strlen(supfing) + 1;
+	    supfing += strlen(supfing) + 1;
+	    /* now fix up the logical block */
+	    tptr = logicalblk.chrblk + lastinblk;
+	    lastinblk = sizeof(t_logicalblk);
+	    tptr2 = logicalblk.chrblk + lastinblk;
+	    j = tptr3 - tptr;
+	    while (tptr3 > tptr)
+		*--tptr2 = *--tptr3;
+	    lastinblk -= j;
+	    amtused += (8 * backupflag + j);
+	    for (i = 3; i < (backupflag * 2 + 2); i += 2) {
+		iteminfo.packword[0] = logicalblk.invblk[i];
+		iteminfo.e.offset += (tptr2 - tptr3);
+		logicalblk.invblk[i] = iteminfo.packword[0];
+	    }
+	    numinvitems = backupflag;
+	} else { /* no backup needed */
+	    numinvitems = 0;
+	    lastinblk = sizeof(t_logicalblk);
+	    /* add new term to superindex */
+	    strcpy(supfing, thisterm);
+	    supfing += strlen(thisterm) + 1;
+	    *supint++ = nextsupfing;
+	    nextsupfing += strlen(thisterm) + 1;
+	}
+    }
+    /* HBB 20010501: Fixed bug by replacing magic number '8' by
+     * what it actually represents. */
+    lastinblk -= (numwilluse - 2 * sizeof(long));
+    iteminfo.e.offset = lastinblk;
+    iteminfo.e.size = len;
+    iteminfo.e.space = 0;
+    iteminfo.e.post = numpost;
+    strncpy(logicalblk.chrblk + lastinblk, thisterm, len);
+    amtused += numwilluse;
+    logicalblk.invblk[(lastinblk/sizeof(long))+wdlen] = nextpost;
+    if ((i = postptr - POST) > 0) {
+	if (fwrite(POST, sizeof(POSTING), i, fpost) == 0) {
+	    invcannotwrite(postingfile);
+	    return(0);
+	}
+	nextpost += i * sizeof(POSTING);
+    }
+    logicalblk.invblk[3+2*numinvitems++] = iteminfo.packword[0];
+    logicalblk.invblk[2+2*numinvitems] = iteminfo.packword[1];
+    return(1);
 }
 
 /* 
