@@ -1,4 +1,84 @@
+2006-04-21  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
+
+	Make source clean under -Wsign-compare.
+	
+	* src/main.c (fileargc): Make counter unsigned.
+	(main): Make local counter unsigned.
+	(main): Fixed two sprintf() excess arguments.
+
+	* src/lookup.c (initsymtab): Make local counters unsigned.
+
+	* src/invlib.c (LINEMAX): Removed.
+	(invmake): Change length of local variable "line" to TERMMAX.
+	(numpost, numlogblk, amtused, nextpost, lastinblk, numinvitems):
+	Make counters unsigned.
+	(invnewterm): Make local counters unsigned.
+
+	* src/input.c (mygetline): Make local counters unsigned.
+
+	* src/find.c (findregexp, findfile): Make local counters unsigned.
+
+	* src/egrep.y (line, left, right, parent): Make unsigned.
+	(enter, cclenter): Return unsigned.
+	(follow): Make argument unsigned.
+	(cclenter, cfoll, cgotofn, member, add, follow): Make local
+	counters unsigned.
+	(cgotofn, member): Cast char to unsigned char, not unsigned int,
+	for use as an index.
+
+	* src/display.c (disprefs, mdisprefs, nextline, topline,
+	totallines): Make unsigned.
+	(search): Removed unused locals.
+	(seekline): Make argument unsigned.
+
+	* src/dir.c (nincdirs, nsrcdirs, nsrcfiles, msrcfiles, mincdirs,
+	msrcdirs, nvpsrcdirs): Make unsigned long.
+	(sourcedir, includedir, makefilelist, incfile, inviewpath): Make
+	local counters unsigned.
+
+	* src/crossref.c (symbols, msymbols): Make unsigned long.
+	(struct symbol): Make elements first, last, length and fcn_level
+	unsigned.
+	(crossref, putcrossref): Make local counters unsigned.
+
+	* src/command.c (curdispline): Make unsigned.
+	(mark): Make argument and local counter unsigned.
+	(command): Make KEY_LL conditional on KEY_LL, not KEY_HOME.
+	(changestring): Made local counter unsigned.
+
+	* src/build.c (build): Change several local ints to unsigned
+	longs.
+
+	* src/global.h: Updated lots of declarations to match the above.
+
+	* src/alloc.c (mymalloc, mycalloc, myrealloc): Make size arguments
+	size_t. Remove pointless casts in several of their callers.
+
+	* src/library.h (mymalloc, mycalloc, myrealloc): Updated
+	prototoypes.
+
+2006-04-20  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
+
+	* src/input.c (askforreturn): If curses is handling the display,
+	redraw the screen before returning, to keep error messages from
+	permanently scrambling the display.
+
+	* configure.in: Add test for <io.h>.
+
+	* configure, config.h.in: Regenerated.
+	
+	* src/mypopen.c [HAVE_IO_H]: #include <io.h> it, for the setmode()
+	declaration.
+
 2006-04-19  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
+
+	General change: indentation width of touched areas changed to 4
+	spaces, open braces not on lines of their own, single-line "else
+	if", get rid of (void) casts of unused function return values.
+
+	* src/global.h (select_large): Removed declaration.
+
+	* src/main.c (select_large, main): Removed long unused global.
 
 	* src/dir.c (scan_dir): Get rid of d_ino check --- this field is
 	not reliably present in struct dirent, and doesn't achieve enough
