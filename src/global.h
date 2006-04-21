@@ -230,7 +230,7 @@ extern	int	dispcomponents;	/* file path components to display */
 extern	BOOL	displayversion;	/* display the C Compilation System version */
 #endif
 extern	BOOL	editallprompt;	/* prompt between editing files */
-extern	int	fileargc;	/* file argument count */
+extern	unsigned int fileargc;	/* file argument count */
 extern	char	**fileargv;	/* file argument values */
 extern	int	fileversion;	/* cross-reference file version */
 extern	BOOL	incurses;	/* in curses */
@@ -244,9 +244,6 @@ extern	char	*namefile;	/* file of file names */
 extern	BOOL	ogs;		/* display OGS book and subsystem names */
 extern	char	*prependpath;	/* prepend path to file names */
 extern	FILE	*refsfound;	/* references found file */
-#if 0 /* HBB 20010705: flag no longer used */
-extern	BOOL	select_large;	/* enable more than 9 select lines */
-#endif
 extern	char	temp1[];	/* temporary file name */
 extern	char	temp2[];	/* temporary file name */
 extern	long	totalterms;	/* total inverted index terms */
@@ -259,7 +256,7 @@ extern	BOOL	caseless;	/* ignore letter case when searching */
 extern	BOOL	*change;	/* change this line */
 extern	BOOL	changing;	/* changing text */
 extern	int	selecting;
-extern	int	curdispline;
+extern	unsigned int curdispline;
 extern	char	newpat[];	/* new pattern */
 extern	char	Pattern[];	/* symbol or text pattern */
 
@@ -268,35 +265,35 @@ extern	long	dboffset;	/* new database offset */
 extern	BOOL	errorsfound;	/* prompt before clearing error messages */
 extern	long	lineoffset;	/* source line database offset */
 extern	long	npostings;	/* number of postings */
-extern	int	symbols;	/* number of symbols */
+extern	unsigned long symbols;	/* number of symbols */
 
 /* dir.c global data */
 extern	char	currentdir[];	/* current directory */
 extern	char	**incdirs;	/* #include directories */
 extern	char	**srcdirs;	/* source directories */
 extern	char	**srcfiles;	/* source files */
-extern	int	nincdirs;	/* number of #include directories */
-extern	int	nsrcdirs;	/* number of source directories */
-extern	int	nsrcfiles;	/* number of source files */
-extern	int	msrcfiles;	/* maximum number of source files */
+extern	unsigned long nincdirs;	/* number of #include directories */
+extern	unsigned long nsrcdirs;	/* number of source directories */
+extern	unsigned long nsrcfiles; /* number of source files */
+extern	unsigned long msrcfiles; /* maximum number of source files */
 
 /* display.c global data */
 extern 	int	booklen;	/* OGS book name display field length */
 extern	int	*displine;	/* screen line of displayed reference */
-extern	int	disprefs;	/* displayed references */
+extern	unsigned int disprefs;	/* displayed references */
 extern	int	fcnlen;		/* function name display field length */
 extern	int	field;		/* input field */
 extern	int	filelen;	/* file name display field length */
 extern	unsigned fldcolumn;	/* input field column */
-extern	int	mdisprefs;	/* maximum displayed references */
-extern	int	nextline;	/* next line to be shown */
+extern	unsigned int mdisprefs;	/* maximum displayed references */
+extern	unsigned int nextline;	/* next line to be shown */
 extern	FILE	*nonglobalrefs;	/* non-global references file */
 extern	int	numlen;		/* line number display field length */
-extern	int	topline;	/* top line of page */
+extern	unsigned int topline;	/* top line of page */
 extern	int	bottomline;	/* bottom line of page */
 extern	long	searchcount;	/* count of files searched */
 extern	int	subsystemlen;	/* OGS subsystem name display field length */
-extern	int	totallines;	/* total reference lines */
+extern	unsigned int totallines; /* total reference lines */
 extern	const char dispchars[];	/* display chars for jumping to lines */
 
 /* find.c global data */
@@ -385,7 +382,7 @@ void	postfatal(const char *msg,...);
 void	putposting(char *term, int type);
 void	putstring(char *s);
 void	resetcmd(void);
-void	seekline(int line);
+void	seekline(unsigned int line);
 void	setfield(void);
 void	shellpath(char *out, int limit, char *in);
 void    sourcedir(char *dirlist);

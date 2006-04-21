@@ -61,11 +61,11 @@
 static	char gotofn[NSTATES][NCHARS];
 static	int state[NSTATES];
 static	char out[NSTATES];
-static	int line;
+static	unsigned int line;
 static	int name[MAXLIN];
-static	int left[MAXLIN];
-static	int right[MAXLIN];
-static	int parent[MAXLIN];
+static	unsigned int left[MAXLIN];
+static	unsigned int right[MAXLIN];
+static	unsigned int parent[MAXLIN];
 static	int foll[MAXLIN];
 static	int positions[MAXPOS];
 static	char chars[MAXLIN];
@@ -91,11 +91,11 @@ static	int notin(int n);
 static	void synerror(void);
 static	void overflo(void);
 static	void add(int *array, int n);
-static	void follow(int v);
+static	void follow(unsigned int v);
 static	int unary(int x, int d);
 static	int node(int x, int l, int r);
-static	int cclenter(int x);
-static	int enter(int x);
+static	unsigned int cclenter(int x);
+static	unsigned int enter(int x);
 
 static int yylex(void);
 static int yyerror(char *);
@@ -151,6 +151,7 @@ yyerror(char *s)
 {
 	message = s;
 	longjmp(env, 1);
+	return 1;		/* silence a warning */
 }
 
 static int
@@ -227,84 +228,90 @@ yylex(void)
 static void
 synerror(void)
 {
-	yyerror("Syntax error");
+    yyerror("Syntax error");
 }
 
-static int
+static unsigned int
 enter(int x)
 {
-	if(line >= MAXLIN) overflo();
-	name[line] = x;
-	left[line] = 0;
-	right[line] = 0;
-	return(line++);
+    if(line >= MAXLIN)
+	overflo();
+    name[line] = x;
+    left[line] = 0;
+    right[line] = 0;
+    return(line++);
 }
 
-static int
+static unsigned int
 cclenter(int x)
 {
-	int linno;
-	linno = enter(x);
-	right[linno] = count;
-	return (linno);
+    unsigned int linno;
+
+    linno = enter(x);
+    right[linno] = count;
+    return (linno);
 }
 
 static int
 node(int x, int l, int r)
 {
-	if(line >= MAXLIN) overflo();
-	name[line] = x;
-	left[line] = l;
-	right[line] = r;
-	parent[l] = line;
-	parent[r] = line;
-	return(line++);
+    if(line >= MAXLIN)
+	overflo();
+    name[line] = x;
+    left[line] = l;
+    right[line] = r;
+    parent[l] = line;
+    parent[r] = line;
+    return(line++);
 }
 
 static int
 unary(int x, int d)
 {
-	if(line >= MAXLIN) overflo();
-	name[line] = x;
-	left[line] = d;
-	right[line] = 0;
-	parent[d] = line;
-	return(line++);
+    if(line >= MAXLIN)
+	overflo();
+    name[line] = x;
+    left[line] = d;
+    right[line] = 0;
+    parent[d] = line;
+    return(line++);
 }
 
 static void
 overflo(void)
 {
-	yyerror("internal table overflow");
+    yyerror("internal table overflow");
 }
 
 static void
 cfoll(int v)
 {
-	int i;
-	if (left[v] == 0) {
-		count = 0;
-		for (i=1; i<=line; i++) tmpstat[i] = 0;
-		follow(v);
-		add(foll, v);
-	}
-	else if (right[v] == 0) cfoll(left[v]);
-	else {
-		cfoll(left[v]);
-		cfoll(right[v]);
-	}
+    unsigned int i;
+
+    if (left[v] == 0) {
+	count = 0;
+	for (i = 1; i <= line; i++) 
+	    tmpstat[i] = 0;
+	follow(v);
+	add(foll, v);
+    } else if (right[v] == 0)
+	cfoll(left[v]); 
+    else {
+	cfoll(left[v]);
+	cfoll(right[v]);
+    }
 }
 
 static void
 cgotofn(void)
 {
-    int c, i, k;
-    int n, s;
+    unsigned int i, n, s;
+    int c, k;
     char symbol[NCHARS];
-    int j, pc, pos;
+    unsigned int j, l, pc, pos;
     unsigned int nc;
-    int curpos, num;
-    int number, newpos;
+    int curpos;
+    unsigned int num, number, newpos;
 
     count = 0;
     for (n=3; n<=line; n++)
@@ -321,40 +328,41 @@ cgotofn(void)
     tmpstat[1] = 0;
     add(state, 0);
     n = 0;
-    for (s=0; s<=n; s++)  {
+    for (s = 0; s <= n; s++)  {
 	if (out[s] == 1)
 	    continue;
-	for (i=0; i<NCHARS; i++)
+	for (i = 0; i < NCHARS; i++)
 	    symbol[i] = 0;
 	num = positions[state[s]];
 	count = icount;
-	for (i=3; i<=line; i++)
+	for (i = 3; i <= line; i++)
 	    tmpstat[i] = initstat[i];
 	pos = state[s] + 1;
-	for (i=0; i<num; i++) {
+	for (i = 0; i < num; i++) {
 	    curpos = positions[pos];
 	    if ((c = name[curpos]) >= 0) {
 		if (c < NCHARS) {
 		    symbol[c] = 1;
 		} else if (c == DOT) {
-		    for (k=0; k<NCHARS; k++)
-			if (k!='\n')
+		    for (k = 0; k < NCHARS; k++)
+			if (k != '\n')
 			    symbol[k] = 1;
 		} else if (c == CCL) {
 		    nc = chars[right[curpos]];
 		    pc = right[curpos] + 1;
-		    for (k=0; k<nc; k++)
-			symbol[(unsigned int)(chars[pc++])] = 1;
+		    for (j = 0; j < nc; j++)
+			symbol[(unsigned char)(chars[pc++])] = 1;
 		} else if (c == NCCL) {
 		    nc = chars[right[curpos]];
 		    for (j = 0; j < NCHARS; j++) {
 			pc = right[curpos] + 1;
-			for (k = 0; k < nc; k++)
-			    if (j==(unsigned int)(chars[pc++]))
+			for (l = 0; l < nc; l++)
+			    if (j==(unsigned char)(chars[pc++]))
 				goto cont;
-			if (j!='\n')
+			if (j != '\n')
 			    symbol[j] = 1;
-		    cont:;
+		    cont:
+			;
 		    }
 		}
 	    }
@@ -377,7 +385,7 @@ cgotofn(void)
 			    ) {
 			    number = positions[foll[curpos]];
 			    newpos = foll[curpos] + 1;
-			    for (k = 0; k < number; k++) {
+			    for (j = 0; j < number; j++) {
 				if (tmpstat[positions[newpos]] != 1) {
 				    tmpstat[positions[newpos]] = 1;
 				    count++;
@@ -432,12 +440,12 @@ cstate(int v)
 static int
 member(int symb, int set, int torf)
 {
-    int i, num, pos;
+    unsigned int i, num, pos;
 
     num = chars[set];
     pos = set + 1;
-    for (i=0; i<(unsigned int)num; i++)
-	if (symb == (unsigned int)(chars[pos++]))
+    for (i = 0; i < num; i++)
+	if (symb == (unsigned char)(chars[pos++]))
 	    return (torf);
     return (!torf);
 }
@@ -462,79 +470,85 @@ notin(int n)
 static void
 add(int *array, int n)
 {
-	int i;
-	if (nxtpos + count > MAXPOS) overflo();
-	array[n] = nxtpos;
-	positions[nxtpos++] = count;
-	for (i=3; i <= line; i++) {
-		if (tmpstat[i] == 1) {
-			positions[nxtpos++] = i;
-		}
+    unsigned int i;
+
+    if (nxtpos + count > MAXPOS)
+	overflo();
+    array[n] = nxtpos;
+    positions[nxtpos++] = count;
+    for (i=3; i <= line; i++) {
+	if (tmpstat[i] == 1) {
+	    positions[nxtpos++] = i;
 	}
+    }
 }
 
 static void
-follow(int v)
+follow(unsigned int v)
 {
-	int p;
-	if (v == line) return;
-	p = parent[v];
-	switch(name[p]) {
-		case STAR:
-		case PLUS:	cstate(v);
-				follow(p);
-				return;
+    unsigned int p;
 
-		case OR:
-		case QUEST:	follow(p);
-				return;
+    if (v == line) 
+	return;
+    p = parent[v];
+    switch(name[p]) {
+    case STAR:
+    case PLUS:	cstate(v);
+	follow(p);
+	return;
 
-		case CAT:	if (v == left[p]) {
-					if (cstate(right[p]) == 0) {
-						follow(p);
-						return;
-					}
-				}
-				else follow(p);
-				return;
-		case FINAL:	if (tmpstat[line] != 1) {
-					tmpstat[line] = 1;
-					count++;
-				}
-				return;
+    case OR:
+    case QUEST:	follow(p);
+	return;
+
+    case CAT:
+	if (v == left[p]) {
+	    if (cstate(right[p]) == 0) {
+		follow(p);
+		return;
+	    }
+	} else 
+	    follow(p);
+	return;
+    case FINAL:
+	if (tmpstat[line] != 1) {
+	    tmpstat[line] = 1;
+	    count++;
 	}
+	return;
+    }
 }
 
 char *
 egrepinit(char *egreppat)
 {
-	/* initialize the global data */
-	memset(gotofn, 0, sizeof(gotofn));
-	memset(state, 0, sizeof(state));
-	memset(out, 0, sizeof(out));
-	line = 1;
-	memset(name, 0, sizeof(name));
-	memset(left, 0, sizeof(left));
-	memset(right, 0, sizeof(right));
-	memset(parent, 0, sizeof(parent));
-	memset(foll, 0, sizeof(foll));
-	memset(positions, 0, sizeof(positions));
-	memset(chars, 0, sizeof(chars));
-	nxtpos = 0;
-	nxtchar = 0;
-	memset(tmpstat, 0, sizeof(tmpstat));
-	memset(initstat, 0, sizeof(initstat));
-	xstate = 0;
-	count = 0;
-	icount = 0;
-	input = egreppat;
-	message = NULL;
-	if (setjmp(env) == 0) {
-		yyparse();
-		cfoll(line-1);
-		cgotofn();
-	}
-	return(message);
+    /* initialize the global data */
+    memset(gotofn, 0, sizeof(gotofn));
+    memset(state, 0, sizeof(state));
+    memset(out, 0, sizeof(out));
+    line = 1;
+    memset(name, 0, sizeof(name));
+    memset(left, 0, sizeof(left));
+    memset(right, 0, sizeof(right));
+    memset(parent, 0, sizeof(parent));
+    memset(foll, 0, sizeof(foll));
+    memset(positions, 0, sizeof(positions));
+    memset(chars, 0, sizeof(chars));
+    nxtpos = 0;
+    nxtchar = 0;
+    memset(tmpstat, 0, sizeof(tmpstat));
+    memset(initstat, 0, sizeof(initstat));
+    xstate = 0;
+    count = 0;
+    icount = 0;
+    input = egreppat;
+    message = NULL;
+    if (setjmp(env) == 0) {
+	yyparse();
+	cfoll(line-1);
+	cgotofn();
+    }
+    return(message);
 }
 
 int
@@ -576,13 +590,14 @@ egrep(char *file, FILE *output, char *format)
 		if (*p++ == '\n') {
 		    in_line = 0;
 		succeed:
-		    (void) fprintf(output, format, file, lnum);
+		    fprintf(output, format, file, lnum);
 		    if (p <= nlp) {
-			while (nlp < &buf[2*BUFSIZ]) (void) putc(*nlp++, output);
+			while (nlp < &buf[2*BUFSIZ])
+			    putc(*nlp++, output);
 			nlp = buf;
 		    }
 		    while (nlp < p)
-			(void) putc(*nlp++, output);
+			putc(*nlp++, output);
 		    lnum++;
 		    nlp = p;
 		    if ((out[(cstat=istat)]) == 0)
@@ -596,7 +611,8 @@ egrep(char *file, FILE *output, char *format)
 			p = buf;
 			ccount = fread(p, sizeof(char), BUFSIZ, fptr);
 		    } else {
-			ccount = fread(p, sizeof(char), &buf[2*BUFSIZ] - p, fptr);
+			ccount = fread(p, sizeof(char), &buf[2*BUFSIZ] - p,
+				       fptr);
 		    }
 		    if (ccount <= 0) {
 			if (in_line) {
@@ -609,6 +625,7 @@ egrep(char *file, FILE *output, char *format)
 		in_line = 1;
 	    } /* for(ever) */
 	} /* if(out[cstat]) */
+
 	if (*p++ == '\n') {
 	    in_line = 0;
 	    lnum++;
@@ -632,7 +649,7 @@ egrep(char *file, FILE *output, char *format)
 	in_line = 1;
     }
 done:
-    (void) fclose(fptr);
+    fclose(fptr);
     return(0);
 }
 

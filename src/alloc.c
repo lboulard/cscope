@@ -44,10 +44,10 @@ static	void	*alloctest(void *p);
 /* let autoconf find out if <stdlib.h> is available. This test will
  * succeed more reliably than the defined(__STDC__) one I replaced */
 #if STDC_HEADERS
-#include <stdlib.h>
-# else
+# include <stdlib.h>
+#else
 char	*calloc(), *malloc(), *realloc(), *strcpy();
-# endif
+#endif
 
 /* allocate a string */
 
@@ -57,38 +57,38 @@ stralloc(char *s)
 	return(strcpy(mymalloc((int) strlen(s) + 1), s));
 }
 
-/* version of malloc that only returns if successful */
 
+/* version of malloc that only returns if successful */
 void *
-mymalloc(int size)
+mymalloc(size_t size)
 {
-	return(alloctest(malloc((unsigned) size)));
+    return(alloctest(malloc((unsigned) size)));
 }
+
 
 /* version of calloc that only returns if successful */
-
 void *
-mycalloc(int nelem, int size)
+mycalloc(size_t nelem, size_t size)
 {
-	return(alloctest(calloc((unsigned) nelem, (unsigned) size)));
+    return(alloctest(calloc((unsigned) nelem, (unsigned) size)));
 }
+
 
 /* version of realloc that only returns if successful */
-
 void *
-myrealloc(void *p, int size)
+myrealloc(void *p, size_t size)
 {
-	return(alloctest(realloc(p, (unsigned) size)));
+    return(alloctest(realloc(p, (unsigned) size)));
 }
 
-/* check for memory allocation failure */
 
+/* check for memory allocation failure */
 static	void *
 alloctest(void *p)
 {
-	if (p == NULL) {
-		postfatal("\n%s: out of storage\n", argv0);
-		/* NOTREACHED */
-	}
-	return(p);
+    if (p == NULL) {
+	postfatal("\n%s: out of storage\n", argv0);
+	/* NOTREACHED */
+    }
+    return(p);
 }

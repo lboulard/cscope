@@ -64,19 +64,19 @@ static char const rcsid[] = "$Id$";
 
 int	booklen;		/* OGS book name display field length */
 int	*displine;		/* screen line of displayed reference */
-int	disprefs;		/* displayed references */
+unsigned int disprefs;		/* displayed references */
 int	field;			/* input field */
 int	filelen;		/* file name display field length */
 int	fcnlen;			/* function name display field length */
-int	mdisprefs;		/* maximum displayed references */
-int	nextline;		/* next line to be shown */
+unsigned int mdisprefs;		/* maximum displayed references */
+unsigned int nextline;		/* next line to be shown */
 FILE	*nonglobalrefs;		/* non-global references file */
 int	numlen;			/* line number display field length */
-int	topline = 1;		/* top line of page */
+unsigned int topline = 1;		/* top line of page */
 int	bottomline;		/* bottom line of page */
 long	searchcount;		/* count of files searched */
 int	subsystemlen;		/* OGS subsystem name display field length */
-int	totallines;		/* total reference lines */
+unsigned int totallines;	/* total reference lines */
 unsigned fldcolumn;		/* input field column */
 
 const char	dispchars[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -143,233 +143,233 @@ dispinit(void)
 void
 display(void)
 {
-	char	*subsystem;		/* OGS subsystem name */
-	char	*book;			/* OGS book name */
-	char	file[PATHLEN + 1];	/* file name */
-	char	function[PATLEN + 1];	/* function name */
-	char	linenum[NUMLEN + 1];	/* line number */
-	int	screenline;		/* screen line number */
-	int	width;			/* source line display width */
-	int	i;
-	char	*s;
+    char    *subsystem;             /* OGS subsystem name */
+    char    *book;                  /* OGS book name */
+    char    file[PATHLEN + 1];      /* file name */
+    char    function[PATLEN + 1];   /* function name */
+    char    linenum[NUMLEN + 1];    /* line number */
+    int     screenline;             /* screen line number */
+    int     width;                  /* source line display width */
+    int     i;
+    char    *s;
 
-	/* see if this is the initial display */
-	erase();
-	if (refsfound == NULL) {
+    /* see if this is the initial display */
+    erase();
+    if (refsfound == NULL) {
 #if CCS
-		if (displayversion == YES) {
-			printw("cscope %s", ESG_REL);
-		}
-		else {
-			printw("cscope");
-		}
+	if (displayversion == YES) {
+	    printw("cscope %s", ESG_REL);
+	}
+	else {
+	    printw("cscope");
+	}
 #else
-		printw("Cscope version %d%s", FILEVERSION, FIXVERSION);
+	printw("Cscope version %d%s", FILEVERSION, FIXVERSION);
 #endif
-		move(0, COLS - (int) sizeof(helpstring));
-		addstr(helpstring);
-	} else if (totallines == 0) {
-		/* if no references were found */
-		/* redisplay the last message */
-		addstr(lastmsg);
-	} else {
-		/* display the pattern */
-		if (changing == YES) {
-			printw("Change \"%s\" to \"%s\"", Pattern, newpat);
-		} else {
-			printw("%c%s: %s", toupper((unsigned char)fields[field].text2[0]),
-				fields[field].text2 + 1, Pattern);
-		}
-		/* display the column headings */
-		move(2, 2);
-		if (ogs == YES && field != FILENAME) {
-			printw("%-*s ", subsystemlen, "Subsystem");
-			printw("%-*s ", booklen, "Book");
-		}
-		if (dispcomponents > 0)
-			printw("%-*s ", filelen, "File");
-
-		if (field == SYMBOL || field == CALLEDBY || field == CALLING) {
-			printw("%-*s ", fcnlen, "Function");
-		}
-		if (field != FILENAME) {
-			addstr("Line");
-		}
-		addch('\n');
-
-		/* if at end of file go back to beginning */
-		if (nextline > totallines) {
-			seekline(1);
-		}
-		/* calculate the source text column */
-
-		width = COLS - numlen - 3;
-
-		if (ogs == YES) {
-			width -= subsystemlen + booklen + 2;
-		}
-		if (dispcomponents > 0) {
-			width -= filelen + 1;
-		}
-		if (field == SYMBOL || field == CALLEDBY || field == CALLING) {
-			width -= fcnlen + 1;
-		}
-
-		/* until the max references have been displayed or 
-		   there is no more room */
-		topline = nextline;
-		for (disprefs = 0, screenline = REFLINE;
-		     disprefs < mdisprefs && screenline <= lastdispline;
-		     ++disprefs, ++screenline) {
-			/* read the reference line */
-			if (fscanf(refsfound, "%s%s%s %[^\n]", file, function, 
-			    linenum, tempstring) < 4) {
-				break;
-			}
-			++nextline;
-			displine[disprefs] = screenline;
-			
-			/* if no mouse, display the selection number */
-			if (mouse == YES) {
-				addch(' ');
-			} else {
-				printw("%c", dispchars[disprefs]);
-			}
-
-			/* display any change mark */
-			if (changing == YES && 
-			    change[topline + disprefs - 1] == YES) {
-				addch('>');
-			} else {
-				addch(' ');
-			}
-
-			/* display the file name */
-			if (field == FILENAME) {
-				printw("%-*s ", filelen, file);
-			} else {
-				/* if OGS, display the subsystem and book names */
-				if (ogs == YES) {
-					ogsnames(file, &subsystem, &book);
-					printw("%-*.*s ", subsystemlen, subsystemlen, subsystem);
-					printw("%-*.*s ", booklen, booklen, book);
-				}
-				/* display the requested path components */
-				if (dispcomponents > 0) {
-					printw("%-*.*s ", filelen, filelen,
-						pathcomponents(file, dispcomponents));
-				}
-			} /* else(field == FILENAME) */
-
-			/* display the function name */
-			if (field == SYMBOL || field == CALLEDBY || field == CALLING) {
-				printw("%-*.*s ", fcnlen, fcnlen, function);
-			}
-			if (field == FILENAME) {
-				addch('\n');	/* go to next line */
-				continue;
-			}
-
-			/* display the line number */
-			printw("%*s ", numlen, linenum);
-			/* there may be tabs in egrep output */
-			while ((s = strchr(tempstring, '\t')) != NULL) {
-				*s = ' ';
-			}
-
-			/* display the source line */
-			s = tempstring;
-			for (;;) {
-				/* see if the source line will fit */
-				if ((i = strlen(s)) > width) {
-					
-					/* find the nearest blank */
-					for (i = width; s[i] != ' ' && i > 0; --i) {
-						;
-					}
-					if (i == 0) {
-						i = width;	/* no blank */
-					}
-				}
-				/* print up to this point */
-				printw("%.*s", i, s);
-				s += i;
-				
-				/* if line didn't wrap around */
-				if (i < width) {
-					addch('\n');	/* go to next line */
-				}
-				/* skip blanks */
-				while (*s == ' ') {
-					++s;
-				}
-				/* see if there is more text */
-				if (*s == '\0') {
-					break;
-				}
-				/* if the source line is too long */
-				if (++screenline > lastdispline) {
-
-					/* if this is the first displayed line,
-					   display what will fit on the screen */
-					if (topline == nextline -1) {
-						disprefs++;
-						/* break out of two loops */
-						goto endrefs;
-					}
-					
-					/* erase the reference */
-					while (--screenline >= displine[disprefs]) {
-						move(screenline, 0);
-						clrtoeol();
-					}
-					++screenline;
-					 
-					/* go back to the beginning of this reference */
-					--nextline;
-					seekline(nextline);
-					goto endrefs;
-				}
-				/* indent the continued source line */
-				move(screenline, COLS - width);
-			} /* for(ever) */
-		} /* for(reference output lines) */
-	endrefs:
-		/* position the cursor for the message */
-		i = FLDLINE - 1;
-		if (screenline < i) {
-			addch('\n');
-		}
-		else {
-			move(i, 0);
-		}
-		/* check for more references */
-		i = totallines - nextline + 1;
-		bottomline = nextline;
-		if (i > 0) {
-			s = "s";
-			if (i == 1) {
-				s = "";
-			}
-			printw("* %d more line%s - press the space bar to display more *", i, s);
-		}
-		/* if this is the last page of references */
-		else if (topline > 1 && nextline > totallines) {
-			addstr("* Press the space bar to display the first lines again *");
-		}
-	}
-	/* display the input fields */
-	move(FLDLINE, 0);
-	for (i = 0; i < FIELDS; ++i) {
-		printw("%s %s:\n", fields[i].text1, fields[i].text2);
-	}
-	/* display any prompt */
+	move(0, COLS - (int) sizeof(helpstring));
+	addstr(helpstring);
+    } else if (totallines == 0) {
+	/* if no references were found */
+	/* redisplay the last message */
+	addstr(lastmsg);
+    } else {
+	/* display the pattern */
 	if (changing == YES) {
-		move(PRLINE, 0);
-		addstr(selprompt);
+	    printw("Change \"%s\" to \"%s\"", Pattern, newpat);
+	} else {
+	    printw("%c%s: %s", toupper((unsigned char)fields[field].text2[0]),
+		   fields[field].text2 + 1, Pattern);
 	}
-	drawscrollbar(topline, nextline);	/* display the scrollbar */
-	refresh();
+	/* display the column headings */
+	move(2, 2);
+	if (ogs == YES && field != FILENAME) {
+	    printw("%-*s ", subsystemlen, "Subsystem");
+	    printw("%-*s ", booklen, "Book");
+	}
+	if (dispcomponents > 0)
+	    printw("%-*s ", filelen, "File");
+
+	if (field == SYMBOL || field == CALLEDBY || field == CALLING) {
+	    printw("%-*s ", fcnlen, "Function");
+	}
+	if (field != FILENAME) {
+	    addstr("Line");
+	}
+	addch('\n');
+
+	/* if at end of file go back to beginning */
+	if (nextline > totallines) {
+	    seekline(1);
+	}
+	/* calculate the source text column */
+
+	width = COLS - numlen - 3;
+
+	if (ogs == YES) {
+	    width -= subsystemlen + booklen + 2;
+	}
+	if (dispcomponents > 0) {
+	    width -= filelen + 1;
+	}
+	if (field == SYMBOL || field == CALLEDBY || field == CALLING) {
+	    width -= fcnlen + 1;
+	}
+
+	/* until the max references have been displayed or 
+	   there is no more room */
+	topline = nextline;
+	for (disprefs = 0, screenline = REFLINE;
+	     disprefs < mdisprefs && screenline <= lastdispline;
+	     ++disprefs, ++screenline) {
+	    /* read the reference line */
+	    if (fscanf(refsfound, "%s%s%s %[^\n]", file, function, 
+		       linenum, tempstring) < 4) {
+		break;
+	    }
+	    ++nextline;
+	    displine[disprefs] = screenline;
+			
+	    /* if no mouse, display the selection number */
+	    if (mouse == YES) {
+		addch(' ');
+	    } else {
+		printw("%c", dispchars[disprefs]);
+	    }
+
+	    /* display any change mark */
+	    if (changing == YES && 
+		change[topline + disprefs - 1] == YES) {
+		addch('>');
+	    } else {
+		addch(' ');
+	    }
+
+	    /* display the file name */
+	    if (field == FILENAME) {
+		printw("%-*s ", filelen, file);
+	    } else {
+		/* if OGS, display the subsystem and book names */
+		if (ogs == YES) {
+		    ogsnames(file, &subsystem, &book);
+		    printw("%-*.*s ", subsystemlen, subsystemlen, subsystem);
+		    printw("%-*.*s ", booklen, booklen, book);
+		}
+		/* display the requested path components */
+		if (dispcomponents > 0) {
+		    printw("%-*.*s ", filelen, filelen,
+			   pathcomponents(file, dispcomponents));
+		}
+	    } /* else(field == FILENAME) */
+
+	    /* display the function name */
+	    if (field == SYMBOL || field == CALLEDBY || field == CALLING) {
+		printw("%-*.*s ", fcnlen, fcnlen, function);
+	    }
+	    if (field == FILENAME) {
+		addch('\n');	/* go to next line */
+		continue;
+	    }
+
+	    /* display the line number */
+	    printw("%*s ", numlen, linenum);
+	    /* there may be tabs in egrep output */
+	    while ((s = strchr(tempstring, '\t')) != NULL) {
+		*s = ' ';
+	    }
+
+	    /* display the source line */
+	    s = tempstring;
+	    for (;;) {
+		/* see if the source line will fit */
+		if ((i = strlen(s)) > width) {
+					
+		    /* find the nearest blank */
+		    for (i = width; s[i] != ' ' && i > 0; --i) {
+			;
+		    }
+		    if (i == 0) {
+			i = width;	/* no blank */
+		    }
+		}
+		/* print up to this point */
+		printw("%.*s", i, s);
+		s += i;
+				
+		/* if line didn't wrap around */
+		if (i < width) {
+		    addch('\n');	/* go to next line */
+		}
+		/* skip blanks */
+		while (*s == ' ') {
+		    ++s;
+		}
+		/* see if there is more text */
+		if (*s == '\0') {
+		    break;
+		}
+		/* if the source line is too long */
+		if (++screenline > lastdispline) {
+
+		    /* if this is the first displayed line,
+		       display what will fit on the screen */
+		    if (topline == nextline -1) {
+			disprefs++;
+			/* break out of two loops */
+			goto endrefs;
+		    }
+					
+		    /* erase the reference */
+		    while (--screenline >= displine[disprefs]) {
+			move(screenline, 0);
+			clrtoeol();
+		    }
+		    ++screenline;
+					 
+		    /* go back to the beginning of this reference */
+		    --nextline;
+		    seekline(nextline);
+		    goto endrefs;
+		}
+		/* indent the continued source line */
+		move(screenline, COLS - width);
+	    } /* for(ever) */
+	} /* for(reference output lines) */
+    endrefs:
+	/* position the cursor for the message */
+	i = FLDLINE - 1;
+	if (screenline < i) {
+	    addch('\n');
+	}
+	else {
+	    move(i, 0);
+	}
+	/* check for more references */
+	i = totallines - nextline + 1;
+	bottomline = nextline;
+	if (i > 0) {
+	    s = "s";
+	    if (i == 1) {
+		s = "";
+	    }
+	    printw("* %d more line%s - press the space bar to display more *", i, s);
+	}
+	/* if this is the last page of references */
+	else if (topline > 1 && nextline > totallines) {
+	    addstr("* Press the space bar to display the first lines again *");
+	}
+    }
+    /* display the input fields */
+    move(FLDLINE, 0);
+    for (i = 0; i < FIELDS; ++i) {
+	printw("%s %s:\n", fields[i].text1, fields[i].text2);
+    }
+    /* display any prompt */
+    if (changing == YES) {
+	move(PRLINE, 0);
+	addstr(selprompt);
+    }
+    drawscrollbar(topline, nextline);	/* display the scrollbar */
+    refresh();
 }
 
 /* set the cursor position for the field */
@@ -411,17 +411,12 @@ jumpback(int sig)
 BOOL
 search(void)
 {
-	char	*subsystem;		/* OGS subsystem name */
-	char 	*book;			/* OGS book name */
-	char	file[PATHLEN + 1];	/* file name */
-	char	function[PATLEN + 1];	/* function name */
-	char	linenum[NUMLEN + 1];	/* line number */
 	char	*findresult = NULL;	/* find function output */
 	BOOL	funcexist = YES;		/* find "function" error */
 	FINDINIT rc = NOERROR;		/* findinit return code */
 	sighandler_t savesig;		/* old value of signal */
 	FP	f;			/* searching function */
-	int	c, i;
+	int	c;
 	
 	/* open the references found file for writing */
 	if (writerefsfound() == NO) {
@@ -433,7 +428,7 @@ search(void)
 	}
 	searchcount = 0;
 	savesig = signal(SIGINT, jumpback);
-	if (sigsetjmp(env,1) == 0) {
+	if (sigsetjmp(env, 1) == 0) {
 		f = fields[field].findfcn;
 		if (f == findregexp || f == findstring) {
 			findresult = (*f)(Pattern);
@@ -687,7 +682,7 @@ postfatal(const char *msg, ...)
 /* position references found file at specified line */
 
 void
-seekline(int line) 
+seekline(unsigned int line) 
 {
 	int	c;
 

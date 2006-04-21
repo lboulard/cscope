@@ -489,22 +489,23 @@ findstring(char *pattern)
 char *
 findregexp(char *egreppat)
 {
-	int	i;
-	char	*egreperror;
+    unsigned int i;
+    char *egreperror;
 
-	/* compile the pattern */
-	if ((egreperror = egrepinit(egreppat)) == NULL) {
+    /* compile the pattern */
+    if ((egreperror = egrepinit(egreppat)) == NULL) {
 
-		/* search the files */
-		for (i = 0; i < nsrcfiles; ++i) {
-			char *file = filepath(srcfiles[i]);
-			progress("Search", searchcount, nsrcfiles);
-			if (egrep(file, refsfound, "%s <unknown> %ld ") < 0) {
-				posterr ("Cannot open file %s", file);
-			}
-		}
+	/* search the files */
+	for (i = 0; i < nsrcfiles; ++i) {
+	    char *file = filepath(srcfiles[i]);
+
+	    progress("Search", searchcount, nsrcfiles);
+	    if (egrep(file, refsfound, "%s <unknown> %ld ") < 0) {
+		posterr ("Cannot open file %s", file);
+	    }
 	}
-	return(egreperror);
+    }
+    return(egreperror);
 }
 
 /* find matching file names */
@@ -512,25 +513,25 @@ findregexp(char *egreppat)
 char *
 findfile(char *dummy)
 {
-	int	i;
+    unsigned int i;
 	
-	(void) dummy;		/* unused argument */
+    (void) dummy;		/* unused argument */
 
-	for (i = 0; i < nsrcfiles; ++i) {
-		char *s;
-		if (caseless == YES) {
-			s = lcasify(srcfiles[i]);
-		}
-		else {
-			s = srcfiles[i];
-		}
-		if (regexec (&regexp, s, (size_t)0, NULL, 0) == 0) {
-			(void) fprintf(refsfound, "%s <unknown> 1 <unknown>\n", 
-				srcfiles[i]);
-		}
+    for (i = 0; i < nsrcfiles; ++i) {
+	char *s;
+
+	if (caseless == YES) {
+	    s = lcasify(srcfiles[i]);
+	} else {
+	    s = srcfiles[i];
 	}
+	if (regexec (&regexp, s, (size_t)0, NULL, 0) == 0) {
+	    (void) fprintf(refsfound, "%s <unknown> 1 <unknown>\n", 
+			   srcfiles[i]);
+	}
+    }
 
-	return NULL;
+    return NULL;
 }
 
 /* find files #including this file */
