@@ -381,7 +381,7 @@ AC_CHECK_GNOME
 dnl Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
-AC_CHECK_HEADERS(fcntl.h sys/window.h sys/termios.h unistd.h signal.h floss.h)
+AC_CHECK_HEADERS(fcntl.h sys/window.h sys/termios.h unistd.h signal.h floss.h io.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
