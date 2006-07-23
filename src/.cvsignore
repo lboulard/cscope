@@ -1,0 +1,6 @@
+Makefile
+.deps
+cscope.out
+egrep.c fscanner.c
+gscope.c
+.cvsignore
