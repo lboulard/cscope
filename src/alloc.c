@@ -34,8 +34,9 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "library.h"
-#include "global.h"
+#include "alloc.h"
+
+#include "global.h" /* for postfatal() */
 
 static char const rcsid[] = "$Id$";
 
@@ -52,9 +53,9 @@ char	*calloc(), *malloc(), *realloc(), *strcpy();
 /* allocate a string */
 
 char *
-stralloc(char *s)
+my_strdup(char *s)
 {
-	return(strcpy(mymalloc((int) strlen(s) + 1), s));
+	return(strcpy(mymalloc(strlen(s) + 1), s));
 }
 
 

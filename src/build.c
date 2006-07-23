@@ -41,6 +41,7 @@
 #include "global.h"		/* FIXME: get rid of this! */
 
 #include "library.h"
+#include "alloc.h"
 #include "scanner.h"
 #include "version.h"		/* for FILEVERSION */
 #include "vp.h"
@@ -87,7 +88,7 @@ static	void	copyinverted(void);
 static	char	*getoldfile(void);
 static	void	movefile(char *new, char *old);
 static	void	putheader(char *dir);
-static	void	putinclude(char *s);
+static	void	fetch_include_from_dbase(char *, size_t);
 static	void	putlist(char **names, int count);
 static	BOOL	samelist(FILE *oldrefs, char **names, int count);
 
@@ -146,11 +147,11 @@ void setup_build_filenames(char *reffile)
     strcat(path, "n");
     ++s;
     strcpy(s, mybasename(reffile));
-    newreffile = stralloc(path);
+    newreffile = my_strdup(path);
     strcpy(s, mybasename(invname));
-    newinvname = stralloc(path);
+    newinvname = my_strdup(path);
     strcpy(s, mybasename(invpost));
-    newinvpost = stralloc(path);
+    newinvpost = my_strdup(path);
     free(path);
 }
 
@@ -522,7 +523,7 @@ getoldfile(void)
 	do {
 	    if (*blockp == NEWFILE) {
 		skiprefchar();
-		putstring(file);
+		fetch_string_from_dbase(file, sizeof(file));
 		if (file[0] != '\0') {	/* if not end-of-crossref */
 		    return(file);
 		}
@@ -625,7 +626,7 @@ copydata(void)
 	/* look for an #included file */
 	if (*cp == INCLUDE) {
 	    blockp = cp;
-	    putinclude(symbol);
+	    fetch_include_from_dbase(symbol, sizeof(symbol));
 	    writestring(symbol);
 	    setmark('\t');
 	    cp = blockp;
@@ -677,12 +678,12 @@ copyinverted(void)
 	    case NEWFILE:		/* file name */
 		return;
 	    case INCLUDE:		/* #included file */
-		putinclude(symbol);
+		fetch_include_from_dbase(symbol, sizeof(symbol));
 		goto output;
 	    }
 	    dbputc(type);
 	    skiprefchar();
-	    putstring(symbol);
+	    fetch_string_from_dbase(symbol, sizeof(symbol));
 	    goto output;
 	}
 	c = *cp;
@@ -692,7 +693,7 @@ copyinverted(void)
 	/* if this is a symbol */
 	if (isalpha((unsigned char)c) || c == '_') {
 	    blockp = cp;
-	    putstring(symbol);
+	    fetch_string_from_dbase(symbol, sizeof(symbol));
 	    type = ' ';
 	output:
 	    putposting(symbol, type);
@@ -723,11 +724,11 @@ movefile(char *new, char *old)
 
 /* process the #included file in the old database */
 static void
-putinclude(char *s)
+fetch_include_from_dbase(char *s, size_t length)
 {
     dbputc(INCLUDE);
     skiprefchar();
-    putstring(s);
+    fetch_string_from_dbase(s, length);
     incfile(s + 1, s);
 }
 

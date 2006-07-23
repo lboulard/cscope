@@ -380,7 +380,7 @@ void	postmsg2(char *msg);
 void	posterr(char *msg,...);
 void	postfatal(const char *msg,...);
 void	putposting(char *term, int type);
-void	putstring(char *s);
+void	fetch_string_from_dbase(char *, size_t);
 void	resetcmd(void);
 void	seekline(unsigned int line);
 void	setfield(void);

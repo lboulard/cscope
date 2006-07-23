@@ -37,12 +37,14 @@
 
 #include "global.h"
 #include "build.h"
+#include "alloc.h"
 
 #ifdef CCS
 #include "sgs.h"	/* ESG_PKG and ESG_REL */
 #else
 #include "version.h"	/* FILEVERSION and FIXVERSION */
 #endif
+
 #if defined(USE_NCURSES) && !defined(RENAMED_NCURSES)
 #include <ncurses.h>
 #else

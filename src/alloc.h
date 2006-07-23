@@ -30,76 +30,17 @@
  DAMAGE. 
  =========================================================================*/
 
-/*	cscope - interactive C symbol or text cross-reference
- *
- *	command history
- */
+/* $Id$ */
 
-#include "global.h"
+#ifndef CSCOPE_ALLOC_H
+#define CSCOPE_ALLOC_H
 
-#include "alloc.h"
+#include <string.h>  /* need size_t ... */
 
-static char const rcsid[] = "$Id$";
+/* memory allocation support */
+void	*mycalloc(size_t nelem, size_t size);
+void	*mymalloc(size_t size);
+void	*myrealloc(void *p, size_t size);
+char	*my_strdup(char *s);
 
-static	struct cmd *tail, *current;
-
-/* add a cmd to the history list */
-void
-addcmd(int f, char *s)		/* field number and command text */
-{
-	struct cmd *h;
-
-	h = mymalloc(sizeof(struct cmd));
-	if( tail) {
-		tail->next = h;
-		h->next = 0;
-		h->prev = tail;
-		tail = h;
-	} else {
-		tail = h;
-		h->next = h->prev = 0;
-	}
-	h->field = f;
-	h->text = my_strdup( s);
-	current = 0;
-}
-
-/* return previous history item */
-struct cmd *
-prevcmd(void)
-{
-	if( current) {
-		if( current->prev)	/* stay on first item */
-			return current = current->prev;
-		else
-			return current;
-	} else if( tail)
-		return current = tail;
-	else 
-		return NULL;
-}
-
-/* return next history item */
-struct cmd *
-nextcmd(void)
-{
-	if( current) {
-		if( current->next)	/* stay on first item */
-			return current = current->next;
-		else
-			return current;
-	} else 
-		return NULL;
-}
-/* reset current to tail */
-void
-resetcmd(void)
-{
-	current = 0;
-}
-
-struct cmd *
-currentcmd(void)
-{
-	return current;
-}
+#endif /* CSCOPE_ALLOC_H */

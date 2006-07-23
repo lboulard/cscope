@@ -42,23 +42,12 @@ char	*compath(char *pathname);
 char	*egrepinit(char *egreppat);
 char	*logdir(char *name);
 char	*mybasename(char *path);
-void	*mycalloc(size_t nelem, size_t size);
 FILE	*myfopen(char *path, char *mode);
 char	*mygetenv(char *variable, char *deflt);
-void	*mymalloc(size_t size);
 int	myopen(char *path, int flag, int mode);
-void	*myrealloc(void *p, size_t size);
-char	*stralloc(char *s);
 FILE	*mypopen(char *cmd, char *mode);
 int	mypclose(FILE *ptr);
 FILE	*vpfopen(char *filename, char *type);
 void	egrepcaseless(int i);
 
-/* Programmer's Workbench library (-lPW) */
-/* FIXME HBB 20010705: these should never be here. We should just
- * #include the relevant header, instead.  Moreover, they don't seem
- * to be used, anyway ... */
-#if 0
-char	*regcmp(), *regex();
-#endif 
 #endif /* CSCOPE_LIBRARY_H */

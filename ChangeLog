@@ -1,3 +1,60 @@
+2006-07-23  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
+
+	* src/global.h: Rename putstring() to fetch_string_from_dbase(),
+	add a parameter.
+
+	* src/find.c: Add #include <assert.h>
+	(fetch_string_from_dbase): Renamed from misleading name
+	putstring().  Add new parameter, and use it to avoid overflowing
+	the output buffer.
+	(findsymbol): New local: s_len.  Rename calls to putstring(). Add
+	new argument, some of them from s_len.
+	(finddef, findallfcns, findcalling, findinclude, match,
+	findcalledby, putpostingref): Rename calls to putstring(). Add new
+	argument.
+
+	* src/constants.h (MSGLEN): Add safety parentheses.
+
+	* src/library.h: Remove prototypes of alloc.c functions.
+
+	* src/alloc.h: New file.  Moved prototypes of alloc.c functions in
+	here, out of library.h.
+
+	* src/alloc.c: Include new header file from here.
+	(my_strdup): Changed name from misleading stralloc().  Remove
+	incorrect cast.
+
+	* src/build.c: Add #include "alloc.h".
+	(fetch_include_from_dbase): Renamed from misleading name
+	putinclude().  Add length of target string as an argument.
+	(setup_build_filenames): Rename calls of stralloc().
+	(getoldfile, copyinverted): Rename calls of putstring(). Add new
+	argument.
+	(copydata, coypinverted): Rename calls of putinclude().  Add new
+	argument.
+
+	* src/vpinit.c: Add #include "alloc.h"
+	(vpinit): Rename calls of stralloc().
+
+	* src/main.c: Add #include "alloc.h".
+	(main): Rename calls of stralloc().
+
+	* src/history.c: Add #include "alloc.h".
+	(addcmd): Rename call of stralloc().
+
+	* src/fscanner.l: Add #include "alloc.h".
+
+	* src/display.c: Add #include "alloc.h".
+
+	* src/dir.c: Add #include "alloc.h".  Move project includes above
+	system headers.
+	(sourcedir, addsrcdir, includedir, addincdir, addsrcfile): Rename
+	calls to stralloc().
+
+	* src/crossref.c: Add #include "alloc.h"
+
+	* src/command.c: Add #include "alloc.h".
+
 2006-05-06  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
 
 	* src/fscanner.l: Accept numeric literals inside fcn definitions

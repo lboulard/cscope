@@ -64,7 +64,7 @@
 #define	ESC	'\033'		/* escape character */
 #define	DEL	'\177'		/* delete character */
 #define	DUMMYCHAR	' '	/* use space as a dummy character */
-#define	MSGLEN	PATLEN + 80	/* displayed message length */
+#define	MSGLEN	((PATLEN) + 80)	/* displayed message length */
 #define	NUMLEN	5		/* line number length */
 #define	PATHLEN	250		/* file pathname length */
 #define	PATLEN	250		/* symbol pattern length */

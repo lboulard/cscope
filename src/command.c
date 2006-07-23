@@ -37,6 +37,8 @@
 
 #include "global.h"
 #include "build.h"		/* for rebuild() */
+#include "alloc.h"
+
 #include <stdlib.h>
 #if defined(USE_NCURSES) && !defined(RENAMED_NCURSES)
 #include <ncurses.h>

@@ -40,6 +40,7 @@
 
 #include "build.h"
 #include "scanner.h"
+#include "alloc.h"
 
 #include <stdlib.h>
 #include <sys/stat.h>

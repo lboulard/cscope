@@ -36,12 +36,14 @@
  *	directory searching functions
  */
 
+#include "global.h"
+#include "alloc.h"
+#include "vp.h"		/* vpdirs and vpndirs */
+
 #include <stdlib.h>
 #include <sys/types.h>	/* needed by stat.h and dirent.h */
 #include <dirent.h>
 #include <sys/stat.h>	/* stat */
-#include "global.h"
-#include "vp.h"		/* vpdirs and vpndirs */
 
 static char const rcsid[] = "$Id$";
 
@@ -122,7 +124,7 @@ sourcedir(char *dirlist)
     unsigned int i;
 
     makevpsrcdirs();		/* make the view source directory list */
-    dirlist = stralloc(dirlist); /* don't change environment variable text */
+    dirlist = my_strdup(dirlist); /* don't change environment variable text */
 	
     /* parse the directory list */
     dir = strtok(dirlist, DIRSEPS);
@@ -164,7 +166,7 @@ addsrcdir(char *dir)
 			msrcdirs += DIRINC;
 			srcdirs = myrealloc(srcdirs, msrcdirs * sizeof(char *));
 		}
-		srcdirs[nsrcdirs++] = stralloc(dir);
+		srcdirs[nsrcdirs++] = my_strdup(dir);
 	}
 }
 
@@ -190,7 +192,7 @@ includedir(char *dirlist)
     unsigned int i;
 
     makevpsrcdirs();		/* make the view source directory list */
-    dirlist = stralloc(dirlist); /* don't change environment variable text */
+    dirlist = my_strdup(dirlist); /* don't change environment variable text */
 	
     /* parse the directory list */
     dir = strtok(dirlist, DIRSEPS);
@@ -236,8 +238,8 @@ addincdir(char *name, char *path)
 			incnames = myrealloc(incnames, 
 				mincdirs * sizeof(char *));
 		}
-		incdirs[nincdirs] = stralloc(path);
-		incnames[nincdirs++] = stralloc(name);
+		incdirs[nincdirs] = my_strdup(path);
+		incnames[nincdirs++] = my_strdup(name);
 	}
 }
 
@@ -682,9 +684,9 @@ addsrcfile(char *path)
 		srcfiles = myrealloc(srcfiles, msrcfiles * sizeof(char *));
 	}
 	/* add the file to the list */
-	srcfiles[nsrcfiles++] = stralloc(compath(path));
+	srcfiles[nsrcfiles++] = my_strdup(compath(path));
 	p = mymalloc(sizeof(struct listitem));
-	p->text = stralloc(compath(path));
+	p->text = my_strdup(compath(path));
 	i = hash(p->text) % HASHMOD;
 	p->next = srcnames[i];
 	srcnames[i] = p;

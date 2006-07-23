@@ -36,6 +36,7 @@
  *	C symbol scanner
  */
 #include "global.h"
+#include "alloc.h"
 #include "scanner.h"
 #include "lookup.h"
 
