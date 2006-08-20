@@ -184,6 +184,7 @@ findsymbol(char *pattern)
 			
 			default:		/* other symbol */
 				s = symbol;
+				s_len = sizeof(symbol);
 			}
 			/* save the name */
 			skiprefchar();

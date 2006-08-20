@@ -1,5 +1,8 @@
 2006-08-20  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
+	* src/find.c (findsymbol): Missed one place where s_len had to be
+	initialized.
+				  
 	* src/main.c (tempstring): Parametrize length by new macro
 	TEMPSTRING_LEN.
 	(main): Check against too long -f file name.
