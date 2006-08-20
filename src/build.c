@@ -124,7 +124,7 @@ samelist(FILE *oldrefs, char **names, int count)
     }
     /* see if the name list is the same */
     for (i = 0; i < count; ++i) {
-	if (fscanf(oldrefs, "%s", oldname) != 1 ||
+	if (! fgets(oldname, sizeof(oldname), oldrefs)||
 	    strnotequal(oldname, names[i])) {
 	    return(NO);
 	}
@@ -232,7 +232,7 @@ build(void)
     /* or this is an unconditional build */
     if ((oldrefs = vpfopen(reffile, "rb")) != NULL
 	&& unconditional == NO
-	&& fscanf(oldrefs, "cscope %d %s", &fileversion, olddir) == 2 
+	&& fscanf(oldrefs, "cscope %d %" PATHLEN_STR "s", &fileversion, olddir) == 2 
 	&& (strcmp(olddir, currentdir) == 0 /* remain compatible */
 	    || strcmp(olddir, newdir) == 0)) {
 	/* get the cross-reference file's modification time */
@@ -305,7 +305,7 @@ cscope: -q option mismatch between command line and old symbol database\n");
 	/* see if the list of source files is the same and
 	   none have been changed up to the included files */
 	for (i = 0; i < nsrcfiles; ++i) {
-	    if (fscanf(oldrefs, "%s", oldname) != 1 ||
+	    if (! fgets(oldname, sizeof(oldname), oldrefs) ||
 		strnotequal(oldname, srcfiles[i]) ||
 		lstat(srcfiles[i], &statstruct) != 0 ||
 		statstruct.st_mtime > reftime) {
@@ -314,7 +314,7 @@ cscope: -q option mismatch between command line and old symbol database\n");
 	}
 	/* the old cross-reference is up-to-date */
 	/* so get the list of included files */
-	while (i++ < oldnum && fscanf(oldrefs, "%s", oldname) == 1) {
+	while (i++ < oldnum && fgets(oldname, sizeof(oldname), oldrefs)) {
 	    addsrcfile(oldname);
 	}
 	fclose(oldrefs);

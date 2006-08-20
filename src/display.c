@@ -224,7 +224,7 @@ display(void)
 	     disprefs < mdisprefs && screenline <= lastdispline;
 	     ++disprefs, ++screenline) {
 	    /* read the reference line */
-	    if (fscanf(refsfound, "%s%s%s %[^\n]", file, function, 
+	    if (fscanf(refsfound, "%" PATHLEN_STR "s%" PATHLEN_STR "s%" NUMLEN_STR "s %" TEMPSTRING_LEN_STR "[^\n]", file, function, 
 		       linenum, tempstring) < 4) {
 		break;
 	    }

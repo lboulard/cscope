@@ -290,16 +290,15 @@ shellpath(char *out, int limit, char *in)
 	/* if the login name is null, then use $HOME */
 	if (*out == '\0') {
 	    v = getenv("HOME");
-	}
-	else {	/* get the home directory of the login name */
+	} else {	/* get the home directory of the login name */
 	    v = logdir(out);
 	}
-	/* copy the directory name */
-	if (v != NULL) {
+	/* copy the directory name if it isn't too big */
+	if (v != NULL && strlen(v) < (lastchar - out)) {
 	    strcpy(out - 1, v);
 	    out += strlen(v) - 1;
-	}
-	else {	/* login not found, so ~ must be part of the file name */
+	} else {
+	    /* login not found, so ~ must be part of the file name */
 	    out += strlen(out);
 	}
     }
@@ -318,12 +317,13 @@ shellpath(char *out, int limit, char *in)
 	    }
 	    *s = '\0';
 	
-	    /* get its value */
-	    if ((v = getenv(out)) != NULL) {
+	    /* get its value, but only it isn't too big */
+	    if ((v = getenv(out)) != NULL && strlen(v) < (lastchar - out)) {
 		strcpy(out - 1, v);
 		out += strlen(v) - 1;
-	    }
-	    else {	/* var not found, so $ must be part of the file name */
+	    } else {
+		/* var not found, or too big, so assume $ must be part of the
+		 * file name */
 		out += strlen(out);
 	    }
 	}

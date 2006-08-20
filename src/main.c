@@ -101,10 +101,10 @@ char	*prependpath;		/* prepend path to file names */
 FILE	*refsfound;		/* references found file */
 char	temp1[PATHLEN + 1];	/* temporary file name */
 char	temp2[PATHLEN + 1];	/* temporary file name */
-char	tempdirpv[PATHLEN +1];	/* private temp directory */
+char	tempdirpv[PATHLEN + 1];	/* private temp directory */
 long	totalterms;		/* total inverted index terms */
 BOOL	trun_syms;		/* truncate symbols to 8 characters */
-char	tempstring[8192];	/* use this as a buffer, instead of 'yytext', 
+char	tempstring[TEMPSTRING_LEN + 1]; /* use this as a buffer, instead of 'yytext', 
 				 * which had better be left alone */
 char	*tmpdir;		/* temporary directory */
 
@@ -269,6 +269,11 @@ cscope: pattern too long, cannot be > %d characters\n", PATLEN);
 		switch (c) {
 		case 'f':	/* alternate cross-reference file */
 		    reffile = s;
+		    if (strlen(reffile) > sizeof(path) - 1) {
+			  postfatal("\
+cscope: reffile too long, cannot be > %d characters\n", sizeof(path) - 1);
+			  /* NOTREACHED */
+		    }
 		    strcpy(path, s);
 #ifdef SHORT_NAMES_ONLY
 		    /* System V has a 14 character limit */
@@ -502,11 +507,11 @@ cscope: cannot read source file names from file %s\n", reffile);
 		|| (names = vpfopen(NAMEFILE, "r")) != NULL) {
 	
 		/* read any -p option from it */
-		while (fscanf(names, "%s", path) == 1 && *path == '-') {
+		while (fgets(path, sizeof(path), names) != NULL && *path == '-') {
 		    i = path[1];
 		    s = path + 2;		/* for "-Ipath" */
 		    if (*s == '\0') {	/* if "-I path" */
-			fscanf(names, "%s", path);
+			fgets(path, sizeof(path), names);
 			s = path;
 		    }
 		    switch (i) {
@@ -522,7 +527,7 @@ cscope: cannot read source file names from file %s\n", reffile);
 	    }
 	} else {
 	    for (i = 0; i < nsrcfiles; ++i) {
-		if (fscanf(oldrefs, "%s", path) != 1) {
+		if (!fgets(path, sizeof(path), oldrefs) ) {
 		    postfatal("\
 cscope: cannot read source file name from file %s\n", 
 			      reffile);

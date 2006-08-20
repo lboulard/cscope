@@ -728,7 +728,7 @@ changestring(void)
     *oldfile = '\0';
     seekline(1);
     for (i = 0; 
-	 fscanf(refsfound, "%s%*s%s%*[^\n]", newfile, linenum) == 2;
+	 fscanf(refsfound, "%" PATHLEN_STR "s%*s%" NUMLEN_STR "s%*[^\n]", newfile, linenum) == 2;
 	 ++i) {
 	/* see if the line is to be changed */
 	if (change[i] == YES) {

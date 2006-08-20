@@ -330,7 +330,7 @@ makefilelist(void)
 			
 	/* Parse whitespace-terminated strings in line: */
 	point_in_line = line;
-	while (sscanf(point_in_line, "%s", path) == 1) {
+	while (sscanf(point_in_line, "%" PATHLEN_STR "s", path) == 1) {
 	    /* Have to store this length --- inviewpath() will
 	     * modify path, later! */
 	    length_of_name = strlen(path);

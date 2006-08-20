@@ -68,6 +68,7 @@
 #define	NUMLEN	5		/* line number length */
 #define	PATHLEN	250		/* file pathname length */
 #define	PATLEN	250		/* symbol pattern length */
+#define TEMPSTRING_LEN 8191     /* max strlen() of the global temp string */
 #define	REFFILE	"cscope.out"	/* cross-reference output file */
 #define	NAMEFILE "cscope.files"	/* default list-of-files file */
 #define	INVNAME	"cscope.in.out"	/* inverted index to the database */
@@ -76,6 +77,13 @@
 #define	INVPOST2 "cscope.out.po"/* follows correct naming convention */
 
 #define	STMTMAX	10000		/* maximum source statement length */
+
+#define STR2(x) #x
+#define STRINGIZE(x) STR2(x)
+#define PATLEN_STR STRINGIZE(PATLEN)
+#define PATHLEN_STR STRINGIZE(PATHLEN)
+#define NUMLEN_STR STRINGIZE(NUMLEN)
+#define TEMPSTRING_LEN_STR STRINGIZE(TEMPSTRING_LEN)
 
 /* screen lines */
 #define	FLDLINE	(LINES - FIELDS - 1)	/* first input field line */

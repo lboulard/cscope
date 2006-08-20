@@ -1,3 +1,36 @@
+2006-08-20  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	* src/main.c (tempstring): Parametrize length by new macro
+	TEMPSTRING_LEN.
+	(main): Check against too long -f file name.
+	(main): Put explicit %s field widths into fscanf() call.
+	(main): Replace some fscanf() calls by fgets().
+
+	* src/input.c (shellpath): Limit size of strings copied from
+	environment.
+
+	* src/edit.c (editref, editall): Put explicit %s field widths into
+	fscanf() calls.
+
+	* src/display.c (display): Put explicit %s field widths into
+	fscanf() call.
+
+	* src/dir.c (makefilelist): Put explicit %s field width into
+	sscanf() call.
+
+	* src/constants.h (TEMPSTRING_LEN): New macro, needed to
+	parametrize a fscanf() call.
+	(STRINGIZE): New macro used to build the following.
+	(PATLEN_STR, PATHLEN_STR, NUMLEN_STR, TEMPSTRING_LEN_STR): Buffer
+	lengths (minus 1) expressed as a string literal, to be used in as
+	field widths in {f,s}scanf() calls.
+
+	* src/command.c (changestring): Put explicit %s field widths into
+	fscanf() call.
+
+	* src/build.c (samelist, build): fgets() replaces fscanf().
+	(build): Put explicit %s field widths into fscanf() call.
+
 2006-07-23  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
 
 	* src/global.h: Rename putstring() to fetch_string_from_dbase(),
