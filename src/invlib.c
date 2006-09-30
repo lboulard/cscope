@@ -412,7 +412,7 @@ invnewterm(void)
 	if (maxback > numinvitems)
 	    maxback = numinvitems - 2;
 	howfar = 0;
-	while (--maxback > 0) {
+	while (maxback-- > 1) {
 	    howfar++;
 	    iteminfo.packword[0] =
 		logicalblk.invblk[--holditems * 2 + (sizeof(long) - 1)];
