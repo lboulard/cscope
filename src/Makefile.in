@@ -36,7 +36,6 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-LIBOBJDIR =
 @HAS_GNOME_TRUE@EXTRA_PROGRAMS = gscope$(EXEEXT)
 bin_PROGRAMS = cscope$(EXEEXT)
 subdir = src
@@ -229,7 +228,7 @@ cscope_SOURCES = $(LEXER_SOURCE) egrep.y \
 
 EXTRA_cscope_SOURCES = scanner.l fscanner.l
 cscope_LDADD = $(CURSES_LIBS) $(LEXLIB)
-INCLUDES = $(CURSES_INCLUDEDIR)
+AM_CPPFLAGS = $(CURSES_INCLUDEDIR)
 CLEANFILES = scanner.c fscanner.c egrep.c
 EXTRA_DIST = emacs.e gmacs.ml
 @HAS_GNOME_TRUE@GNOME_SWITCH = -DUSING_GNOME_UI

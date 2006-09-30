@@ -1,7 +1,17 @@
 2006-09-30  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	* src/invlib.c (invnewterm): Correct loop test to account for
-	maxback being unsigned.
+	maxback being unsigned (SF bug #1559495).
+
+	* src/Makefile.am (AM_CPPFLAGS): Renamed from INCLUDES, to quench
+	an automake warning.
+
+	* configure.in: Modernized via autoupdate.  Fixed several
+	'underquoted' warnings from aclocal.  Use a more telling source
+	file name in AC_CONFIG_SRCDIR.
+
+	* configure, aclocal.m4, Makefile.in, contrib/Makefile.in,
+	doc/Makefile.in, src/Makefile.in: Regenerated.
 
 2006-08-20  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 

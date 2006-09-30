@@ -32,7 +32,7 @@ LEXLIB = @LEXLIB@
 
 cscope_LDADD =  $(CURSES_LIBS) $(LEXLIB)
 
-INCLUDES = $(CURSES_INCLUDEDIR)
+AM_CPPFLAGS = $(CURSES_INCLUDEDIR)
 
 ## Hack to clean the generated files and not include them in a "make dist".
 CLEANFILES = scanner.c fscanner.c egrep.c
