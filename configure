@@ -3264,6 +3264,9 @@ _ACEOF
 fi
 
 fi
+if test "$LEX" = :; then
+  LEX=${am_missing_run}flex
+fi
 
 
 if test "x$LEX" = "xlex"; then
@@ -3992,7 +3995,7 @@ echo "${ECHO_T}Please note that some screen refreshs may fail" >&6
 echo $ECHO_N "checking for ncurses version... $ECHO_C" >&6
 	ncurses_version=unknown
 cat > conftest.$ac_ext <<EOF
-#line 3995 "configure"
+#line 3998 "configure"
 #include "confdefs.h"
 #ifdef RENAMED_NCURSES
 #include <curses.h>

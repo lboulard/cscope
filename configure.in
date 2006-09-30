@@ -15,7 +15,7 @@ dnl Checks for programs.
 AC_PROG_INSTALL
 AC_PROG_CC
 AC_EXEEXT
-AC_PROG_LEX
+AM_PROG_LEX
 AM_CONDITIONAL(USING_LEX, test "x$LEX" = "xlex")
 if test "x$LEX" = "xlex" ; then AC_DEFINE(USING_LEX, 1, 
    [Define this if the scanner is run through lex, not flex])

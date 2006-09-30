@@ -51,7 +51,7 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am__cscope_SOURCES_DIST = fscanner.l scanner.l egrep.y alloc.c \
+am__cscope_SOURCES_DIST = fscanner.l scanner.l egrep.y alloc.c alloc.h \
 	basename.c build.c build.h command.c compath.c constants.h \
 	crossref.c dir.c display.c edit.c exec.c find.c global.h \
 	help.c history.c input.c invlib.c invlib.h library.h logdir.c \
@@ -73,7 +73,7 @@ cscope_OBJECTS = $(am_cscope_OBJECTS)
 am__DEPENDENCIES_1 =
 cscope_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am__gscope_SOURCES_DIST = gscope.c fscanner.l scanner.l egrep.y \
-	alloc.c basename.c build.c build.h command.c compath.c \
+	alloc.c alloc.h basename.c build.c build.h command.c compath.c \
 	constants.h crossref.c dir.c display.c edit.c exec.c find.c \
 	global.h help.c history.c input.c invlib.c invlib.h library.h \
 	logdir.c lookup.c lookup.h main.c mouse.c mygetenv.c mypopen.c \
@@ -219,17 +219,19 @@ target_alias = @target_alias@
 @HAS_GNOME_TRUE@@USING_GNOME2_TRUE@GNOMELINKAGE = `pkg-config --libs libgnomeui-2.0 libpanelapplet-2.0 libglade-2.0|sed -e 's/-lz //'`
 @USING_LEX_FALSE@LEXER_SOURCE = fscanner.l
 @USING_LEX_TRUE@LEXER_SOURCE = scanner.l
-cscope_SOURCES = $(LEXER_SOURCE) egrep.y \
-	alloc.c basename.c build.c build.h command.c compath.c constants.h crossref.c dir.c \
-	display.c edit.c exec.c find.c global.h help.c history.c input.c \
-	invlib.c invlib.h library.h logdir.c lookup.c lookup.h main.c mouse.c \
-	mygetenv.c mypopen.c scanner.h version.h vp.h vpaccess.c vpfopen.c \
-	vpinit.c vpopen.c
+cscope_SOURCES = $(LEXER_SOURCE) egrep.y alloc.c alloc.h basename.c build.c \
+build.h command.c compath.c constants.h crossref.c dir.c display.c edit.c   \
+exec.c find.c global.h help.c history.c input.c invlib.c invlib.h library.h \
+logdir.c lookup.c lookup.h main.c mouse.c mygetenv.c mypopen.c scanner.h    \
+version.h vp.h vpaccess.c vpfopen.c vpinit.c vpopen.c
 
 EXTRA_cscope_SOURCES = scanner.l fscanner.l
 cscope_LDADD = $(CURSES_LIBS) $(LEXLIB)
 AM_CPPFLAGS = $(CURSES_INCLUDEDIR)
-CLEANFILES = scanner.c fscanner.c egrep.c
+
+# CLEANFILES = scanner.c fscanner.c egrep.c
+#dist-hook:
+#	rm -f $(distdir)/scanner.c $(distdir)/fscanner.c $(distdir)/egrep.c
 EXTRA_DIST = emacs.e gmacs.ml
 @HAS_GNOME_TRUE@GNOME_SWITCH = -DUSING_GNOME_UI
 @GNOME_LINUX_TRUE@@HAS_GNOME_TRUE@GNOME_LINUX_FLAG = "-rdynamic"
@@ -866,9 +868,6 @@ distdir: $(DISTFILES)
 	    || exit 1; \
 	  fi; \
 	done
-	$(MAKE) $(AM_MAKEFLAGS) \
-	  top_distdir="$(top_distdir)" distdir="$(distdir)" \
-	  dist-hook
 check-am: all-am
 check: check-am
 all-am: Makefile $(PROGRAMS)
@@ -893,7 +892,6 @@ install-strip:
 mostlyclean-generic:
 
 clean-generic:
-	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
@@ -954,7 +952,7 @@ ps-am:
 uninstall-am: uninstall-binPROGRAMS uninstall-info-am
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
-	clean-generic ctags dist-hook distclean distclean-compile \
+	clean-generic ctags distclean distclean-compile \
 	distclean-generic distclean-tags distdir dvi dvi-am html \
 	html-am info info-am install install-am install-binPROGRAMS \
 	install-data install-data-am install-exec install-exec-am \
@@ -964,8 +962,6 @@ uninstall-am: uninstall-binPROGRAMS uninstall-info-am
 	mostlyclean-generic pdf pdf-am ps ps-am tags uninstall \
 	uninstall-am uninstall-binPROGRAMS uninstall-info-am
 
-dist-hook:
-	rm -f $(distdir)/scanner.c $(distdir)/fscanner.c $(distdir)/egrep.c
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
