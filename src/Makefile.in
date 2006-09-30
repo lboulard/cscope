@@ -228,8 +228,7 @@ version.h vp.h vpaccess.c vpfopen.c vpinit.c vpopen.c
 EXTRA_cscope_SOURCES = scanner.l fscanner.l
 cscope_LDADD = $(CURSES_LIBS) $(LEXLIB)
 AM_CPPFLAGS = $(CURSES_INCLUDEDIR)
-
-# CLEANFILES = scanner.c fscanner.c egrep.c
+CLEANFILES = scanner.c fscanner.c egrep.c
 #dist-hook:
 #	rm -f $(distdir)/scanner.c $(distdir)/fscanner.c $(distdir)/egrep.c
 EXTRA_DIST = emacs.e gmacs.ml
@@ -892,6 +891,7 @@ install-strip:
 mostlyclean-generic:
 
 clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)

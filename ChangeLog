@@ -1,5 +1,9 @@
 2006-09-30  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
+	* src/fscanner.l (wsnl): Expand set of allowed characters to make
+	scanner more tolerant of non-Unix linebreaks (should fix SF Bug
+	#1563459)
+
 	* src/Makefile.am (CLEANFILES, dist-hook): Commented out, to
 	reduce number of user reports from people without lex.
 
@@ -8,7 +12,7 @@
 	* src/Makefile.am (cscope_SOURCES): Added alloc.h.  Reindented.
 
 	* src/invlib.c (invnewterm): Correct loop test to account for
-	maxback being unsigned (SF bug #1559495).
+	maxback being unsigned (should fix SF bug #1559495).
 
 	* src/Makefile.am (AM_CPPFLAGS): Renamed from INCLUDES, to quench
 	an automake warning.

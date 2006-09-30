@@ -130,7 +130,7 @@ identifier	[a-zA-Z_$][a-zA-Z_0-9$]*
 number		\.?[0-9][.0-9a-fA-FlLuUxX]*
 comment		"/*"([^*]*("*"+[^/])?)*"*/"|"//"[^\n]*\n
 ws		[ \t\r\v\f]
-wsnl		[ \t\n]|{comment}
+wsnl		[ \t\r\v\f\n]|{comment}
 
 /* flex options: stack of start conditions, and don't use yywrap() */
 %option stack

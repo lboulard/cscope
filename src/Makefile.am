@@ -34,7 +34,7 @@ cscope_LDADD =  $(CURSES_LIBS) $(LEXLIB)
 AM_CPPFLAGS = $(CURSES_INCLUDEDIR)
 
 ## Hack to clean the generated files and not include them in a "make dist".
-# CLEANFILES = scanner.c fscanner.c egrep.c
+CLEANFILES = scanner.c fscanner.c egrep.c
 #dist-hook:
 #	rm -f $(distdir)/scanner.c $(distdir)/fscanner.c $(distdir)/egrep.c
 
