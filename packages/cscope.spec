@@ -1,11 +1,11 @@
 Summary: cscope is an interactive, screen-oriented tool that allows the user to browse through C source files for specified elements of code.
 Name: cscope
-Version: 16.0a
+Version: 15.6
 Release: 1
 Epoch: 1
 License: BSD
 Group: Development/Tools
-Source: cscope-16.0a.tar.gz
+Source: cscope-15.6.tar.gz
 URL: http://cscope.sourceforge.net
 Buildroot: %{_tmppath}/%{name}-root
 
@@ -33,6 +33,8 @@ rm -rf %{buildroot}
 %{_mandir}/man1/*
 
 %changelog
+* Sun Oct 01 2006 Hans-Bernhard Broeker <broeker@users.sourceforge.net>
+- Changed version number to 15.6
 * Sun Mar 21 2004 Adam Monsen <adamm@wazamatta.com>
 - updated packages/cscope.spec to use more RPM macros and shell globs.
   Should be more generic/robust/up-to-date/etc.
