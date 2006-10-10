@@ -1,3 +1,7 @@
+2006-10-10  Neil Horman            <nhorman@tuxdriver.com>
+	* src/main.c: Updated sigwinch_handler to not run in the event
+	that curses is not running to avoid crash (SF bug 1574354)
+
 2006-09-30  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	* src/fscanner.l (wsnl): Expand set of allowed characters to make

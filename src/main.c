@@ -128,7 +128,8 @@ sigwinch_handler(int sig, siginfo_t *info, void *unused)
     (void) sig;
     (void) info;
     (void) unused;
-    ungetch(KEY_RESIZE);
+    if(incurses == YES)
+        ungetch(KEY_RESIZE);
 }
 #endif
 
