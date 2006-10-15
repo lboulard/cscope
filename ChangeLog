@@ -1,3 +1,11 @@
+2006-10-15  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
+
+	* src/dir.c (accessible_file): New function to taste for file
+	readability more strictly than just access().
+	(inviewpath): Use it to avoid unreadable files (directories, in
+	particular) getting into the srcfilelist, and thus hopefully fix
+	SF bug #1173768.
+	
 2006-10-10  Neil Horman            <nhorman@tuxdriver.com>
 	* src/main.c: Updated sigwinch_handler to not run in the event
 	that curses is not running to avoid crash (SF bug 1574354)

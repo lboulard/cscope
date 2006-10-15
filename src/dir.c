@@ -73,6 +73,7 @@ static	struct	listitem {	/* source file names without view pathing */
 } *srcnames[HASHMOD];
 
 /* Internal prototypes: */
+static	BOOL	accessible_file(char *file);
 static	BOOL	issrcfile(char *file);
 static	void	addsrcdir(char *dir);
 static	void	addincdir(char *name, char *path);
@@ -286,7 +287,7 @@ makefilelist(void)
 		    addsrcfile(s);
 		} else {
 		    fprintf(stderr, "cscope: cannot find file %s\n",
-				   file);
+			    file);
 		    errorsfound = YES;
 		}
 	    }
@@ -341,7 +342,7 @@ makefilelist(void)
 		     * -I or -p option with no name after it! */
 		    fprintf(stderr, "\
 cscope: Syntax error in namelist file %s: unfinished -I or -p option\n", 
-				   namefile);
+			    namefile);
 		    unfinished_option = 0;
 		}
 						
@@ -370,37 +371,37 @@ cscope: Syntax error in namelist file %s: unfinished -I or -p option\n",
 		    /* this code block used several times in here
 		     * --> make it a macro to avoid unnecessary
 		     * duplication */
-#define HANDLE_OPTION_ARGUMENT(i, s)													   \
-					switch (i) {											   \
-					case 'I':	/* #include file directory */							   \
-						if (firstbuild == YES) {								   \
-							/* expand $ and ~ */								   \
-							shellpath(dir, sizeof(dir), (s));						   \
-							includedir(dir);								   \
-						}											   \
-						unfinished_option = 0;									   \
-						done = YES;										   \
-						break;											   \
-					case 'p':	/* file path components to display */						   \
-						if (*(s) < '0' || *(s) > '9') {								   \
-							fprintf(stderr,								   \
-								       "cscope: -p option in file %s: missing or invalid numeric value\n", \
-								       namefile);							   \
-						}											   \
-						dispcomponents = atoi(s);								   \
-						unfinished_option = 0;									   \
-						done = YES;										   \
-						break;											   \
-					default:											   \
-						done = NO;										   \
-					} /* switch(i) */
+#define HANDLE_OPTION_ARGUMENT(i, s)					\
+		    switch (i) {					\
+		    case 'I':	/* #include file directory */		\
+			if (firstbuild == YES) {			\
+			    /* expand $ and ~ */			\
+			    shellpath(dir, sizeof(dir), (s));		\
+			    includedir(dir);				\
+			}						\
+			unfinished_option = 0;				\
+			done = YES;					\
+			break;						\
+		    case 'p':	/* file path components to display */	\
+			if (*(s) < '0' || *(s) > '9') {			\
+			    fprintf(stderr,				\
+"cscope: -p option in file %s: missing or invalid numeric value\n",	\
+				    namefile);				\
+			}						\
+			dispcomponents = atoi(s);			\
+			unfinished_option = 0;				\
+			done = YES;					\
+			break;						\
+		    default:						\
+			done = NO;					\
+		    } /* switch(i) */
 
 		    /* ... and now call it for the first time */
 		    HANDLE_OPTION_ARGUMENT(i, s)
 			break;
 		default:
 		    fprintf(stderr, "cscope: only -I, -c, -k, -p, and -T options can be in file %s\n", 
-				   namefile);
+			    namefile);
 		} /* switch(i) */
 	    } /* if('-') */
 	    else if (*path == '"') {
@@ -411,7 +412,8 @@ cscope: Syntax error in namelist file %s: unfinished -I or -p option\n",
 		while (in < PATHLEN && point_in_line[in] != '\0') {
 		    if (point_in_line[in] == '"') {
 			newpath[out] = '\0';
-			/* Tell outer loop to skip over this entire quoted string */
+			/* Tell outer loop to skip over this entire
+			 * quoted string */
 			length_of_name = in + 1;
 			break;	/* found end of quoted string */
 		    } else if (point_in_line[in] == '\\'
@@ -436,9 +438,8 @@ cscope: Syntax error in namelist file %s: unfinished -I or -p option\n",
 		    if ((s = inviewpath(newpath)) != NULL) {
 			addsrcfile(s);
 		    } else {
-			fprintf(stderr,
-				       "cscope: cannot find file %s\n",
-				       newpath);
+			fprintf(stderr, "cscope: cannot find file %s\n",
+				newpath);
 			errorsfound = YES;
 		    }
 		}
@@ -454,7 +455,7 @@ cscope: Syntax error in namelist file %s: unfinished -I or -p option\n",
 			addsrcfile(s);
 		    } else {
 			fprintf(stderr, "cscope: cannot find file %s\n",
-				       path);
+				path);
 			errorsfound = YES;
 		    }
 		}
@@ -639,8 +640,24 @@ infilelist(char *path)
     return(NO);
 }
 
-/* search for the file in the view path */
 
+/* check if a file is readable enough to be allowed in the
+ * database */
+static BOOL
+accessible_file(char *file)
+{
+    if (access(compath(file), READ) == 0) {
+	struct stat stats;
+
+	if (lstat(file, &stats) == 0
+	    && S_ISREG(stats.st_mode)) {
+	    return YES;
+	}
+    }
+    return NO;
+}
+
+/* search for the file in the view path */
 char *
 inviewpath(char *file)
 {
@@ -648,7 +665,7 @@ inviewpath(char *file)
     unsigned int i;
 
     /* look for the file */
-    if (access(compath(file), READ) == 0) {
+    if (accessible_file(file)) {
 	return(file);
     }
 
@@ -662,7 +679,7 @@ inviewpath(char *file)
 	    sprintf(path, "%.*s/%s",
 		    PATHLEN - 2 - file_len, srcdirs[i],
 		    file);
-	    if (access(compath(path), READ) == 0) {
+	    if (accessible_file(path)) {
 		return(path);
 	    }
 	}
