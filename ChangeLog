@@ -1,3 +1,7 @@
+2006-10-23  Neil Horman		   <nhorman@tuxdriver.com>
+	* src/main.c: Update sigwinch_handler to only register if
+	linemode is not specified (SF bug 1574354)
+
 2006-10-15  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
 
 	* src/dir.c (accessible_file): New function to taste for file

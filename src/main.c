@@ -154,12 +154,7 @@ main(int argc, char **argv)
     yyout = stdout;
     /* save the command name for messages */
     argv0 = argv[0];
-#if defined(KEY_RESIZE) && !defined(__DJGPP__)
-    winch_action.sa_sigaction = sigwinch_handler;
-    sigemptyset(&winch_action.sa_mask);
-    winch_action.sa_flags = SA_SIGINFO;
-    sigaction(SIGWINCH,&winch_action,NULL);
-#endif
+
     /* set the options */
     while (--argc > 0 && (*++argv)[0] == '-') {
 	/* HBB 20030814: add GNU-style --help and --version options */
@@ -403,6 +398,13 @@ cscope: Could not create private temp dir %s\n",
     if (linemode == NO) {
 	signal(SIGINT, SIG_IGN);	/* ignore interrupts */
 	signal(SIGPIPE, SIG_IGN);/* | command can cause pipe signal */
+
+#if defined(KEY_RESIZE) && !defined(__DJGPP__)
+	winch_action.sa_sigaction = sigwinch_handler;
+	sigemptyset(&winch_action.sa_mask);
+	winch_action.sa_flags = SA_SIGINFO;
+	sigaction(SIGWINCH,&winch_action,NULL);
+#endif
 
 	/* initialize the curses display package */
 	initscr();	/* initialize the screen */
