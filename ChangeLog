@@ -1,16 +1,29 @@
+2007-01-07  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
+
+	* README: Add a warning about the intended user audience not
+	including superusers or anonymous ones.
+
+	* contrib/webcscope/cscope: Find perl in /usr/bin, which should be
+	more likely as its installation position these days.  Put a big
+	red reminder to the top of the generated HTML page warning about
+	the security issues involved with webcscope.  Thanks to V-Li and
+	the Gentoo folks for the patch.
+	
 2006-10-23  Neil Horman		   <nhorman@tuxdriver.com>
-	* src/main.c: Update sigwinch_handler to only register if
-	linemode is not specified (SF bug 1574354)
+
+	* src/main.c: Update sigwinch_handler to only register if linemode
+	is not specified (SF bug 1574354)
 
 2006-10-15  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
 
-	* src/dir.c (accessible_file): New function to taste for file
+	* src/dir.c (accessible_file): New function to test for file
 	readability more strictly than just access().
 	(inviewpath): Use it to avoid unreadable files (directories, in
 	particular) getting into the srcfilelist, and thus hopefully fix
 	SF bug #1173768.
 	
 2006-10-10  Neil Horman            <nhorman@tuxdriver.com>
+
 	* src/main.c: Updated sigwinch_handler to not run in the event
 	that curses is not running to avoid crash (SF bug 1574354)
 

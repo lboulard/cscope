@@ -1,4 +1,4 @@
-#!/bin/perl
+#!/usr/bin/perl
 
 # $Id$
 #
@@ -22,6 +22,9 @@
 # Change History:
 # 
 # $Log$
+# Revision 1.2  2007/01/07 12:34:01  broeker
+# Direct attention to security issues with webcscope.
+#
 # Revision 1.1  2001/06/29 14:20:16  petr
 # Added webcscope to contribs.
 #
@@ -375,6 +378,7 @@ sub PrintForm {
 	print &HtmlTop ("Web-CScope");
 
 	print <<ENDOFTEXTA;
+<p style="color:red">Be aware that this webfrontend is insecure and allows viewing ALL apache readable files, including your configuration!</p>   
 Select an operation below and enter a symbol, function or text to search in
 the database.  The active version is $version.  Input is case-sensitive,
 so if your search returns no results, check the case and the symbol name.<hr>

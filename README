@@ -21,4 +21,11 @@ description of the license.
 For instructions on how to build and install cscope, see the file,
 "INSTALL".
 
+One thing to be pointed out is that this is ancient Unix software
+predating much of today's security concerns.  While we do try to
+address safety issues as we learn about them, it must be said that
+this is in no way hardened or secure software.  It's designed to be
+used by developers, not administrators or anonymous users.
+
 Browse to http://cscope.sourceforge.net for more current information
+
