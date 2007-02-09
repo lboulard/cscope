@@ -1,3 +1,6 @@
+2007-02-09  Neil Horman		   <nhorman@tuxdriver.com>
+	* doc/xcscope.1: Added man page for xcscope utility in contrib
+
 2007-01-07  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
 
 	* README: Add a warning about the intended user audience not
