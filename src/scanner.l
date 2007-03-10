@@ -95,8 +95,8 @@ int	comment(void);
 #else
 /* Assume this is the AT&T/SCO style lex */
 #undef	input
-#define input()  ((yytchar=(yytchar=yysptr>yysbuf?*(unsigned char *)--yysptr:getc(yyin))=='/'?comment():yytchar)==EOF?0:yytchar)
-#define noncommentinput()  ((yytchar=yysptr>yysbuf?*--yysptr:getc(yyin))==EOF?0:yytchar)
+#define input()  ((yytchar=(yytchar=yysptr>yysbuf?*(unsigned char *)--yysptr:getc(yyin))=='/'?comment():yytchar)==EOF?LEXEOF:yytchar)
+#define noncommentinput()  ((yytchar=yysptr>yysbuf?*--yysptr:getc(yyin))==EOF?LEXEOF:yytchar)
 #undef	unput
 #define unput(c) (*yysptr++=(c))
 
@@ -685,7 +685,7 @@ comment_input(void)
 
 	c = getc (yyin);
 
-	return c;
+	return (c == EOF) ? LEXEOF : c;
 }
 
 int
