@@ -1,3 +1,8 @@
+2007-12-03  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
+
+	* doc/cscope.1: Grammar corrections [SF patch #1843711] and 
+	troff syntax fixes [from ESR].
+
 2007-03-10  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
 
 	* src/scanner.l (comment_input): Translate EOF to LEXEOF in this

@@ -1,5 +1,5 @@
 .PU
-.TH CSCOPE "1" "August 2003" "The Santa Cruz Operation"
+.TH CSCOPE "1" "January 2007" "The Santa Cruz Operation"
 .SH NAME
 cscope - interactively examine a C program 
 .SH SYNOPSIS
@@ -9,7 +9,7 @@ cscope - interactively examine a C program
 .BI [\-f reffile ]
 .BI [\-I incdir ]
 .BI [\-i namefile ]
-.BI [\-[ 0123456789 ] pattern ]
+.BI [\-0123456789 pattern ]
 .BI [\-p n ]
 .BI [\-s dir ]
 .BI [ files ]
@@ -44,7 +44,7 @@ cross-reference is rebuilt, the data for the unchanged files are
 copied from the old cross-reference, which makes rebuilding faster
 than the initial build.
 .SH OPTIONS  
-Some command line arguments can only occur as the the ony argument in
+Some command line arguments can only occur as the only argument in
 the execution of cscope.  They cause the program to just print out
 some output and exit immediately:
 .TP
@@ -86,7 +86,7 @@ Read symbol reference lines from
 .I symfile. 
 (A symbol reference
 file is created by > and >>, and can also be read using the <
-command, described under ``Issuing Subsequent Requests,''
+command, described under ``Issuing Subsequent Requests'',
 below.)
 .TP
 .BI -f reffile
@@ -153,7 +153,7 @@ Display the last
 .I n 
 file path components instead of the default (1). Use 
 .I 0 
-to not display the file name at all.
+not to display the file name at all.
 .TP
 .B -q
 Enable fast symbol lookup via an inverted index. This option
@@ -194,7 +194,7 @@ A list of file names to operate on.
 .PP
 The -I, -c, -k, -p, -q, and -T options can also be in the cscope.files file.
 .PP
-.B Requesting the initial search
+.SS Requesting the initial search
 .PP
 After the cross-reference is ready, cscope will display this menu:
 .PP
@@ -221,7 +221,7 @@ After the cross-reference is ready, cscope will display this menu:
 Press the <Up> or <Down> keys repeatedly to move to the desired input
 field, type the text to search for, and then press the <Return> key.
 .PP
-.SH "Issuing subsequent requests"
+.SS "Issuing subsequent requests"
 If the search is successful, any of these single-character commands
 can be used:
 .TP
@@ -357,7 +357,6 @@ Redraw the screen.
 Give help information about cscope commands.
 .TP
 .B  Special keys
-.PP
 If your terminal has arrow keys that work in vi, you can use them
 to move around the input fields. The up-arrow key is useful to move to
 the previous
@@ -365,7 +364,7 @@ input field instead of using the <Tab> key repeatedly. If you have
 <CLEAR>, <NEXT>, or <PREV> keys they will act as the ^l, +, and -
 commands, respectively.
 .PP   
-.B Line-Oriented interface
+.SS Line-Oriented interface
 .PP  
 The -l option lets you use cscope where a screen-oriented interface
 would not be useful, for example, from another screen-oriented
