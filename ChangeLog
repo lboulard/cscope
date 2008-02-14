@@ -1,3 +1,11 @@
+2008-02-14  Neil Horman		   <nhorman@tuxdriver.com>
+
+	* src/dir.c: Fix up issrcfile to identify hpp/hxx files
+	as standard c++ source files
+
+	* src/main.c: Add myexit as a handler for SIGTERM, to 
+	clean up temp files on TERM
+
 2007-12-03  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
 
 	* doc/cscope.1: Grammar corrections [SF patch #1843711] and 
