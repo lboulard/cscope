@@ -1,3 +1,7 @@
+2008-03-10  Neil Horman		   <nhorman@tuxdriver.com>
+	* src/build.c: Fix Samelist to properly absorb newlines
+	so that inverted indicies aren't always rebuilt
+
 2008-02-14  Neil Horman		   <nhorman@tuxdriver.com>
 
 	* src/dir.c: Fix up issrcfile to identify hpp/hxx files

@@ -115,16 +115,17 @@ samelist(FILE *oldrefs, char **names, int count)
 {
     char    oldname[PATHLEN + 1];   /* name in old cross-reference */
     int     oldcount;
-    int     i;
+    int     i, matchcnt;
 
     /* see if the number of names is the same */
-    if (fscanf(oldrefs, "%d", &oldcount) != 1 ||
+    if (fscanf(oldrefs, "%d\n", &oldcount) != 1 ||
 	oldcount != count) {
 	return(NO);
     }
     /* see if the name list is the same */
     for (i = 0; i < count; ++i) {
-	if (! fgets(oldname, sizeof(oldname), oldrefs)||
+	    matchcnt = fscanf(oldrefs,"%s\n",oldname);
+	    if ((! matchcnt) ||
 	    strnotequal(oldname, names[i])) {
 	    return(NO);
 	}
