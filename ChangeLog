@@ -1,3 +1,9 @@
+2008-03-12  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
+
+	* src/build.c (samelist): Previous fix broke handling of blanks in
+	directory names.
+	(build): Apply the same fix to other occurence of the same code.
+
 2008-03-10  Neil Horman		   <nhorman@tuxdriver.com>
 	* src/build.c: Fix Samelist to properly absorb newlines
 	so that inverted indicies aren't always rebuilt
@@ -23,6 +29,7 @@
 	number 0.
 
 2007-02-09  Neil Horman		   <nhorman@tuxdriver.com>
+
 	* doc/xcscope.1: Added man page for xcscope utility in contrib
 
 2007-01-07  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>

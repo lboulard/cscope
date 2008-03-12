@@ -115,17 +115,16 @@ samelist(FILE *oldrefs, char **names, int count)
 {
     char    oldname[PATHLEN + 1];   /* name in old cross-reference */
     int     oldcount;
-    int     i, matchcnt;
+    int     i;
 
     /* see if the number of names is the same */
-    if (fscanf(oldrefs, "%d\n", &oldcount) != 1 ||
+    if (fscanf(oldrefs, "%d", &oldcount) != 1 ||
 	oldcount != count) {
 	return(NO);
     }
     /* see if the name list is the same */
     for (i = 0; i < count; ++i) {
-	    matchcnt = fscanf(oldrefs,"%s\n",oldname);
-	    if ((! matchcnt) ||
+	if ((1 != fscanf(oldrefs," %[^\n]",oldname)) ||
 	    strnotequal(oldname, names[i])) {
 	    return(NO);
 	}
@@ -306,10 +305,11 @@ cscope: -q option mismatch between command line and old symbol database\n");
 	/* see if the list of source files is the same and
 	   none have been changed up to the included files */
 	for (i = 0; i < nsrcfiles; ++i) {
-	    if (! fgets(oldname, sizeof(oldname), oldrefs) ||
-		strnotequal(oldname, srcfiles[i]) ||
-		lstat(srcfiles[i], &statstruct) != 0 ||
-		statstruct.st_mtime > reftime) {
+	    if ((1 != fscanf(oldrefs," %[^\n]",oldname))
+		|| strnotequal(oldname, srcfiles[i])
+		|| (lstat(srcfiles[i], &statstruct) != 0)
+		|| (statstruct.st_mtime > reftime)
+		) {
 		goto outofdate;
 	    }
 	}
@@ -339,8 +339,9 @@ cscope: converting to new symbol database file format\n");
 	scanpast('\t');	/* skip the header */
 	oldfile = getoldfile();
     } else {	/* force cross-referencing of all the source files */
-    force:	reftime = 0;
-    oldfile = NULL;
+    force:	
+	reftime = 0;
+	oldfile = NULL;
     }
     /* open the new cross-reference file */
     if ((newrefs = myfopen(newreffile, "wb")) == NULL) {
