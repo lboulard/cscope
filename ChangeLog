@@ -1,3 +1,8 @@
+2008-04-11  Neil Horman            <nhorman@tuxdriver.com>
+	* src/main.c, src/exec.c : configure ncurses to operate in raw 
+	mode so that ctrl-c (toggle case sensitivity) isn't swallowed
+	by the terminal driver
+
 2008-03-12  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
 
 	* src/build.c (samelist): Previous fix broke handling of blanks in

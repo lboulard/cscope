@@ -799,7 +799,7 @@ entercurses(void)
 #ifndef __MSDOS__ /* HBB 20010313 */
     nonl();		    /* don't translate an output \n to \n\r */
 #endif
-    cbreak();			/* single character input */
+    raw();			/* single character input */
     noecho();			/* don't echo input characters */
     clear();			/* clear the screen */
     mouseinit();		/* initialize any mouse interface */

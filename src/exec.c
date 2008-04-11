@@ -99,7 +99,7 @@ execute(char *a, ...)	/* note: "exec" is already defined on u370 */
 # ifndef __DJGPP__ /* leave CRLF handling as is */      
 	nonl();
 # endif
-	cbreak();	/* endwin() turns off cbreak mode so restore it */
+	raw();	/* endwin() turns off cbreak mode so restore it */
 	noecho();
 #endif
 	mousemenu();
