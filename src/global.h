@@ -248,7 +248,7 @@ extern	char	temp1[];	/* temporary file name */
 extern	char	temp2[];	/* temporary file name */
 extern	long	totalterms;	/* total inverted index terms */
 extern	BOOL	trun_syms;	/* truncate symbols to 8 characters */
-extern	char	tempstring[8192]; /* global dummy string buffer */
+extern	char	tempstring[TEMPSTRING_LEN + 1]; /* global dummy string buffer */
 extern	char	*tmpdir;	/* temporary directory */
 
 /* command.c global data */

@@ -1,7 +1,12 @@
+2008-06-30  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
+
+	* src/global.h (tempstring): Fix mismatch of declaration with
+	definition.
+
 2008-04-11  Neil Horman            <nhorman@tuxdriver.com>
-	* src/main.c, src/exec.c : configure ncurses to operate in raw 
-	mode so that ctrl-c (toggle case sensitivity) isn't swallowed
-	by the terminal driver
+	* src/main.c, src/exec.c : configure ncurses to operate in raw
+	mode so that ctrl-c (toggle case sensitivity) isn't swallowed by
+	the terminal driver
 
 2008-03-12  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
 
@@ -10,21 +15,22 @@
 	(build): Apply the same fix to other occurence of the same code.
 
 2008-03-10  Neil Horman		   <nhorman@tuxdriver.com>
-	* src/build.c: Fix Samelist to properly absorb newlines
-	so that inverted indicies aren't always rebuilt
+
+	* src/build.c: Fix Samelist to properly absorb newlines so that
+	inverted indicies aren't always rebuilt
 
 2008-02-14  Neil Horman		   <nhorman@tuxdriver.com>
 
-	* src/dir.c: Fix up issrcfile to identify hpp/hxx files
-	as standard c++ source files
+	* src/dir.c: Fix up issrcfile to identify hpp/hxx files as
+	standard c++ source files
 
-	* src/main.c: Add myexit as a handler for SIGTERM, to 
-	clean up temp files on TERM
+	* src/main.c: Add myexit as a handler for SIGTERM, to clean up
+	temp files on TERM
 
 2007-12-03  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
 
-	* doc/cscope.1: Grammar corrections [SF patch #1843711] and 
-	troff syntax fixes [from ESR].
+	* doc/cscope.1: Grammar corrections [SF patch #1843711] and troff
+	syntax fixes [from ESR].
 
 2007-03-10  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
 
