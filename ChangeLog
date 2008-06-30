@@ -1,5 +1,15 @@
 2008-06-30  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
 
+	* aclocal.m4, configure, config.h.in, Makefile.in,
+	src/Makefile.in, doc/Makefile.in, contrib/Makefile.in: Regenerated
+	by recent autotools.
+
+	* compile, config.guess, config.sub, depcomp, install-sh, missing,
+	mkinstalldirs, ylwrap: Updated to version provided by recent
+	autotools.
+
+	* INSTALL.gnu: GNU installation instructions.
+
 	* src/global.h (tempstring): Fix mismatch of declaration with
 	definition.
 
