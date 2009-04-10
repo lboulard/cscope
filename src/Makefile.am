@@ -29,7 +29,7 @@ EXTRA_cscope_SOURCES = scanner.l fscanner.l
 
 LEXLIB = @LEXLIB@
 
-cscope_LDADD =  $(CURSES_LIBS) $(LEXLIB)
+cscope_LDADD =  $(CURSES_LIBS) $(LEXLIB) $(LIBOBJS)
 
 AM_CPPFLAGS = $(CURSES_INCLUDEDIR)
 

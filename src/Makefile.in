@@ -41,9 +41,10 @@ LIBOBJDIR =
 bin_PROGRAMS = cscope$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in egrep.c \
-	fscanner.c scanner.c
+	fscanner.c scanner.c snprintf.c
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.in
+am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
+	$(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -72,7 +73,9 @@ am_cscope_OBJECTS = $(am__objects_1) egrep.$(OBJEXT) alloc.$(OBJEXT) \
 	vpinit.$(OBJEXT) vpopen.$(OBJEXT)
 cscope_OBJECTS = $(am_cscope_OBJECTS)
 am__DEPENDENCIES_1 =
-cscope_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+am__DEPENDENCIES_2 = @LIBOBJS@
+cscope_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2)
 am__gscope_SOURCES_DIST = gscope.c fscanner.l scanner.l egrep.y \
 	alloc.c alloc.h basename.c build.c build.h command.c compath.c \
 	constants.h crossref.c dir.c display.c edit.c exec.c find.c \
@@ -235,7 +238,7 @@ logdir.c lookup.c lookup.h main.c mouse.c mygetenv.c mypopen.c scanner.h    \
 version.h vp.h vpaccess.c vpfopen.c vpinit.c vpopen.c
 
 EXTRA_cscope_SOURCES = scanner.l fscanner.l
-cscope_LDADD = $(CURSES_LIBS) $(LEXLIB)
+cscope_LDADD = $(CURSES_LIBS) $(LEXLIB) $(LIBOBJS)
 AM_CPPFLAGS = $(CURSES_INCLUDEDIR)
 CLEANFILES = scanner.c fscanner.c egrep.c
 #dist-hook:
@@ -316,6 +319,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/snprintf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/alloc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/basename.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/build.Po@am__quote@
@@ -916,7 +920,7 @@ clean: clean-am
 clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf $(DEPDIR) ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -942,7 +946,7 @@ install-man:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf $(DEPDIR) ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

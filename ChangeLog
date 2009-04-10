@@ -1,3 +1,28 @@
+2009-04-10  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
+
+	* src/snprintf.c: Replacement implementation for missing snprintf
+	and vsprintf, from www.jhweiss.de.
+	
+	* acinclude: New macros to optionally activate a replacement for
+	missing snprintf and vsprintf, from www.jhweiss.de.
+
+	* configure.in: Call new macros for snprintf and vsprintf.  Drop
+	AC_FUNC_LSTAT in turn, since it would have required a replacement
+	implementation for lstat().
+
+	* src/Makefile.am (cscope_LDADD): Added LIBOBJS to automatically
+	include snprintf.o in the build if and only if needed.
+
+	* configure, config.h.in, aclocal.m4, Makefile.in,
+	contrib/Makefile.in, doc/Makefile.in, src/Makefile.in:
+	Regenerated.
+
+	* src/global.h: Add prototypes for replacement snprintf and
+	vsnprintf.
+	
+	* src/*.c: Replace all calls of sprintf by snprintf to avoid
+	possible buffer overflows.
+
 2008-06-30  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
 
 	* aclocal.m4, configure, config.h.in, Makefile.in,

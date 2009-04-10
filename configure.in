@@ -401,9 +401,12 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <setjmp.h>]], [[jmp_buf env; sigsetjm
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(strchr memcpy memset setmode _setmode)
-AC_CHECK_FUNCS(getcwd regcmp regcomp strerror vsnprintf snprintf lstat)
+AC_CHECK_FUNCS(getcwd regcmp regcomp strerror lstat)
 AC_CHECK_FUNCS(fixkeypad)
-AC_FUNC_LSTAT
+HW_FUNC_SNPRINTF
+HW_FUNC_VSNPRINTF
+HW_FUNC_ASPRINTF
+HW_FUNC_VASPRINTF
 
 case "$host_os" in
 	linux*)

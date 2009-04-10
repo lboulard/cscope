@@ -6,6 +6,9 @@
 /* Found some version of curses that we're going to use */
 #undef HAS_CURSES
 
+/* Define to 1 if you have the `asprintf' function. */
+#undef HAVE_ASPRINTF
+
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
 #undef HAVE_DIRENT_H
@@ -22,6 +25,9 @@
 /* Define to 1 if you have the `getcwd' function. */
 #undef HAVE_GETCWD
 
+/* Define to 1 if the system has the type `intmax_t'. */
+#undef HAVE_INTMAX_T
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
@@ -31,12 +37,20 @@
 /* Define to 1 if you have the `regex' library (-lregex). */
 #undef HAVE_LIBREGEX
 
+/* Define to 1 if you have the `localeconv' function. */
+#undef HAVE_LOCALECONV
+
+/* Define to 1 if you have the <locale.h> header file. */
+#undef HAVE_LOCALE_H
+
+/* Define to 1 if the system has the type `long double'. */
+#undef HAVE_LONG_DOUBLE
+
+/* Define to 1 if the system has the type `long long int'. */
+#undef HAVE_LONG_LONG_INT
+
 /* Define to 1 if you have the `lstat' function. */
 #undef HAVE_LSTAT
-
-/* Define to 1 if `lstat' has the bug that it succeeds when given the
-   zero-length file name argument. */
-#undef HAVE_LSTAT_EMPTY_STRING_BUG
 
 /* Define to 1 if you have the `memcpy' function. */
 #undef HAVE_MEMCPY
@@ -49,6 +63,9 @@
 
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
 #undef HAVE_NDIR_H
+
+/* Define to 1 if the system has the type `ptrdiff_t'. */
+#undef HAVE_PTRDIFF_T
 
 /* Define to 1 if you have the `regcmp' function. */
 #undef HAVE_REGCMP
@@ -65,8 +82,14 @@
 /* Define if we have sigsetjmp(). */
 #undef HAVE_SIGSETJMP
 
-/* Define to 1 if you have the `snprintf' function. */
+/* Define to 1 if you have a C99 compliant `snprintf' function. */
 #undef HAVE_SNPRINTF
+
+/* Define to 1 if you have the <stdarg.h> header file. */
+#undef HAVE_STDARG_H
+
+/* Define to 1 if you have the <stddef.h> header file. */
+#undef HAVE_STDDEF_H
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
@@ -85,6 +108,12 @@
 
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
+
+/* Define to 1 if `decimal_point' is member of `struct lconv'. */
+#undef HAVE_STRUCT_LCONV_DECIMAL_POINT
+
+/* Define to 1 if `thousands_sep' is member of `struct lconv'. */
+#undef HAVE_STRUCT_LCONV_THOUSANDS_SEP
 
 /* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
    */
@@ -106,18 +135,35 @@
 /* Define to 1 if you have the <sys/window.h> header file. */
 #undef HAVE_SYS_WINDOW_H
 
+/* Define to 1 if the system has the type `uintmax_t'. */
+#undef HAVE_UINTMAX_T
+
+/* Define to 1 if the system has the type `uintptr_t'. */
+#undef HAVE_UINTPTR_T
+
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* Define to 1 if you have the `vsnprintf' function. */
+/* Define to 1 if the system has the type `unsigned long long int'. */
+#undef HAVE_UNSIGNED_LONG_LONG_INT
+
+/* Define to 1 if you have the <varargs.h> header file. */
+#undef HAVE_VARARGS_H
+
+/* Define to 1 if you have the `vasprintf' function. */
+#undef HAVE_VASPRINTF
+
+/* Define to 1 if you have the `va_copy' function or macro. */
+#undef HAVE_VA_COPY
+
+/* Define to 1 if you have a C99 compliant `vsnprintf' function. */
 #undef HAVE_VSNPRINTF
 
 /* Define to 1 if you have the `_setmode' function. */
 #undef HAVE__SETMODE
 
-/* Define to 1 if `lstat' dereferences a symlink specified with a trailing
-   slash. */
-#undef LSTAT_FOLLOWS_SLASHED_SYMLINK
+/* Define to 1 if you have the `__va_copy' function or macro. */
+#undef HAVE___VA_COPY
 
 /* We're using some variant of Linux */
 #undef Linux
@@ -175,8 +221,15 @@
    `char[]'. */
 #undef YYTEXT_POINTER
 
+/* Define to rpl_asprintf if the replacement function should be used. */
+#undef asprintf
+
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
+
+/* Define to the widest signed integer type if <stdint.h> and <inttypes.h> do
+   not define. */
+#undef intmax_t
 
 /* Define to `int' if <sys/types.h> does not define. */
 #undef mode_t
@@ -186,3 +239,20 @@
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 #undef size_t
+
+/* Define to rpl_snprintf if the replacement function should be used. */
+#undef snprintf
+
+/* Define to the widest unsigned integer type if <stdint.h> and <inttypes.h>
+   do not define. */
+#undef uintmax_t
+
+/* Define to the type of an unsigned integer type wide enough to hold a
+   pointer, if such a type exists, and if the system does not define it. */
+#undef uintptr_t
+
+/* Define to rpl_vasprintf if the replacement function should be used. */
+#undef vasprintf
+
+/* Define to rpl_vsnprintf if the replacement function should be used. */
+#undef vsnprintf
