@@ -2078,7 +2078,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=cscope
- VERSION=16.0a
+ VERSION=15.7a
 
 
 cat >>confdefs.h <<_ACEOF

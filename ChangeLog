@@ -1,3 +1,12 @@
+2009-04-30  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
+
+	* src/version.h (FILEVERSION, FIXVERSION): Version number changed
+	to 15.7a.
+
+	* configure.in: Version number changed to 15.7a.
+
+	* configure (all): Regenerated.
+
 2009-04-10  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
 
 	* src/snprintf.c: Replacement implementation for missing snprintf
