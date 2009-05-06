@@ -1,3 +1,7 @@
+2009-05-06  Neil Horman <nhorman@tuxdriver.com>
+
+	* src/main.c: Fixed string length checks to avoid overflow
+
 2009-04-30  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
 
 	* src/version.h (FILEVERSION, FIXVERSION): Version number changed

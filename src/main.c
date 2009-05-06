@@ -265,9 +265,9 @@ cscope: pattern too long, cannot be > %d characters\n", PATLEN);
 		switch (c) {
 		case 'f':	/* alternate cross-reference file */
 		    reffile = s;
-		    if (strlen(reffile) > sizeof(path) - 1) {
+		    if (strlen(reffile) > sizeof(path) - 3) {
 			  postfatal("\
-cscope: reffile too long, cannot be > %d characters\n", sizeof(path) - 1);
+cscope: reffile too long, cannot be > %d characters\n", sizeof(path) - 3);
 			  /* NOTREACHED */
 		    }
 		    strcpy(path, s);
