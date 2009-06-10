@@ -877,9 +877,6 @@ countrefs(void)
     char    *subsystem;             /* OGS subsystem name */
     char    *book;                  /* OGS book name */
     char    file[PATHLEN + 1];      /* file name */
-#ifdef WIN32    
-    char    *long_name;
-#endif
     char    function[PATLEN + 1];   /* function name */
     char    linenum[NUMLEN + 1];    /* line number */
     int     i;
@@ -903,25 +900,13 @@ countrefs(void)
 	    return;
 	}
 #ifdef WIN32
-	long_name = longpath(file);
+	strcpy(file, longpath(file));
 #endif
-	if ((i = strlen(pathcomponents(
-#ifdef WIN32
-			    long_name
-#else
-			    file
-#endif
-			    , dispcomponents))) > filelen) {
+	if ((i = strlen(pathcomponents(file, dispcomponents))) > filelen) {
 	    filelen = i;
 	}
 	if (ogs == YES) {
-	    ogsnames(
-#ifdef WIN32
-			    long_name
-#else
-			    file
-#endif
-		    , &subsystem, &book);
+	    ogsnames(file, &subsystem, &book);
 	    if ((i = strlen(subsystem)) > subsystemlen) {
 		subsystemlen = i;
 	    }
@@ -929,9 +914,6 @@ countrefs(void)
 		booklen = i;
 	    }
 	}
-#ifdef WIN32
-	free(long_name);
-#endif
 	if ((i = strlen(function)) > fcnlen) {
 	    fcnlen = i;
 	}

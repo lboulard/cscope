@@ -13,23 +13,21 @@
 
 char *shortpath(const char *path)
 {
-    int path_len = strlen(path);
-    char *short_path = mymalloc(path_len + 1);
-    int ret = GetShortPathName(path, short_path, path_len + 1);
-    if (ret <= path_len)
-	return short_path;
-    else /* failed during conversion */
-	return strcpy(short_path, path);
+    /* use satic buffers to simplify the code */
+    static char short_path[MAX_PATH + 1];
+    int ret = GetShortPathName(path, short_path, sizeof(short_path));
+    if (!ret || ret > sizeof(short_path)) /* failed during the conversion */
+	strcpy(short_path, path);
+    return short_path;
 }
 
 char *longpath(const char *path)
 {
-    char *long_path = mymalloc(MAX_PATH + 1);
-    int ret = GetLongPathName(path, long_path, MAX_PATH + 1);
-    if (ret <= MAX_PATH)
-	return long_path;
-    else /* failed during conversion */
-	return strcpy(long_path, path);
+    static char long_path [MAX_PATH + 1];
+    int ret = GetLongPathName(path, long_path, sizeof(long_path));
+    if (!ret || ret > sizeof(long_path))
+	strcpy(long_path, path);
+    return long_path;
 }
 
 void sleep(int sec)

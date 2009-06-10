@@ -221,9 +221,6 @@ build(void)
     unsigned long fileindex;		/* source file name index */
     BOOL    interactive = YES;	/* output progress messages */
     static char* signature;
-#ifdef WIN32
-    char    *short_currentdir;
-#endif
     signature = (whitespace_safe
     	? "cscope %d %" PATHLEN_STR "[^\"]s" 
     	: "cscope %d %" PATHLEN_STR "s");
@@ -239,9 +236,6 @@ build(void)
     /* sort the source file names (needed for rebuilding) */
     qsort(srcfiles, nsrcfiles, sizeof(char *), compare);
 
-#ifdef WIN32
-    short_currentdir = shortpath(currentdir);
-#endif
     /* if there is an old cross-reference and its current directory matches */
     /* or this is an unconditional build */
     if ((oldrefs = vpfopen(reffile, "rb")) != NULL
@@ -249,7 +243,7 @@ build(void)
 	&& fscanf(oldrefs, signature, &fileversion, olddir) == 2 
 	&& (strcmp(olddir, currentdir) == 0 /* remain compatible */
 #ifdef WIN32
-	    || (!whitespace_safe && strcmp(olddir, short_currentdir) == 0)
+	    || (!whitespace_safe && strcmp(olddir, shortpath(currentdir)) == 0)
 #endif
 	    || strcmp(olddir, newdir) == 0)) {
 	        if (whitespace_safe)
@@ -338,9 +332,6 @@ cscope: -q option mismatch between command line and old symbol database\n");
 	    addsrcfile(oldname);
 	}
 	fclose(oldrefs);
-#ifdef WIN32
-	free(short_currentdir);
-#endif
 	return;
 		
     outofdate:
@@ -512,9 +503,6 @@ cscope: converting to new symbol database file format\n");
     }
     /* replace it with the new database file */
     movefile(newreffile, reffile);
-#ifdef WIN32
-    free(short_currentdir);
-#endif
 }
 	
 
@@ -585,10 +573,9 @@ putheader(char *dir)
 		: "cscope %d %s");
 #ifdef WIN32
     /* get 8.3 name for -X command line option
-     * so it should work with long file paths */
-    char *short_dir = shortpath(dir);
+     * so it should work with long file paths anyway */
     if (!whitespace_safe)
-	dir = short_dir;
+	dir = shortpath(dir);
 #endif
     dboffset = fprintf(newrefs, signature, FILEVERSION, dir);
     if (compress == NO) {
@@ -609,9 +596,6 @@ putheader(char *dir)
     dboffset += fprintf(newrefs, " %.10ld\n", traileroffset);
 #ifdef PRINTF_RETVAL_BROKEN
     dboffset = ftell(newrefs); 
-#endif
-#ifdef WIN32
-    free(short_dir);
 #endif
 }
 

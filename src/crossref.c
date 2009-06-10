@@ -220,8 +220,7 @@ void
 putfilename(char *srcfile)
 {
 #ifdef WIN32
-    char *short_name = shortpath(srcfile);
-    srcfile = short_name;
+    srcfile = shortpath(srcfile);
 #endif
 	/* check for file system out of space */
 	/* note: dbputc is not used to avoid lint complaint */
@@ -235,9 +234,6 @@ putfilename(char *srcfile)
 	}
 	dbfputs(srcfile);
 	fcnoffset = macrooffset = 0;
-#ifdef WIN32
-    free(short_name);
-#endif
 }
 
 /* output the symbols and source line */
