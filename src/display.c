@@ -294,9 +294,6 @@ display(void)
 #endif
 			       , dispcomponents));
 		}
-#ifdef WIN32
-		free(long_name);
-#endif
 	    } /* else(field == FILENAME) */
 
 	    /* display the function name */
@@ -307,6 +304,9 @@ display(void)
 		addch('\n');	/* go to next line */
 		continue;
 	    }
+#ifdef WIN32
+  	    free(long_name);
+#endif
 
 	    /* display the line number */
 	    printw("%*s ", numlen, linenum);
