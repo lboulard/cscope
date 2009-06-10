@@ -36,7 +36,7 @@
  */
 
 #ifdef WIN32
-#define sleep(x) Sleep(x * 1000)
+# include "w32utils.h"
 #endif
 
 #include "global.h"

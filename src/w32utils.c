@@ -5,7 +5,7 @@
 
 #include <windows.h>
 
-#include "shortpath.h"
+#include "w32utils.h"
 #include "alloc.h"
 
 char *shortpath(const char *path)
@@ -21,4 +21,10 @@ char *shortpath(const char *path)
     else /* failed during conversion */
 	return strcpy(short_path, path);
 }
+
+void sleep(int sec)
+{
+  Sleep(sec * 1000);
+}
+
 #endif

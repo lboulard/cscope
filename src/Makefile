@@ -12,14 +12,14 @@ CLEANFILES = fscanner.c egrep.c
 CONFIG_HEADER = config.h
 PROGRAM = cscope.exe
 
-CFLAGS = -O2 -DHAVE_CONFIG_H -DWIN32 -I. -I$(RX)/include -I$(CURSES)
+CFLAGS = -O2 -DHAVE_CONFIG_H -DWIN32 -I. -I$(RX)/include/rxspencer -I$(CURSES)
 LDFLAGS = $(CURSES)/win32/pdcurses.a $(RX)/lib/librxspencer.a
 
 OBJECTS =  fscanner.o egrep.o alloc.o basename.o \
 build.o command.o compath.o crossref.o dir.o display.o \
 edit.o exec.o find.o help.o history.o input.o invlib.o \
 logdir.o lookup.o main.o mouse.o mygetenv.o mypopen.o \
-shortpath.o vpaccess.o vpfopen.o vpinit.o vpopen.o
+w32utils.o vpaccess.o vpfopen.o vpinit.o vpopen.o
 
 .SUFFIXES:
 .SUFFIXES: .c .l .o .y
@@ -54,7 +54,7 @@ edit.o: edit.c global.h config.h constants.h invlib.h library.h
 egrep.o: egrep.c global.h config.h constants.h invlib.h library.h
 exec.o: exec.c global.h config.h constants.h invlib.h library.h
 find.o: find.c global.h config.h constants.h invlib.h library.h \
-	build.h scanner.h
+	build.h scanner.h w32utils.h
 fscanner.o: fscanner.c global.h config.h constants.h invlib.h \
 	library.h scanner.h lookup.h
 help.o: help.c global.h config.h constants.h invlib.h library.h
@@ -69,7 +69,7 @@ main.o: main.c global.h config.h constants.h invlib.h library.h \
 mouse.o: mouse.c global.h config.h constants.h invlib.h library.h
 mygetenv.o: mygetenv.c library.h
 mypopen.o: mypopen.c global.h config.h constants.h invlib.h library.h
-shortpath.o: shortpath.h shortpath.c alloc.h
+w32utils.o: w32utils.h w32utils.c alloc.h
 vpaccess.o: vpaccess.c vp.h config.h
 vpfopen.o: vpfopen.c vp.h config.h global.h constants.h invlib.h \
 	library.h

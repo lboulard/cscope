@@ -53,7 +53,7 @@
 #endif
 
 #ifdef WIN32
-#include "shortpath.h"
+#include "w32utils.h"
 #endif
 
 /* Exported variables: */
