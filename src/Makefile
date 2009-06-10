@@ -12,7 +12,12 @@ CLEANFILES = fscanner.c egrep.c
 CONFIG_HEADER = config.h
 PROGRAM = cscope.exe
 
-CFLAGS = -O2 -DHAVE_CONFIG_H -DWIN32 -I. -I$(RX)/include/rxspencer -I$(CURSES)
+ifeq ($(DEBUG),Y)
+CFLAGS = -O0 -g
+else
+CFLAGS = -O2
+endif
+CFLAGS += -DHAVE_CONFIG_H -DWIN32 -I. -I$(RX)/include/rxspencer -I$(CURSES)
 LDFLAGS = $(CURSES)/win32/pdcurses.a $(RX)/lib/librxspencer.a
 
 OBJECTS =  fscanner.o egrep.o alloc.o basename.o \
@@ -41,15 +46,15 @@ alloc.o: alloc.c library.h global.h config.h constants.h invlib.h
 basename.o: basename.c global.h config.h constants.h invlib.h \
 	library.h
 build.o: build.c build.h global.h config.h constants.h invlib.h \
-	library.h scanner.h version.h vp.h
+	library.h scanner.h version.h vp.h  w32utils.h
 command.o: command.c global.h config.h constants.h invlib.h library.h \
-	build.h
-compath.o: compath.c global.h config.h constants.h invlib.h library.h
+	build.h w32utils.h
+compath.o: compath.c global.h config.h constants.h invlib.h library.h w32utils.h
 crossref.o: crossref.c global.h config.h constants.h invlib.h \
-	library.h build.h scanner.h
+	library.h build.h scanner.h  w32utils.h
 dir.o: dir.c global.h config.h constants.h invlib.h library.h vp.h
 display.o: display.c global.h config.h constants.h invlib.h library.h \
-	build.h version.h
+	build.h version.h w32utils.h
 edit.o: edit.c global.h config.h constants.h invlib.h library.h
 egrep.o: egrep.c global.h config.h constants.h invlib.h library.h
 exec.o: exec.c global.h config.h constants.h invlib.h library.h

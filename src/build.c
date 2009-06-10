@@ -584,7 +584,8 @@ putheader(char *dir)
 		? "cscope %d %s\""
 		: "cscope %d %s");
 #ifdef WIN32
-    /* use 8.3 names if not using whitespaces */
+    /* get 8.3 name for -X command line option
+     * so it should work with long file paths */
     char *short_dir = shortpath(dir);
     if (!whitespace_safe)
 	dir = short_dir;

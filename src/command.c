@@ -47,6 +47,10 @@
 #endif
 #include <ctype.h>
 
+#ifdef WIN32
+# include "w32utils.h"
+#endif
+
 static char const rcsid[] = "$Id: command.c,v 1.33 2009/04/10 13:39:23 broeker Exp $";
 
 
@@ -873,6 +877,9 @@ countrefs(void)
     char    *subsystem;             /* OGS subsystem name */
     char    *book;                  /* OGS book name */
     char    file[PATHLEN + 1];      /* file name */
+#ifdef WIN32    
+    char    *long_name;
+#endif
     char    function[PATLEN + 1];   /* function name */
     char    linenum[NUMLEN + 1];    /* line number */
     int     i;
@@ -895,11 +902,26 @@ countrefs(void)
 	    disprefs = 0;
 	    return;
 	}
-	if ((i = strlen(pathcomponents(file, dispcomponents))) > filelen) {
+#ifdef WIN32
+	long_name = longpath(file);
+#endif
+	if ((i = strlen(pathcomponents(
+#ifdef WIN32
+			    long_name
+#else
+			    file
+#endif
+			    , dispcomponents))) > filelen) {
 	    filelen = i;
 	}
 	if (ogs == YES) {
-	    ogsnames(file, &subsystem, &book);
+	    ogsnames(
+#ifdef WIN32
+			    long_name
+#else
+			    file
+#endif
+		    , &subsystem, &book);
 	    if ((i = strlen(subsystem)) > subsystemlen) {
 		subsystemlen = i;
 	    }
@@ -907,6 +929,9 @@ countrefs(void)
 		booklen = i;
 	    }
 	}
+#ifdef WIN32
+	free(long_name);
+#endif
 	if ((i = strlen(function)) > fcnlen) {
 	    fcnlen = i;
 	}

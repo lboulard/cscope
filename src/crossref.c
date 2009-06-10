@@ -45,6 +45,10 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
+#ifdef WIN32
+# include "w32utils.h"
+#endif
+
 static char const rcsid[] = "$Id: crossref.c,v 1.14 2006/07/23 20:59:20 broeker Exp $";
 
 
@@ -215,6 +219,10 @@ savesymbol(int token, int num)
 void
 putfilename(char *srcfile)
 {
+#ifdef WIN32
+    char *short_name = shortpath(srcfile);
+    srcfile = short_name;
+#endif
 	/* check for file system out of space */
 	/* note: dbputc is not used to avoid lint complaint */
 	if (putc(NEWFILE, newrefs) == EOF) {
@@ -227,6 +235,9 @@ putfilename(char *srcfile)
 	}
 	dbfputs(srcfile);
 	fcnoffset = macrooffset = 0;
+#ifdef WIN32
+    free(short_name);
+#endif
 }
 
 /* output the symbols and source line */

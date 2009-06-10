@@ -3,6 +3,7 @@
 
 #ifdef WIN32
 char *shortpath(const char *path);
+char *longpath(const char *path);
 void sleep(int sec);
 #endif
 

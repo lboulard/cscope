@@ -56,6 +56,10 @@
 #include <errno.h>
 #include <stdarg.h>
 
+#ifdef WIN32
+# include "w32utils.h"
+#endif
+
 #ifndef HAVE_SIGSETJMP
 # define sigsetjmp(a,b) setjmp(a)
 # define siglongjmp(a,b) longjmp(a,b)
@@ -148,6 +152,9 @@ display(void)
     char    *subsystem;             /* OGS subsystem name */
     char    *book;                  /* OGS book name */
     char    file[PATHLEN + 1];      /* file name */
+#ifdef WIN32    
+    char    *long_name;
+#endif
     char    function[PATLEN + 1];   /* function name */
     char    linenum[NUMLEN + 1];    /* line number */
     int     screenline;             /* screen line number */
@@ -251,21 +258,45 @@ display(void)
 		addch(' ');
 	    }
 
+#ifdef WIN32
+	    long_name = longpath(file);
+#endif
 	    /* display the file name */
 	    if (field == FILENAME) {
-		printw("%-*s ", filelen, file);
+		printw("%-*s ", filelen, 
+#ifdef WIN32
+			long_name
+#else
+			file
+#endif
+			);
 	    } else {
 		/* if OGS, display the subsystem and book names */
 		if (ogs == YES) {
-		    ogsnames(file, &subsystem, &book);
+		    ogsnames(
+#ifdef WIN32
+			    long_name
+#else
+			    file
+#endif
+			    , &subsystem, &book);
 		    printw("%-*.*s ", subsystemlen, subsystemlen, subsystem);
 		    printw("%-*.*s ", booklen, booklen, book);
 		}
 		/* display the requested path components */
 		if (dispcomponents > 0) {
 		    printw("%-*.*s ", filelen, filelen,
-			   pathcomponents(file, dispcomponents));
+			   pathcomponents(
+#ifdef WIN32
+			       long_name
+#else
+			       file
+#endif
+			       , dispcomponents));
 		}
+#ifdef WIN32
+		free(long_name);
+#endif
 	    } /* else(field == FILENAME) */
 
 	    /* display the function name */
@@ -737,7 +768,7 @@ pathcomponents(char *path, int components)
 {
 	int	i;
 	char	*s;
-	
+
 	s = path + strlen(path) - 1;
 	for (i = 0; i < components; ++i) {
 		while (s > path && *--s != '/'
