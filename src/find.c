@@ -35,9 +35,7 @@
  *	searching functions
  */
 
-#ifdef WIN32
-# include "w32utils.h"
-#endif
+#include "w32utils.h"
 
 #include "global.h"
 

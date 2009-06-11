@@ -52,9 +52,7 @@
 #include <curses.h>
 #endif
 
-#ifdef WIN32
 #include "w32utils.h"
-#endif
 
 /* Exported variables: */
 
@@ -242,9 +240,7 @@ build(void)
 	&& unconditional == NO
 	&& fscanf(oldrefs, signature, &fileversion, olddir) == 2 
 	&& (strcmp(olddir, currentdir) == 0 /* remain compatible */
-#ifdef WIN32
 	    || (!whitespace_safe && strcmp(olddir, get_shortpath(currentdir)) == 0)
-#endif
 	    || strcmp(olddir, newdir) == 0)) {
 	        if (whitespace_safe)
 	            fgetc(oldrefs); /* remove our mark */

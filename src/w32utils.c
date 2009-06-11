@@ -1,3 +1,5 @@
+#include "w32utils.h"
+
 #ifdef WIN32
 
 #define WIN32_LEAN_AND_MEAN
@@ -8,7 +10,6 @@
 
 #include <windows.h>
 
-#include "w32utils.h"
 #include "alloc.h"
 
 static char *get_longpath_internal(char *path, int len);
@@ -54,4 +55,19 @@ void sleep(int sec)
   Sleep(sec * 1000);
 }
 
-#endif
+#else
+char *get_shortpath(char *path)
+{
+    return path;
+}
+
+void to_longpath(char *path, int len)
+{
+    NULL;
+}
+
+char *get_longpath(char *path)
+{
+    return path;
+}
+#endif /* WIN32 */

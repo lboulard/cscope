@@ -56,9 +56,7 @@
 #include <errno.h>
 #include <stdarg.h>
 
-#ifdef WIN32
-# include "w32utils.h"
-#endif
+#include "w32utils.h"
 
 #ifndef HAVE_SIGSETJMP
 # define sigsetjmp(a,b) setjmp(a)
@@ -255,9 +253,7 @@ display(void)
 		addch(' ');
 	    }
 
-#ifdef WIN32
 	    to_longpath(file, sizeof(file));
-#endif
 	    /* display the file name */
 	    if (field == FILENAME) {
 		printw("%-*s ", filelen, file);

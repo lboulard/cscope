@@ -45,9 +45,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
-#ifdef WIN32
-# include "w32utils.h"
-#endif
+#include "w32utils.h"
 
 static char const rcsid[] = "$Id: crossref.c,v 1.14 2006/07/23 20:59:20 broeker Exp $";
 
@@ -219,9 +217,7 @@ savesymbol(int token, int num)
 void
 putfilename(char *srcfile)
 {
-#ifdef WIN32
     srcfile = get_shortpath(srcfile);
-#endif
 	/* check for file system out of space */
 	/* note: dbputc is not used to avoid lint complaint */
 	if (putc(NEWFILE, newrefs) == EOF) {

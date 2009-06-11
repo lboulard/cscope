@@ -52,7 +52,7 @@ command.o: command.c global.h config.h constants.h invlib.h library.h \
 compath.o: compath.c global.h config.h constants.h invlib.h library.h w32utils.h
 crossref.o: crossref.c global.h config.h constants.h invlib.h \
 	library.h build.h scanner.h  w32utils.h
-dir.o: dir.c global.h config.h constants.h invlib.h library.h vp.h
+dir.o: dir.c global.h config.h constants.h invlib.h library.h vp.h w32utils.h
 display.o: display.c global.h config.h constants.h invlib.h library.h \
 	build.h version.h w32utils.h
 edit.o: edit.c global.h config.h constants.h invlib.h library.h

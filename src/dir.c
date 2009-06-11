@@ -48,6 +48,8 @@
 #include <direct.h>	/* getcwd */
 #endif
 
+#include "w32utils.h"
+
 static char const rcsid[] = "$Id: dir.c,v 1.31 2009/04/10 13:39:23 broeker Exp $";
 
 #ifdef WIN32
@@ -722,9 +724,9 @@ addsrcfile(char *path)
 		srcfiles = myrealloc(srcfiles, msrcfiles * sizeof(char *));
 	}
 	/* add the file to the list */
-	srcfiles[nsrcfiles++] = my_strdup(compath(path));
+	srcfiles[nsrcfiles++] = my_strdup(compath(get_shortpath(path)));
 	p = mymalloc(sizeof(struct listitem));
-	p->text = my_strdup(compath(path));
+	p->text = my_strdup(compath(get_shortpath(path)));
 	i = hash(p->text) % HASHMOD;
 	p->next = srcnames[i];
 	srcnames[i] = p;
