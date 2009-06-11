@@ -869,7 +869,7 @@ exitcurses(void)
 static void
 usage(void)
 {
-	fprintf(stderr, "Usage: cscope [-bcCdehklLqRTuUvV] [-f file] [-F file] [-i file] [-I dir] [-s dir]\n");
+	fprintf(stderr, "Usage: cscope [-bcCdehklLqRTuUvVX] [-f file] [-F file] [-i file] [-I dir] [-s dir]\n");
 	fprintf(stderr, "              [-p number] [-P path] [-[0-8] pattern] [source files]\n");
 }
 
@@ -911,7 +911,7 @@ longusage(void)
 -u            Unconditionally build the cross-reference file.\n\
 -v            Be more verbose in line mode.\n\
 -V            Print the version number.\n\
--X            Disable support for long database filename, be UNIX-compatible.\n\
+-X            Keep database format compatible with original cscope.\n\
 \n\
 Please see the manpage for more information.\n",
 	      stderr);
