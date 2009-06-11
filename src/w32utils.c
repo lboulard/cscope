@@ -16,13 +16,18 @@ static char *get_longpath_internal(char *path, int len);
 
 char *get_shortpath(char *path)
 {
-    /* use satic buffers for simplicity */
-    static char short_path[MAX_PATH + 1];
-    int ret = GetShortPathName(path, short_path, sizeof(short_path));
-    if (!ret || ret > sizeof(short_path))
-	/* error during the conversion */
+    if (strchr(path, ' ') == NULL) /* get short name only for files with spaces in names */
 	return path;
-    return short_path;
+    else
+    {
+	/* use satic buffers for simplicity */
+	static char short_path[MAX_PATH + 1];
+	int ret = GetShortPathName(path, short_path, sizeof(short_path));
+	if (!ret || ret > sizeof(short_path))
+	    /* error during the conversion */
+	    return path;
+	return short_path;
+    }
 }
 
 void to_longpath(char *path, int len)
@@ -52,7 +57,7 @@ static char *get_longpath_internal(char *path, int len)
 
 void sleep(int sec)
 {
-  Sleep(sec * 1000);
+    Sleep(sec * 1000);
 }
 
 #else
