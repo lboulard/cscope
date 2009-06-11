@@ -900,7 +900,7 @@ countrefs(void)
 	    return;
 	}
 #ifdef WIN32
-	strcpy(file, longpath(file));
+	to_longpath(file, sizeof(file));
 #endif
 	if ((i = strlen(pathcomponents(file, dispcomponents))) > filelen) {
 	    filelen = i;

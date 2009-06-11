@@ -243,7 +243,7 @@ build(void)
 	&& fscanf(oldrefs, signature, &fileversion, olddir) == 2 
 	&& (strcmp(olddir, currentdir) == 0 /* remain compatible */
 #ifdef WIN32
-	    || (!whitespace_safe && strcmp(olddir, shortpath(currentdir)) == 0)
+	    || (!whitespace_safe && strcmp(olddir, get_shortpath(currentdir)) == 0)
 #endif
 	    || strcmp(olddir, newdir) == 0)) {
 	        if (whitespace_safe)
@@ -575,7 +575,7 @@ putheader(char *dir)
     /* get 8.3 name for -X command line option
      * so it should work with long file paths anyway */
     if (!whitespace_safe)
-	dir = shortpath(dir);
+	dir = get_shortpath(dir);
 #endif
     dboffset = fprintf(newrefs, signature, FILEVERSION, dir);
     if (compress == NO) {

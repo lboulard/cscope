@@ -11,22 +11,41 @@
 #include "w32utils.h"
 #include "alloc.h"
 
-char *shortpath(const char *path)
+static char *get_longpath_internal(char *path, int len);
+
+char *get_shortpath(char *path)
 {
-    /* use satic buffers to simplify the code */
+    /* use satic buffers for simplicity */
     static char short_path[MAX_PATH + 1];
     int ret = GetShortPathName(path, short_path, sizeof(short_path));
-    if (!ret || ret > sizeof(short_path)) /* failed during the conversion */
-	strcpy(short_path, path);
+    if (!ret || ret > sizeof(short_path))
+	/* error during the conversion */
+	return path;
     return short_path;
 }
 
-char *longpath(const char *path)
+void to_longpath(char *path, int len)
 {
-    static char long_path [MAX_PATH + 1];
-    int ret = GetLongPathName(path, long_path, sizeof(long_path));
-    if (!ret || ret > sizeof(long_path))
-	strcpy(long_path, path);
+    char *long_path = get_longpath_internal(path, len);
+    if (long_path != path)
+	/* get_longpath_internal gurantees result will be no longer than len */
+	strcpy(path, long_path);
+}
+
+char *get_longpath(char *path)
+{
+    return get_longpath_internal(path, -1);
+}
+
+static char *get_longpath_internal(char *path, int len)
+{
+    static char long_path[MAX_PATH + 1];
+    int buflen;
+    buflen = (len == -1 ? sizeof(long_path) : len);
+    int ret = GetLongPathName(path, long_path, buflen);
+    if (!ret || ret > buflen)
+	/* error during the conversion */
+	return path;
     return long_path;
 }
 

@@ -220,7 +220,7 @@ void
 putfilename(char *srcfile)
 {
 #ifdef WIN32
-    srcfile = shortpath(srcfile);
+    srcfile = get_shortpath(srcfile);
 #endif
 	/* check for file system out of space */
 	/* note: dbputc is not used to avoid lint complaint */

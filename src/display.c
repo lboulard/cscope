@@ -256,7 +256,7 @@ display(void)
 	    }
 
 #ifdef WIN32
-	    strcpy(file, longpath(file));
+	    to_longpath(file, sizeof(file));
 #endif
 	    /* display the file name */
 	    if (field == FILENAME) {
