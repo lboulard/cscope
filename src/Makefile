@@ -84,4 +84,8 @@ vpopen.o: vpopen.c global.h config.h constants.h invlib.h library.h \
 	vp.h
 
 clean:
-	del $(cscope_OBJECTS) fscanner.c egrep.c cscope.exe
+	$(ComSpec) /c del $(OBJECTS) fscanner.c egrep.c $(PROGRAM)
+
+dist:	$(PROGRAM)
+	strip cscope.exe
+	7z.exe a -tzip -mx=9 cscope.zip $(PROGRAM) sort.exe
