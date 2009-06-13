@@ -131,7 +131,11 @@ filepath(char *file)
 {
 	static	char	path[PATHLEN + 1];
 	
-	if (prependpath != NULL && *file != '/') {
+	if (prependpath != NULL && *file != '/'
+#ifdef WIN32
+		&& *file != '\\' && *file != '\0' && file[1] != ':'
+#endif
+		) {
 		(void) snprintf(path, sizeof(path), "%s/%s", prependpath, file);
 		file = path;
 	}

@@ -49,6 +49,9 @@ vpopen(char *path, int oflag)
 	int	i;
 
 	if ((returncode = myopen(path, oflag, 0666)) == -1 && path[0] != '/' &&
+#ifdef WIN32
+		path[0] != '\\' && path[1] != ':' &&
+#endif
 	    oflag == OPENFLAG_READ) {
 		vpinit(NULL);
 		for (i = 1; i < vpndirs; i++) {

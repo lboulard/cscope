@@ -92,18 +92,27 @@ mygetch(void)
 	    prevchar = 0;
 	} else {
 	    c = -1;
+#if defined(WIN32) && defined(__PDCURSES__)
+		    do {
+			c = getch();	/* get a character from the terminal */
+		    } while(!c || 
+			    c==KEY_SHIFT_L || c==KEY_SHIFT_R || 
+			    c==KEY_CONTROL_L || c==KEY_CONTROL_R ||
+			    c==KEY_ALT_L || c==KEY_ALT_R); /* Fix garbage with PDCurses */
+#else
 	    while (c == -1) {
 		/* get a character from the terminal */
 		c = getch();
 		if ((c == -1) && (errno != EINTR))
 		    break;
 	    }
+#endif
 	}
-    } else {	/* longjmp to here from signal handler */
-	c = KEY_BREAK;
-    }
+	} else {	/* longjmp to here from signal handler */
+		c = KEY_BREAK;
+	}
     signal(SIGINT, savesig);
-    return(c);
+	return(c);
 }
 
 

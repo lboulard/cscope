@@ -48,6 +48,9 @@ vpfopen(char *filename, char *type)
 
 	if ((returncode = myfopen(filename, type)) == NULL 
 		&& filename[0] != '/' 
+#ifdef WIN32
+		&& filename[0] != '\\' && filename[1] != ':' 
+#endif
 		/* && strcmp(type, "r") == 0 */ /* HBB: this breaks if type=="rb" */
 		&& type[0] == 'r'
 		) {
