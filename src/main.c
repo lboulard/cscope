@@ -55,12 +55,7 @@
 #include <signal.h>
 
 /* defaults for unset environment variables */
-#ifdef WIN32
-/* there are no plain vanilla vi for Windows */
-#define EDITOR "vim"
-#else
 #define	EDITOR	"vi"
-#endif
 #define HOME	"/"	/* no $HOME --> use root directory */
 #define	SHELL	"sh"
 #define LINEFLAG "+%s"	/* default: used by vi and emacs */
@@ -100,7 +95,6 @@ BOOL	kernelmode;		/* don't use DFLT_INCDIR - bad for kernels */
 BOOL	linemode = NO;		/* use line oriented user interface */
 BOOL	verbosemode = NO;	/* print extra information on line mode */
 BOOL	recurse_dir = NO;	/* recurse dirs when searching for src files */
-BOOL	whitespace_safe = YES;  /* allow using whitespace in filenames */
 char	*namefile;		/* file of file names */
 BOOL	ogs;			/* display OGS book and subsystem names */
 char	*prependpath;		/* prepend path to file names */
@@ -127,7 +121,7 @@ static	void	usage(void);
 void	fixkeypad();
 #endif
 
-#if defined(KEY_RESIZE) && !defined(__DJGPP__) && !defined(WIN32)
+#if defined(KEY_RESIZE) && !defined(__DJGPP__)
 void 
 sigwinch_handler(int sig, siginfo_t *info, void *unused)
 {
@@ -151,11 +145,10 @@ main(int argc, char **argv)
     unsigned int i;
     pid_t pid;
     struct stat	stat_buf;
-#if defined(KEY_RESIZE) && !defined(__DJGPP__) && !defined(WIN32)
+#if defined(KEY_RESIZE) && !defined(__DJGPP__)
     struct sigaction winch_action;
 #endif
     mode_t orig_umask;
-    static char *signature;
 	
     yyin = stdin;
     yyout = stdout;
@@ -252,9 +245,6 @@ cscope: pattern too long, cannot be > %d characters\n", PATLEN);
 	    case 'R':
 		recurse_dir = YES;
 		break;
-		case 'X':
-		whitespace_safe = NO;	
-		break;
 	    case 'f':	/* alternate cross-reference file */
 	    case 'F':	/* symbol reference lines file */
 	    case 'i':	/* file containing file names */
@@ -339,27 +329,11 @@ cscope: reffile too long, cannot be > %d characters\n", sizeof(path) - 1);
     editor = mygetenv("EDITOR", EDITOR);
     editor = mygetenv("VIEWER", editor); /* use viewer if set */
     editor = mygetenv("CSCOPE_EDITOR", editor);	/* has last word */
-#ifndef WIN32
     home = mygetenv("HOME", HOME);
-#else
-	home = mygetenv("HOME", NULL);
-	if (home==NULL)
-	    home = mygetenv("USERPROFILE", HOME);
-#endif
     shell = mygetenv("SHELL", SHELL);
     lineflag = mygetenv("CSCOPE_LINEFLAG", LINEFLAG);
     lineflagafterfile = getenv("CSCOPE_LINEFLAG_AFTER_FILE") ? 1 : 0;
-#ifndef WIN32
     tmpdir = mygetenv("TMPDIR", TMPDIR);
-#else
-	tmpdir = mygetenv("TMPDIR", NULL);
-	if (tmpdir==NULL)
-	{
-	    tmpdir = mygetenv("TEMP", NULL);
-	    if (tmpdir==NULL)
-		tmpdir = mygetenv("TMP", TMPDIR);
-	}
-#endif
 
     /* XXX remove if/when clearerr() in dir.c does the right thing. */
     if (namefile && strcmp(namefile, "-") == 0 && !buildonly) {
@@ -379,24 +353,16 @@ cscope: TMPDIR to a valid directory\n");
     }
 
     /* create the temporary file names */
-#ifndef WIN32
     orig_umask = umask(S_IRWXG|S_IRWXO);
-#endif
     pid = getpid();
     snprintf(tempdirpv, sizeof(tempdirpv), "%s/cscope.%d", tmpdir, pid);
-    if(mkdir(tempdirpv
-#ifndef WIN32
-		,S_IRWXU
-#endif
-		)) {
+    if(mkdir(tempdirpv,S_IRWXU)) {
 	fprintf(stderr, "\
 cscope: Could not create private temp dir %s\n",
 		tempdirpv);
 	myexit(1);
     }
-#ifndef WIN32
     umask(orig_umask);
-#endif
 
     snprintf(temp1, sizeof(temp1), "%s/cscope.1", tempdirpv);
     snprintf(temp2, sizeof(temp2), "%s/cscope.2", tempdirpv);
@@ -405,24 +371,16 @@ cscope: Could not create private temp dir %s\n",
     if (signal(SIGINT, SIG_IGN) != SIG_IGN) {
 	/* cleanup on the interrupt and quit signals */
 	signal(SIGINT, myexit);
-#ifndef WIN32
 	signal(SIGQUIT, myexit);
-#endif
     }
-#ifndef WIN32
     /* cleanup on the hangup signal */
     signal(SIGHUP, myexit);
-#endif
 
     /* ditto the TERM signal */
     signal(SIGTERM, myexit);
 
     /* if the database path is relative and it can't be created */
-    if (reffile[0] != '/' 
-#ifdef WIN32
-		&& reffile[0] != '\\' && reffile[1] != ':' 
-#endif
-		&& access(".", WRITE) != 0) {
+    if (reffile[0] != '/' && access(".", WRITE) != 0) {
 
 	/* put it in the home directory if the database may not be
 	 * up-to-date or doesn't exist in the relative directory,
@@ -442,11 +400,9 @@ cscope: Could not create private temp dir %s\n",
 
     if (linemode == NO) {
 	signal(SIGINT, SIG_IGN);	/* ignore interrupts */
-#ifndef WIN32
 	signal(SIGPIPE, SIG_IGN);/* | command can cause pipe signal */
-#endif
 
-#if defined(KEY_RESIZE) && !defined(__DJGPP__) && !defined(WIN32)
+#if defined(KEY_RESIZE) && !defined(__DJGPP__)
 	winch_action.sa_sigaction = sigwinch_handler;
 	sigemptyset(&winch_action.sa_mask);
 	winch_action.sa_flags = SA_SIGINFO;
@@ -478,17 +434,12 @@ cscope: Could not create private temp dir %s\n",
 	    postfatal("cscope: cannot open file %s\n", reffile);
 	    /* NOTREACHED */
 	}
-	signature = (whitespace_safe
-	   ? "cscope %d %*[^\"]s"
-	   : "cscope %d %*s");
 	/* get the crossref file version but skip the current directory */
-	if (fscanf(oldrefs, signature, &fileversion) != 1) {
+	if (fscanf(oldrefs, "cscope %d %*s", &fileversion) != 1) {
 	    postfatal("cscope: cannot read file version from file %s\n", 
 		      reffile);
 	    /* NOTREACHED */
 	}
-	if (whitespace_safe)
-	    fgetc(oldrefs); /* remove the mark */
 	if (fileversion >= 8) {
 
 	    /* override these command line options */
@@ -834,8 +785,8 @@ skiplist(FILE *oldrefs)
 void
 entercurses(void)
 {
-	incurses = YES;
-#if !defined(__MSDOS__) && !defined(WIN32) /* HBB 20010313 */
+    incurses = YES;
+#ifndef __MSDOS__ /* HBB 20010313 */
     nonl();		    /* don't translate an output \n to \n\r */
 #endif
     raw();			/* single character input */
@@ -869,7 +820,7 @@ exitcurses(void)
 static void
 usage(void)
 {
-	fprintf(stderr, "Usage: cscope [-bcCdehklLqRTuUvVX] [-f file] [-F file] [-i file] [-I dir] [-s dir]\n");
+	fprintf(stderr, "Usage: cscope [-bcCdehklLqRTuUvV] [-f file] [-F file] [-i file] [-I dir] [-s dir]\n");
 	fprintf(stderr, "              [-p number] [-P path] [-[0-8] pattern] [source files]\n");
 }
 
@@ -911,7 +862,6 @@ longusage(void)
 -u            Unconditionally build the cross-reference file.\n\
 -v            Be more verbose in line mode.\n\
 -V            Print the version number.\n\
--X            Keep database format compatible with original cscope.\n\
 \n\
 Please see the manpage for more information.\n",
 	      stderr);
@@ -937,12 +887,10 @@ myexit(int sig)
 	if (incurses == YES) {
 		exitcurses();
 	}
-#ifndef WIN32
 	/* dump core for debugging on the quit signal */
 	if (sig == SIGQUIT) {
 		abort();
 	}
-#endif
 	/* HBB 20000421: be nice: free allocated data */
 	freefilelist();
 	freeinclist();

@@ -52,8 +52,6 @@
 #include <curses.h>
 #endif
 
-#include "w32utils.h"
-
 /* Exported variables: */
 
 BOOL	buildonly = NO;		/* only build the database */
@@ -218,10 +216,6 @@ build(void)
     int     copied = 0;		/* copied crossref for these files */
     unsigned long fileindex;		/* source file name index */
     BOOL    interactive = YES;	/* output progress messages */
-    static char* signature;
-    signature = (whitespace_safe
-    	? "cscope %d %" PATHLEN_STR "[^\"]s" 
-    	: "cscope %d %" PATHLEN_STR "s");
 
     /* normalize the current directory relative to the home directory so
        the cross-reference is not rebuilt when the user's login is moved */
@@ -238,12 +232,9 @@ build(void)
     /* or this is an unconditional build */
     if ((oldrefs = vpfopen(reffile, "rb")) != NULL
 	&& unconditional == NO
-	&& fscanf(oldrefs, signature, &fileversion, olddir) == 2 
+	&& fscanf(oldrefs, "cscope %d %" PATHLEN_STR "s", &fileversion, olddir) == 2 
 	&& (strcmp(olddir, currentdir) == 0 /* remain compatible */
-	    || (!whitespace_safe && strcmp(olddir, get_shortpath(currentdir)) == 0)
 	    || strcmp(olddir, newdir) == 0)) {
-	        if (whitespace_safe)
-	            fgetc(oldrefs); /* remove our mark */
 	/* get the cross-reference file's modification time */
 	fstat(fileno(oldrefs), &statstruct);
 	reftime = statstruct.st_mtime;
@@ -465,11 +456,7 @@ cscope: converting to new symbol database file format\n");
 	}
 	fstat(fileno(postings), &statstruct);
 	fclose(postings);
-#ifdef WIN32
-	snprintf(sortcommand, sizeof(sortcommand), "set LC_ALL=C && sort -T %s %s", tmpdir, temp1);
-#else	
 	snprintf(sortcommand, sizeof(sortcommand), "env LC_ALL=C sort -T %s %s", tmpdir, temp1);
-#endif
 	if ((postings = mypopen(sortcommand, "r")) == NULL) {
 	    fprintf(stderr, "cscope: cannot open pipe to sort command\n");
 	    cannotindex();
@@ -564,16 +551,7 @@ void free_newbuildfiles(void)
 static void
 putheader(char *dir)
 {
-    const char *signature = (whitespace_safe
-		? "cscope %d %s\""
-		: "cscope %d %s");
-#ifdef WIN32
-    /* get 8.3 name for -X command line option
-     * so it should work with long file paths anyway */
-    if (!whitespace_safe)
-	dir = get_shortpath(dir);
-#endif
-    dboffset = fprintf(newrefs, signature, FILEVERSION, dir);
+    dboffset = fprintf(newrefs, "cscope %d %s", FILEVERSION, dir);
     if (compress == NO) {
 	dboffset += fprintf(newrefs, " -c");
     }

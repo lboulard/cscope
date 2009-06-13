@@ -46,11 +46,7 @@ vpaccess(char *path, mode_t amode)
 	int	returncode;
 	int	i;
 
-	if ((returncode = access(path, amode)) == -1 && path[0] != '/'
-#ifdef WIN32
-		&& path[0] != '\\' && path[1] != ':'
-#endif
-		) {
+	if ((returncode = access(path, amode)) == -1 && path[0] != '/') {
 		vpinit(NULL);
 		for (i = 1; i < vpndirs; i++) {
 			(void) snprintf(buf, sizeof(buf), "%s/%s", vpdirs[i], path);

@@ -256,7 +256,6 @@ extern	BOOL	kernelmode;	/* don't use DFLT_INCDIR - bad for kernels */
 extern	BOOL	linemode;	/* use line oriented user interface */
 extern	BOOL	verbosemode;	/* print extra information on line mode */
 extern	BOOL	recurse_dir;	/* recurse dirs when searching for src files */
-extern  BOOL	whitespace_safe;/* allow using whitespace in filenames */
 extern	char	*namefile;	/* file of file names */
 extern	BOOL	ogs;		/* display OGS book and subsystem names */
 extern	char	*prependpath;	/* prepend path to file names */

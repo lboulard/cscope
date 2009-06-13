@@ -35,8 +35,6 @@
  *	searching functions
  */
 
-#include "w32utils.h"
-
 #include "global.h"
 
 #include "build.h"
@@ -533,8 +531,7 @@ findfile(char *dummy)
 	} else {
 	    s = srcfiles[i];
 	}
-	if (regexec (&regexp, s, (size_t)0, NULL, 0) == 0
-		|| regexec(&regexp, get_longpath(s), (size_t)0, NULL, 0) == 0) {
+	if (regexec (&regexp, s, (size_t)0, NULL, 0) == 0) {
 	    (void) fprintf(refsfound, "%s <unknown> 1 <unknown>\n", 
 			   srcfiles[i]);
 	}

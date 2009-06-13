@@ -36,9 +36,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#ifdef MSVC_WIN32
-#include <direct.h>	/* getcwd */
-#endif
 #include "vp.h"
 #include "alloc.h"
 #include "library.h"
@@ -93,15 +90,8 @@ vpinit(char *current_dir)
 	for (i = 0; vpath[i] == current_dir[i] && vpath[i] != '\0'; ++i) {
 		;
 	}
-
-#ifdef WIN32
-	if ((vpath[i] != ';' && vpath[i] != '\0') ||
-	    (current_dir[i] != '/' && current_dir[i] != '\0' && current_dir[i] != '\\'))
-#else
 	if ((vpath[i] != ':' && vpath[i] != '\0') ||
-	    (current_dir[i] != '/' && current_dir[i] != '\0'))
-#endif
-	{
+	    (current_dir[i] != '/' && current_dir[i] != '\0')) {
 		return;
 	}
 	suffix = &current_dir[i];
@@ -110,12 +100,7 @@ vpinit(char *current_dir)
 	/* count the nodes in the view path */
 	vpndirs = 1;
 	for (i = 0; vpath[i] != '\0'; ++i) {
-#ifdef WIN32
-		if (vpath[i] == ';'
-#else
-		if (vpath[i] == ':' 
-#endif
-			&& vpath[i + 1]) {
+		if (vpath[i] == ':' && vpath[i + 1]) {
 			++vpndirs;
 		}
 	}
@@ -128,13 +113,7 @@ vpinit(char *current_dir)
 	/* split the view path into nodes */
 	for (i = 0, s = vpath; *s != '\0'; ++i) {
 		vpdirs[i] = s;
-		while (*s != '\0' &&
-#ifdef WIN32
-			*++s != ';'
-#else
-			*++s != ':'
-#endif
-			) {
+		while (*s != '\0' && *++s != ':') {
 			if (*s == '\n') {
 				*s = '\0';
 			}
@@ -165,13 +144,7 @@ vpinit(char *current_dir)
 		
 		/* get the next node */
 		node = s;
-		while (*s != '\0' && 
-#ifdef WIN32
-			*++s != ';'
-#else
-			*++s != ':'
-#endif
-			) {
+		while (*s != '\0' && *++s != ':') {
 			if (*s == '\n') {
 				*s = '\0';
 			}

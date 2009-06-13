@@ -66,11 +66,7 @@ compath(char *pathname)			/*FDEF*/
 		 *	do not change the path if it has no "/"
 		 */
 
-	if (strchr(pathname, '/') == NULL 
-#ifdef WIN32
-		&& strchr(pathname, '\\') == NULL
-#endif
-		)
+	if (strchr(pathname, '/') == NULL)
 		return(pathname);
 
 		/*
@@ -78,13 +74,7 @@ compath(char *pathname)			/*FDEF*/
 		 */
 
 	for (lastchar = pathname + 1; *lastchar != '\0'; lastchar++)
-		if ((*lastchar == '/') && (*(lastchar - 1) == '/')
-#ifdef WIN32
-			||(*lastchar == '\\') && (*(lastchar - 1) == '/')
-			||(*lastchar == '\\') && (*(lastchar - 1) == '\\')
-			||(*lastchar == '/') && (*(lastchar - 1) == '\\')
-#endif
-			)
+		if ((*lastchar == '/') && (*(lastchar - 1) == '/'))
 		{
 
 			/*
@@ -92,11 +82,7 @@ compath(char *pathname)			/*FDEF*/
 			 */
 
 			nextchar = lastchar;
-			while (*++lastchar == '/'
-#ifdef WIN32
-			    || *++lastchar == '\\'
-#endif
-				)
+			while (*++lastchar == '/')
 			{
 			}
 
@@ -116,17 +102,8 @@ compath(char *pathname)			/*FDEF*/
 		 */
 
 	for (lastchar = pathname + 1; *lastchar != '\0'; lastchar++)
-#ifdef WIN32 
-		if (((*lastchar == '/') || (*lastchar == '\\'))
-		    && (*(lastchar - 1) == '.')
-		    && ((lastchar - 1 == pathname) 
-		     || (*(lastchar - 2) == '/')
-		     || (*(lastchar - 2) == '\\'))
-		    )
-#else
 		if ((*lastchar == '/') && (*(lastchar - 1) == '.') &&
 		    ((lastchar - 1 == pathname) || (*(lastchar - 2) == '/')))
-#endif
 		{
 
 			/*
@@ -145,18 +122,9 @@ compath(char *pathname)			/*FDEF*/
 		 */
 
 	for (lastchar = pathname + 1; *lastchar != '\0'; lastchar++)
-#ifdef WIN32
-		if ((lastchar != pathname)
-			&& ((*lastchar == '/') || (*lastchar == '\\'))
-			&& (*(lastchar + 1) == '.') && (*(lastchar + 2) == '.')
-			&& ((*(lastchar + 3) == '/') 
-			    || (*(lastchar + 3) == '\\')
-			    || (*(lastchar + 3) == '\0')))
-#else
 		if ((lastchar != pathname) && (*lastchar == '/') &&
 		    (*(lastchar + 1) == '.') && (*(lastchar + 2) == '.') &&
 		    ((*(lastchar + 3) == '/') || (*(lastchar + 3) == '\0')))
-#endif
 		{
 
 			/*
@@ -165,11 +133,7 @@ compath(char *pathname)			/*FDEF*/
 
 			nextchar = lastchar - 1;
 			while ((nextchar != pathname) &&
-			    (*(nextchar - 1) != '/')
-#ifdef WIN32
-			    && (*(nextchar - 1) != '\\')
-#endif
-			    )
+			    (*(nextchar - 1) != '/'))
 				--nextchar;
 
 			/*
@@ -179,17 +143,7 @@ compath(char *pathname)			/*FDEF*/
 
 			if ((*nextchar == '.') &&
 			    ((*(nextchar + 1) == '/') ||
-#ifdef WIN32
-			     (*(nextchar + 1) == '\\') ||
-#endif
-			     ((*(nextchar + 1) == '.') && 
-#ifdef WIN32
-				((*(nextchar + 2) == '/') || (*(nextchar + 2) == '\\'))
-#else
-				  (*(nextchar + 2) == '/')
-#endif
-			      )
-			     ))
+			     ((*(nextchar + 1) == '.') && (*(nextchar + 2) == '/'))))
 				/* EMPTY */;
 			else
 			{
@@ -199,11 +153,7 @@ compath(char *pathname)			/*FDEF*/
 				 *	"dir_name/../" or "dir_name/.."
 				 */
 
-#ifdef WIN32
-				if ((*(lastchar + 3) == '/') || (*(lastchar + 3) == '\\'))
-#else
 				if (*(lastchar + 3) == '/')
-#endif
 					lastchar += 4;
 				else
 					lastchar += 3;
@@ -224,13 +174,7 @@ compath(char *pathname)			/*FDEF*/
 				 *	slash is part of "/.."
 				 */
 
-				if ((sofar + 1 != pathname) && 
-#ifdef WIN32
-					((*sofar == '/') || (*sofar == '\\'))
-#else
-					(*sofar == '/')
-#endif
-					)
+				if ((sofar + 1 != pathname) && (*sofar == '/'))
 					--lastchar;
 			}
 		}
@@ -243,11 +187,7 @@ compath(char *pathname)			/*FDEF*/
 	pnlen = strlen(pathname);
 	pnend = strchr(pathname, '\0') - 1;
 
-#ifdef WIN32
-	if ((pnlen > 1) && ((*pnend == '/') || (*pnend == '\\')))
-#else
 	if ((pnlen > 1) && (*pnend == '/'))
-#endif
 	{
 		*pnend-- = '\0';
 		pnlen--;
@@ -258,13 +198,7 @@ compath(char *pathname)			/*FDEF*/
 	 *	"/.", remove the "/.".
 	 */
 
-	if ((pnlen > 2) &&
-#ifdef WIN32
-		((*(pnend - 1) == '/') || (*(pnend - 1) == '\\')) &&
-#else
-		(*(pnend - 1) == '/') &&
-#endif
-		(*pnend == '.'))
+	if ((pnlen > 2) && (*(pnend - 1) == '/') && (*pnend == '.'))
 		*--pnend = '\0';
 
 	/*

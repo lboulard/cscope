@@ -37,11 +37,8 @@
 
 #include <unistd.h>
 #include "global.h"
-#include "alloc.h"
 #include <stdarg.h>
-#ifndef WIN32
 #include <sys/wait.h>
-#endif
 #include <sys/types.h>      /* pid_t */
 #ifdef __DJGPP__
 #include <process.h>
@@ -58,7 +55,7 @@ static	sighandler_t oldsigquit; /* old value of quit signal */
 static	sighandler_t oldsighup; /* old value of hangup signal */
 static	sighandler_t oldsigtstp; /* old value of SIGTSTP */
 
-#if !defined(__MSDOS__) && !defined(WIN32) /* none of these is needed, there */
+#ifndef __MSDOS__ /* none of these is needed, there */
 static	int	join(pid_t p);
 static	int	myexecvp(char *a, char **args);
 static	pid_t	myfork(void);
@@ -84,20 +81,10 @@ execute(char *a, ...)	/* note: "exec" is already defined on u370 */
 	va_start(ap, a);
 	for (p = 0; (argv[p] = va_arg(ap, char *)) != 0; p++)
 		;
-#if defined(__MSDOS__) || defined(WIN32)
+#ifdef __MSDOS__
 	/* HBB 20010313: in MSDOG, everything is completely different.
 	 * No fork()/exec()/wait(), but rather a single libc call: */
-	if (a[0] == '"' && a[strlen(a)-1] == '"')
-	{
-	    char	*exename;
-	    /* executable name is delimited by quotes */
-	    exename = my_strdup(a+1);
-	    exename[strlen(exename)-1] = '\0';
-	    exitcode = spawnvp(P_WAIT, exename, (const char *const *)argv);
-	    free(exename);
-	}
-	else
-        exitcode = spawnvp(P_WAIT, a, (const char *const *)argv);
+        exitcode = spawnvp(P_WAIT, a, argv);
 #else
 	if ((p = myfork()) == 0) {
 		myexecvp(a, argv);	/* child */
@@ -109,7 +96,7 @@ execute(char *a, ...)	/* note: "exec" is already defined on u370 */
 	
 	/* the menu and scrollbar may be changed by the command executed */
 #if UNIXPC || !TERMINFO
-# if !defined(__DJGPP__) && !defined(WIN32)/* leave CRLF handling as is */      
+# ifndef __DJGPP__ /* leave CRLF handling as is */      
 	nonl();
 # endif
 	raw();	/* endwin() turns off cbreak mode so restore it */
@@ -121,7 +108,7 @@ execute(char *a, ...)	/* note: "exec" is already defined on u370 */
 	return(exitcode);
 }
 
-#if !defined(__MSDOS__) && !defined(WIN32) /* None of the following functions is used there */
+#ifndef __MSDOS__ /* None of the following functions is used there */
 
 /* myexecvp is an interface to the execvp system call to
  * modify argv[0] to reference the last component of its path-name.

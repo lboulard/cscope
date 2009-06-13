@@ -44,19 +44,10 @@
 #include <sys/types.h>	/* needed by stat.h and dirent.h */
 #include <dirent.h>
 #include <sys/stat.h>	/* stat */
-#ifdef MSVC_WIN32
-#include <direct.h>	/* getcwd */
-#endif
-
-#include "w32utils.h"
 
 static char const rcsid[] = "$Id: dir.c,v 1.31 2009/04/10 13:39:23 broeker Exp $";
 
-#ifdef WIN32
-#define	DIRSEPS	" ,;"
-#else
 #define	DIRSEPS	" ,:"	/* directory list separators */
-#endif
 #define	DIRINC	10	/* directory list size increment */
 #define HASHMOD	2003	/* must be a prime number */
 #define	SRCINC	HASHMOD	/* source file list size increment */
@@ -145,11 +136,7 @@ sourcedir(char *dirlist)
 
 	/* if it isn't a full path name and there is a 
 	   multi-directory view path */
-		if (*dirlist != '/'
-#ifdef WIN32
-			&& *dirlist != '\\' && *dirlist != '\0' && dirlist[1] != ':'
-#endif
-			&& vpndirs > 1) {
+	if (*dirlist != '/' && vpndirs > 1) {
 			
 	    /* compute its path from higher view path source dirs */
 	    for (i = 1; i < nvpsrcdirs; ++i) {
@@ -217,11 +204,7 @@ includedir(char *dirlist)
 
 	/* if it isn't a full path name and there is a 
 	   multi-directory view path */
-	if (*dirlist != '/' 
-#ifdef WIN32
-			&& *dirlist != '\\' && *dirlist != '\0' && dirlist[1] != ':'
-#endif
-			&& vpndirs > 1) {
+	if (*dirlist != '/' && vpndirs > 1) {
 			
 	    /* compute its path from higher view path source dirs */
 	    for (i = 1; i < nvpsrcdirs; ++i) {
@@ -690,12 +673,8 @@ inviewpath(char *file)
 
     /* if it isn't a full path name and there is a multi-directory
      * view path */
-	if (*file != '/' 
-#ifdef WIN32
-		&& *file != '\\' && *file != '\0' && file[1] != ':'
-#endif
-		&& vpndirs > 1) {
-		int file_len = strlen(file);
+    if (*file != '/' && vpndirs > 1) {
+	int file_len = strlen(file);
 
 	/* compute its path from higher view path source dirs */
 	for (i = 1; i < nvpsrcdirs; ++i) {
@@ -724,9 +703,9 @@ addsrcfile(char *path)
 		srcfiles = myrealloc(srcfiles, msrcfiles * sizeof(char *));
 	}
 	/* add the file to the list */
-	srcfiles[nsrcfiles++] = my_strdup(compath(get_shortpath(path)));
+	srcfiles[nsrcfiles++] = my_strdup(compath(path));
 	p = mymalloc(sizeof(struct listitem));
-	p->text = my_strdup(compath(get_shortpath(path)));
+	p->text = my_strdup(compath(path));
 	i = hash(p->text) % HASHMOD;
 	p->next = srcnames[i];
 	srcnames[i] = p;

@@ -56,8 +56,6 @@
 #include <errno.h>
 #include <stdarg.h>
 
-#include "w32utils.h"
-
 #ifndef HAVE_SIGSETJMP
 # define sigsetjmp(a,b) setjmp(a)
 # define siglongjmp(a,b) longjmp(a,b)
@@ -157,14 +155,9 @@ display(void)
     int     i;
     char    *s;
 
-	/* see if this is the initial display */
-	erase();
- 
-#if defined(WIN32) && defined(__PDCURSES__)
-	PDC_resize_screen(LINES, COLS); /* Fix if user have changed the screen buffer size */
- #endif
-
-	if (refsfound == NULL) {
+    /* see if this is the initial display */
+    erase();
+    if (refsfound == NULL) {
 #if CCS
 	if (displayversion == YES) {
 	    printw("cscope %s", ESG_REL);
@@ -253,7 +246,6 @@ display(void)
 		addch(' ');
 	    }
 
-	    to_longpath(file, sizeof(file));
 	    /* display the file name */
 	    if (field == FILENAME) {
 		printw("%-*s ", filelen, file);
@@ -740,22 +732,14 @@ pathcomponents(char *path, int components)
 {
 	int	i;
 	char	*s;
-
+	
 	s = path + strlen(path) - 1;
 	for (i = 0; i < components; ++i) {
-		while (s > path && *--s != '/'
-#ifdef WIN32
-			&& *s != '\\'
-#endif
-			) {
+		while (s > path && *--s != '/') {
 			;
 		}
 	}
-#ifdef WIN32
-	if (s > path && (*s == '/' || *s == '\\')){
-#else
 	if (s > path && *s == '/') {
-#endif
 		++s;
 	}
 	return(s);
