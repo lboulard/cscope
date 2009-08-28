@@ -1,3 +1,16 @@
+2009-08-28  Neil Horman <nhorman@tuxdriver.com>
+
+	* src/scanner.h: Added a LEXERR token to be returned if a lexer error
+	occurs
+
+	* src/crossref.c: Check for LEXERR token, and abort processing file if
+	lexer error occurs
+
+	* src/fcanner.l: check the statue of my_yytext on = and : symbols.  If
+	its NULL consider that a lexer error.  This can occur if input files are
+	provided that contain only a '=' or ':' symbol.  Without the ability to
+	detect and return a lexer error, we get a segfault.
+
 2009-05-06  Neil Horman <nhorman@tuxdriver.com>
 
 	* src/main.c: Fixed string length checks to avoid overflow

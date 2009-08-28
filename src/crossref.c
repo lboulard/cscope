@@ -176,6 +176,7 @@ crossref(char *srcfile)
 #endif
 	    break;
 			
+	case LEXERR:	/* Lexer error, abort further parsing of this file */
 	case LEXEOF:	/* end of file; last line may not have \n */
 			
 			/* if there were symbols, output them and the source line */

@@ -60,9 +60,10 @@
 #define UNIONDEF	'u'
 
 /* other scanner token types */
-#define LEXEOF	0
-#define	IDENT	1
-#define	NEWLINE	2
+#define	LEXEOF	0
+#define	LEXERR	1
+#define	IDENT	2	
+#define	NEWLINE	3	
 
 /* scanner.l global data */
 extern	int	first;		/* buffer index for first char of symbol */

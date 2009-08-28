@@ -401,6 +401,8 @@ wsnl		[ \t\r\v\f\n]|{comment}
 			/* NOTREACHED */
 		}
 =		{	/* if a global definition initializer */
+			if (!my_yytext)
+				return(LEXERR);
 			if (global == YES && ppdefine == NO && my_yytext[0] != '#') {
 				initializerbraces = braces;
 				initializer = YES;
@@ -409,6 +411,8 @@ wsnl		[ \t\r\v\f\n]|{comment}
 			/* NOTREACHED */
 		}
 :		{	/* a if global structure field */
+			if (!my_yytext)
+				return(LEXERR);
 			if (global == YES && ppdefine == NO && my_yytext[0] != '#') {
 				structfield = YES;
 			}
