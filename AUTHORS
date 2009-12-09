@@ -31,4 +31,4 @@ Ragho Mahalingam <ragho@mahalingam.com> - webcscope
 Dmitry Obukhov - Hilight code in webcscope
 David Cohrs - LEX and SUNOS scanner fix
 Valentin Podlovchenko - Overflow prevention and link recursion fix patch
-Neil Horman <nhorman@gmail.com>  - Various Bug Fixes
+Neil Horman <nhorman@tuxdriver.com>  - Various Bug Fixes

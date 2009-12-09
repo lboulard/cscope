@@ -53,6 +53,9 @@
 #include <sys/types.h>	/* needed by stat.h */
 #include <sys/stat.h>	/* stat */
 #include <signal.h>
+#ifdef _GNU_SOURCE
+#include <getopt.h>
+#endif
 
 /* defaults for unset environment variables */
 #define	EDITOR	"vi"
@@ -133,6 +136,124 @@ sigwinch_handler(int sig, siginfo_t *info, void *unused)
 }
 #endif
 
+#ifdef _GNU_SOURCE
+struct option lopts[] = {
+	{"help", 0, NULL, 'h'},
+	{"version", 0, NULL, 'V'},
+	{0, 0, 0, 0}
+};
+
+char ** parse_options(int *argc, char **argv)
+{
+	int opt;
+	int optind;
+	char path[PATHLEN + 1];     /* file path */
+	char *s;
+	int args_handled = 1;
+	int argcc = *argc;
+	
+
+	while ((opt = getopt_long(argcc, argv,
+	       "hVbcCdeF:f:I:i:kLl0:1:2:3:4:5:6:7:8:9:P:p:qRs:TUuv",
+	       lopts, &optind)) != -1) {
+		args_handled++;
+		switch(opt) {
+
+		case '?':
+			usage();
+			myexit(1);
+			break;
+		case 'b':	/* only build the cross-reference */
+			buildonly = YES;
+			linemode  = YES;
+			break;
+		case 'c':	/* ASCII characters only in crossref */
+			compress = NO;
+			break;
+		case 'C':	/* turn on caseless mode for symbol searches */
+			caseless = YES;
+			egrepcaseless(caseless); /* simulate egrep -i flag */
+			break;
+		case 'd':	/* consider crossref up-to-date */
+			isuptodate = YES;
+			break;
+		case 'e':	/* suppress ^E prompt between files */
+			editallprompt = NO;
+			break;
+		case 'k':	/* ignore DFLT_INCDIR */
+			kernelmode = YES;
+			break;
+		case 'L':
+			onesearch = YES;
+			/* FALLTHROUGH */
+		case 'l':
+			linemode = YES;
+			break;
+		case 'v':
+			verbosemode = YES;
+			break;
+		case 'q':	/* quick search */
+			invertedindex = YES;
+			break;
+		case 'T':	/* truncate symbols to 8 characters */
+			trun_syms = YES;
+			break;
+		case 'u':	/* unconditionally build the cross-reference */
+			unconditional = YES;
+			break;
+		case 'U':	/* assume some files have changed */
+			fileschanged = YES;
+			break;
+		case 'R':
+			recurse_dir = YES;
+			break;
+		case 'f':	/* alternate cross-reference file */
+			reffile = optarg;
+			if (strlen(reffile) > sizeof(path) - 3) {
+				postfatal("\
+					cscope: reffile too long, cannot \
+					be > %d characters\n", sizeof(path) - 3);
+				/* NOTREACHED */
+			}
+			strcpy(path, reffile);
+
+			s = path + strlen(path);
+			strcpy(s, ".in");
+			invname = my_strdup(path);
+			strcpy(s, ".po");
+			invpost = my_strdup(path);
+			break;
+
+		case 'F':	/* symbol reference lines file */
+			reflines = optarg;
+			break;
+		case 'i':	/* file containing file names */
+			namefile = optarg;
+			break;
+		case 'I':	/* #include file directory */
+			includedir(optarg);
+			break;
+		case 'p':	/* file path components to display */
+			dispcomponents = atoi(optarg);
+			break;
+		case 'P':	/* prepend path to file names */
+			prependpath = optarg;
+			break;
+		case 's':	/* additional source file directory */
+			sourcedir(optarg);
+			break;
+		}
+	}
+	/*
+ 	 * This adjusts argv so that we only see the remaining 
+ 	 * args.  Its ugly, but we need to do it so that the rest
+ 	 * of the main routine doesn't get all confused
+ 	 */
+	*argc = *argc - args_handled;
+	return &argv[*argc];
+}
+#endif
+
 int
 main(int argc, char **argv)
 {
@@ -156,6 +277,9 @@ main(int argc, char **argv)
     argv0 = argv[0];
 
     /* set the options */
+#ifdef _GNU_SOURCE
+	argv = parse_options(&argc, argv);
+#else
     while (--argc > 0 && (*++argv)[0] == '-') {
 	/* HBB 20030814: add GNU-style --help and --version options */
 	if (strequal(argv[0], "--help")
@@ -175,7 +299,17 @@ main(int argc, char **argv)
 	}
 
 	for (s = argv[0] + 1; *s != '\0'; s++) {
-			
+
+	    if ((*s != 'f') && (*s != 'F') &&
+		(*s != 'i') && (*s != 'I') &&
+		(*s != 'p') && (*s != 'P') &&
+		(*s != 's') && (*s != 'S')) {
+			if (*(s+1) != '\0') {
+				usage();
+				myexit(1);
+			}
+		}
+
 	    /* look for an input field number */
 	    if (isdigit((unsigned char) *s)) {
 		field = *s - '0';
@@ -325,6 +459,7 @@ cscope: reffile too long, cannot be > %d characters\n", sizeof(path) - 3);
     } /* while(argv) */
 
  lastarg:
+#endif
     /* read the environment */
     editor = mygetenv("EDITOR", EDITOR);
     editor = mygetenv("VIEWER", editor); /* use viewer if set */

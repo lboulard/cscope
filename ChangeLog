@@ -1,3 +1,12 @@
+2009-12-09  Neil Horman <nhorman@tuxdriver.com>
+
+	* src/main.c: Added a new parse_options implementation to make option
+	parsing more sane and safe for systems which support getopt_long.  Also
+	added a check to make sure that single character options didn't specify 
+	trailing data (sf bug 2911623)
+
+	* AUTHORS: Fixed my email address
+
 2009-08-28  Neil Horman <nhorman@tuxdriver.com>
 
 	* src/scanner.h: Added a LEXERR token to be returned if a lexer error
