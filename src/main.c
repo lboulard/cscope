@@ -161,6 +161,25 @@ char ** parse_options(int *argc, char **argv)
 			usage();
 			myexit(1);
 			break;
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+			/* The input fields numbers for line mode operation */
+			field = opt - '0';
+			if (strlen(optarg) > PATHLEN) {
+				    postfatal("\
+					cscope: pattern too long, cannot be > \
+					%d characters\n", PATLEN);
+			}
+			strcpy(Pattern, optarg);	
+			break;
 		case 'b':	/* only build the cross-reference */
 			buildonly = YES;
 			linemode  = YES;
