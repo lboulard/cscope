@@ -146,17 +146,15 @@ struct option lopts[] = {
 char ** parse_options(int *argc, char **argv)
 {
 	int opt;
-	int optind;
+	int longind;
 	char path[PATHLEN + 1];     /* file path */
 	char *s;
-	int args_handled = 1;
 	int argcc = *argc;
 	
 
 	while ((opt = getopt_long(argcc, argv,
 	       "hVbcCdeF:f:I:i:kLl0:1:2:3:4:5:6:7:8:9:P:p:qRs:TUuv",
-	       lopts, &optind)) != -1) {
-		args_handled++;
+	       lopts, &longind)) != -1) {
 		switch(opt) {
 
 		case '?':
@@ -249,8 +247,8 @@ char ** parse_options(int *argc, char **argv)
  	 * args.  Its ugly, but we need to do it so that the rest
  	 * of the main routine doesn't get all confused
  	 */
-	*argc = *argc - args_handled;
-	return &argv[*argc];
+	*argc = *argc - optind;
+	return &argv[optind];
 }
 #endif
 
