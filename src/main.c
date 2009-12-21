@@ -197,6 +197,10 @@ char ** parse_options(int *argc, char **argv)
 		case 'e':	/* suppress ^E prompt between files */
 			editallprompt = NO;
 			break;
+		case 'h':
+			longusage();
+			myexit(1);
+			break;
 		case 'k':	/* ignore DFLT_INCDIR */
 			kernelmode = YES;
 			break;
@@ -208,6 +212,11 @@ char ** parse_options(int *argc, char **argv)
 			break;
 		case 'v':
 			verbosemode = YES;
+			break;
+		case 'V':
+			fprintf(stderr, "%s: version %d%s\n", argv0,
+				FILEVERSION, FIXVERSION);
+			myexit(0);
 			break;
 		case 'q':	/* quick search */
 			invertedindex = YES;

@@ -1,3 +1,6 @@
+2009-12-21  Neil Horman <nhorman@tuxdriver.com>
+	* src/main.c: Added some more missing short options to parse_options
+
 2009-12-14  Neil Horman <nhorman@tuxdriver.com>
 	* src/main.c: Added missing line mode operation options to
 	parse_arguments
