@@ -375,7 +375,7 @@ class{ws}+{identifier}({wsnl}|[a-zA-Z0-9_():])*\{	{	/* class definition */
 			tagdef = '\0';
 			goto more;
 		}  			
-{identifier}/{ws}*\(({wsnl}|a-zA-Z0-9_*&[\]=,.])*\)({wsnl}|[()])*[:a-zA-Z_#{]	{
+{identifier}/{ws}*\(({wsnl}|a-zA-Z0-9_*&[\]=,.:])*\)({wsnl}|[()])*[:a-zA-Z_#{]	{
 			
 			/* warning: "if (...)" must not overflow yytext, so the content
 			   of function argument definitions is restricted, in particular
