@@ -1,3 +1,11 @@
+2010-03-04  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
+
+	* src/dir.c (includedir, incfile): Cast size_t value to integer
+	for use as a *printf() precision argument.
+
+	* src/fscanner.l, src/scanner.l: Tolerate C++ :: scope operator
+	inside argument lists, too.
+
 2009-12-21  Neil Horman <nhorman@tuxdriver.com>
 	* src/main.c: Added some more missing short options to parse_options
 
