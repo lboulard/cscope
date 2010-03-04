@@ -209,7 +209,7 @@ includedir(char *dirlist)
 	    /* compute its path from higher view path source dirs */
 	    for (i = 1; i < nvpsrcdirs; ++i) {
 		snprintf(path, sizeof(path), "%.*s/%s", 
-			PATHLEN - 2 - dir_len,
+			(int)(PATHLEN - 2 - dir_len),
 			srcdirs[i], dir);
 		addincdir(dir, path);
 	    }
@@ -608,14 +608,14 @@ incfile(char *file, char *type)
 	for (i = 0; i < nincdirs; ++i) {
 	    /* don't include the file from two directories */
 	    snprintf(name, sizeof(name), "%.*s/%s",
-		    PATHLEN - 2 - file_len, incnames[i],
+		    (int)(PATHLEN - 2 - file_len), incnames[i],
 		    file);
 	    if (infilelist(name) == YES) {
 		break;
 	    }
 	    /* make sure it exists and is readable */
 	    snprintf(path, sizeof(path), "%.*s/%s",
-		    PATHLEN - 2 - file_len, incdirs[i],
+		    (int)(PATHLEN - 2 - file_len), incdirs[i],
 		    file);
 	    if (access(compath(path), READ) == 0) {
 		addsrcfile(path);
