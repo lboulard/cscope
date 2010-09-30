@@ -1,3 +1,7 @@
+2010-09-30  Neil Horman <nhorman@tuxdriver.com>
+	* src/main.c: Ignore SIGPIPE in linemode as well to allow
+	for proper file cleanup
+
 2010-03-04  Hans-Bernhard Broeker  <broeker@physik.rwth-achen.de>
 
 	* src/dir.c (includedir, incfile): Cast size_t value to integer

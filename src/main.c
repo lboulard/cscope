@@ -540,6 +540,12 @@ cscope: Could not create private temp dir %s\n",
     /* ditto the TERM signal */
     signal(SIGTERM, myexit);
 
+    /* ignore PIPE signal, so myexit() will have a chance to clean up in
+     * linemode, while in curses mode the "|" command can cause a pipe signal
+     * too
+     */
+    signal(SIGPIPE, SIG_IGN);
+
     /* if the database path is relative and it can't be created */
     if (reffile[0] != '/' && access(".", WRITE) != 0) {
 
@@ -561,7 +567,6 @@ cscope: Could not create private temp dir %s\n",
 
     if (linemode == NO) {
 	signal(SIGINT, SIG_IGN);	/* ignore interrupts */
-	signal(SIGPIPE, SIG_IGN);/* | command can cause pipe signal */
 
 #if defined(KEY_RESIZE) && !defined(__DJGPP__)
 	winch_action.sa_sigaction = sigwinch_handler;
