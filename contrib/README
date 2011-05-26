@@ -9,3 +9,6 @@ webcscope - a web cgi interface to cscope. Contributed by Ragho Mahalingam,
 		using code from Dmitry Obukhovi and Steven E. Brenner.
 
 xcscope - An (X)Emacs interface to cscope.
+
+cctree.vim - A Vim plugin to allow you to do some powerful searching of cscope
+	     databases from within vi, see cctree.txt for usage details

@@ -1,3 +1,7 @@
+2011-05-26 Neil Horman <nhorman@tuxdriver.com>
+	* contrib/cctree.vim: Added vi plugin to read cscope db's
+	* contrib/cctree.txt: Added docs for cctree.vim
+
 2010-09-30  Neil Horman <nhorman@tuxdriver.com>
 	* src/main.c: Ignore SIGPIPE in linemode as well to allow
 	for proper file cleanup
