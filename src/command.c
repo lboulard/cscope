@@ -634,10 +634,16 @@ changestring(void)
 	atchange();
 		
 	/* get a character from the terminal */
-	if ((c = mygetch()) == EOF
-	    || c == ctrl('D') 
-	    || c == ctrl('Z')) {
+	if ((c = mygetch()) == EOF || c == ctrl('D')) {
 	    break;	/* change lines */
+	}
+	if (c == ctrl('Z')) {
+#ifdef SIGTSTP
+	    kill(0, SIGTSTP);
+	    goto same;
+#else
+	    break;	/* change lines */
+#endif
 	}
 	/* see if the input character is a command */
 	switch (c) {
