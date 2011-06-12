@@ -1,8 +1,34 @@
+2011-06-12  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	* Makefile.in, aclocal.m4, config.h.in, configure,
+	contrib/Makefile.in, doc/Makefile.in, src/Makefile.in: Regenerated
+	by newer autoconf.
+
+	* src/build.c (build): Remove pointless write.
+	(copydata, copyinverted): Avoid potential NULL pointer problem.
+
+	* src/find.c (findcalling): Remove pointless write.
+
+	* src/main.c (main): Remove pointless write.
+	(main): Documented default include directory $INCDIR wasn't
+	actually considered.
+
+	* src/invlib.c (invmake): Remove pointless code.
+	(invnewterm): Restrict variable to the only block it's used in.
+	(boolfile): Remove unused local.
+
+	* src/main.c (main): Handle Ctrl-Z manually, as curses raw mode
+	doesn't do that by itself.
+
+	* src/command.c (changestring): Likewise.
+
 2011-05-26 Neil Horman <nhorman@tuxdriver.com>
+
 	* contrib/cctree.vim: Added vi plugin to read cscope db's
 	* contrib/cctree.txt: Added docs for cctree.vim
 
 2010-09-30  Neil Horman <nhorman@tuxdriver.com>
+
 	* src/main.c: Ignore SIGPIPE in linemode as well to allow
 	for proper file cleanup
 
@@ -15,13 +41,16 @@
 	inside argument lists, too.
 
 2009-12-21  Neil Horman <nhorman@tuxdriver.com>
+
 	* src/main.c: Added some more missing short options to parse_options
 
 2009-12-14  Neil Horman <nhorman@tuxdriver.com>
+
 	* src/main.c: Added missing line mode operation options to
 	parse_arguments
 
 2009-12-14  Neil Horman <nhorman@tuxdriver.com>
+
 	* src/main.c: Fixed adjustments to argc/argv in parse_option to account
 	for the possibility that someone might specify multiple options in
 	one argument (-ab vs. -a -b)
