@@ -463,7 +463,6 @@ findcalling(char *pattern)
 			}
 		}
 	}
-	morefuns = 0;
 	
 	return NULL;
 }
