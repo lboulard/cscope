@@ -233,7 +233,7 @@ invmake(char *invname, char *invpost, FILE *infile)
 		}
 		posting.fileindex = --fileindex;
 		posting.type = *++s;
-		num = *++s - '!';
+		++s;
 		if (*s != '\n') {
 			num = *++s - '!';
 			while (*++s != '\n') {
@@ -354,7 +354,7 @@ invnewterm(void)
 {
     int	backupflag, i, j, holditems, gooditems, howfar;
     unsigned int maxback, len, numwilluse, wdlen;
-    char	*tptr, *tptr2, *tptr3;
+    char	*tptr, *tptr3;
 
     union {
 	unsigned long	packword[2];
@@ -420,7 +420,6 @@ invnewterm(void)
 		maxback = i;
 		backupflag = howfar;
 		gooditems = holditems;
-		tptr2 = logicalblk.chrblk + iteminfo.e.offset;
 	    }
 	}
 	/* see if backup will occur  */
@@ -440,6 +439,8 @@ invnewterm(void)
 	numlogblk++;
 	/* check if had to back up, if so do it */
 	if (backupflag) {
+	    char *tptr2;
+	    
 	    /* find out where the end of the new block is */
 	    iteminfo.packword[0] = logicalblk.invblk[numinvitems*2+1];
 	    tptr3 = logicalblk.chrblk + iteminfo.e.offset;
@@ -930,7 +931,7 @@ boolfile(INVCONTROL *invcntl, long *num, int boolarg)
 	switch (boolarg) {
 	case AND:
 	case NOT:
-		newsetp = set1p = item;
+		newsetp = item;
 		break;
 
 	case BOOL_OR:
@@ -964,7 +965,9 @@ boolfile(INVCONTROL *invcntl, long *num, int boolarg)
 			}
 			newitem = item2;
 		}
+#if 0 /* this write is only need by commented-out code later */
 		set1p = item;
+#endif
 		newsetp = newitem;
 	}
 	file = invcntl->postfile;
