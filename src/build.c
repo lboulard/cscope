@@ -252,7 +252,7 @@ build(void)
 		    ungetc(c, oldrefs);
 		    break;
 		}
-		switch (c = getc(oldrefs)) {
+		switch (getc(oldrefs)) {
 		case 'c':	/* ASCII characters only */
 		    oldcompress = NO;
 		    break;
@@ -618,7 +618,9 @@ copydata(void)
 	dbputc('\t');	/* copy the tab */
 		
 	/* get the next character */
-	if (*(cp + 1) == '\0') {
+	/* HBB 2010-08-21: potential problem if above loop was left
+	 * with cp==NULL */
+	if (cp && (*(cp + 1) == '\0')) {
 	    cp = read_block();
 	}
 	/* exit if at the end of this file's data */
@@ -661,7 +663,9 @@ copyinverted(void)
 	dbputc('\n');	/* copy the newline */
 		
 	/* get the next character */
-	if (*(cp + 1) == '\0') {
+	/* HBB 2010-08-21: potential problem if above loop was left
+	 * with cp==NULL */
+	if (cp && (*(cp + 1) == '\0')) {
 	    cp = read_block();
 	}
 	/* exit if at the end of this file's data */
