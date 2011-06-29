@@ -574,6 +574,8 @@ class{ws}+{identifier}({wsnl}|[a-zA-Z0-9_():])*\{	{	/* class definition */
 			char	*s;
 			
 			s = strpbrk(yytext, "\"<");
+			if (!s)
+				return(LEXERR);
 			incfile(s + 1, s);
 			/* HBB: avoid pointer mismatch if yytext is
 			 * unsigned, or a pointer */

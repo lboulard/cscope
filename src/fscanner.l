@@ -341,6 +341,8 @@ wsnl		[ \t\r\v\f\n]|{comment}
 			
 			my_yymore();
 			s = strpbrk(my_yytext, "\"<");
+			if (!s)
+				return(LEXERR);
 			my_yytext[my_yyleng-1] = '\0';
 			incfile(s + 1, s);
 			my_yytext[my_yyleng-1] = remember;

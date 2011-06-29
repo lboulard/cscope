@@ -1,3 +1,7 @@
+2011-06-29  Neil Horman <nhorman@tuxdriver.com>
+	* src/fscanner.l, src/scanner.l: Add NULL check to strpbrk call to 
+	avoid cscope crashes when reading garbage files
+
 2011-06-12  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	* Makefile.in, aclocal.m4, config.h.in, configure,
