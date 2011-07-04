@@ -53,7 +53,7 @@
 #include <sys/types.h>	/* needed by stat.h */
 #include <sys/stat.h>	/* stat */
 #include <signal.h>
-#ifdef _GNU_SOURCE
+#ifdef HAVE_GETOPT_LONG 
 #include <getopt.h>
 #endif
 
@@ -136,7 +136,7 @@ sigwinch_handler(int sig, siginfo_t *info, void *unused)
 }
 #endif
 
-#ifdef _GNU_SOURCE
+#ifdef HAVE_GETOPT_LONG
 struct option lopts[] = {
 	{"help", 0, NULL, 'h'},
 	{"version", 0, NULL, 'V'},
@@ -303,7 +303,7 @@ main(int argc, char **argv)
     argv0 = argv[0];
 
     /* set the options */
-#ifdef _GNU_SOURCE
+#ifdef HAVE_GETOPT_LONG 
 	argv = parse_options(&argc, argv);
 #else
     while (--argc > 0 && (*++argv)[0] == '-') {

@@ -1,4 +1,11 @@
 2011-07-04  Neil Horman <nhorman@tuxdriver.com>
+	* configure.in, config.h.in, configure, src/main.c: Modified autoconf
+	files to support checking for getopt_long function and changed
+	_GNU_SOURCE macro test to HAVE_GETOPT_LONG test.  This should support
+	using getopt_long on all platoforms automatically rather than have the
+	admin define it at build time.
+
+2011-07-04  Neil Horman <nhorman@tuxdriver.com>
 	* src/main.c: Remove unneeded if statement that checked for proper use
 	of s, f, i and p options (sf bug 2912347)
 

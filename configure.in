@@ -402,7 +402,7 @@ dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(strchr memcpy memset setmode _setmode)
 AC_CHECK_FUNCS(getcwd regcmp regcomp strerror lstat)
-AC_CHECK_FUNCS(fixkeypad)
+AC_CHECK_FUNCS(fixkeypad getopt_long)
 HW_FUNC_SNPRINTF
 HW_FUNC_VSNPRINTF
 HW_FUNC_ASPRINTF
