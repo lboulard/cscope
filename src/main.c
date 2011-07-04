@@ -326,16 +326,6 @@ main(int argc, char **argv)
 
 	for (s = argv[0] + 1; *s != '\0'; s++) {
 
-	    if ((*s != 'f') && (*s != 'F') &&
-		(*s != 'i') && (*s != 'I') &&
-		(*s != 'p') && (*s != 'P') &&
-		(*s != 's') && (*s != 'S')) {
-			if (*(s+1) != '\0') {
-				usage();
-				myexit(1);
-			}
-		}
-
 	    /* look for an input field number */
 	    if (isdigit((unsigned char) *s)) {
 		field = *s - '0';

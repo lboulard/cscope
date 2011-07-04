@@ -1,3 +1,7 @@
+2011-07-04  Neil Horman <nhorman@tuxdriver.com>
+	* src/main.c: Remove unneeded if statement that checked for proper use
+	of s, f, i and p options (sf bug 2912347)
+
 2011-06-29  Neil Horman <nhorman@tuxdriver.com>
 	* src/fscanner.l, src/scanner.l: Add NULL check to strpbrk call to 
 	avoid cscope crashes when reading garbage files
