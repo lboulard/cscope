@@ -343,6 +343,7 @@ char	*finddef(char *pattern);
 char	*findfile(char *dummy);
 char	*findinclude(char *pattern);
 char	*findsymbol(char *pattern);
+char	*findassign(char *pattern);
 char	*findregexp(char *egreppat);
 char	*findstring(char *pattern);
 char	*inviewpath(char *file);

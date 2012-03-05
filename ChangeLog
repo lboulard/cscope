@@ -1,3 +1,8 @@
+2012-03-05  Neil Horman <nhorman@tuxdriver.com>
+	* global.h, constants.h, find.c, display.c: Add search for symbol
+	assignment feature.  Its been soaking in Fedora for years now, and I
+	think it gets enough use that its time we put it upstream
+
 2011-07-04  Neil Horman <nhorman@tuxdriver.com>
 	* configure.in, config.h.in, configure, src/main.c: Modified autoconf
 	files to support checking for getopt_long function and changed

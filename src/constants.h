@@ -101,7 +101,7 @@
 #define	REGEXP		6
 #define FILENAME	7
 #define INCLUDES	8
-#define	FIELDS		9
+#define	FIELDS		11
 
 #if (BSD || V9) && !__NetBSD__ && !__FreeBSD__
 # define TERMINFO	0	/* no terminfo curses */

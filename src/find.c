@@ -79,6 +79,8 @@ static	char	*lcasify(char *s);
 static	void	findcalledbysub(char *file, BOOL macro);
 static	void	findterm(char *pattern);
 static	void	putline(FILE *output);
+static  char    *find_symbol_or_assignment(char *pattern, BOOL assign_flag);
+static  BOOL    check_for_assignment(void);
 static	void	putpostingref(POSTING *p, char *pat);
 static	void	putref(int seemore, char *file, char *func);
 static	void	putsource(int seemore, FILE *output);
@@ -87,6 +89,77 @@ static	void	putsource(int seemore, FILE *output);
 
 char *
 findsymbol(char *pattern)
+{
+	return find_symbol_or_assignment(pattern, NO);
+}
+
+/* find the symbol in the cross-reference, and look for assignments */
+char *
+findassign(char *pattern)
+{
+	return find_symbol_or_assignment(pattern, YES);
+}
+
+/* Test reference whether it's an assignment to the symbol found at
+ * (global variable) 'blockp' */
+static BOOL
+check_for_assignment(void) 
+{
+	/* Do the extra work here to determine if this is an
+	* assignment or not Do this by examining the next character
+	* or two in blockp */
+	char *asgn_char = blockp;
+	unsigned int i = 0;
+
+	while (isspace((unsigned char) asgn_char[i])) {
+		/* skip any whitespace or \n */
+		i++;
+	}
+	if (asgn_char[i] == '\0') {
+		/* get the next block when we reach the end of
+		 * the current block */
+		asgn_char = read_block();
+		if (asgn_char == NULL) return NO;
+		i=0;
+    }
+
+	/* this next character better be one of the assignment
+	* characters, ie: =, +=, -=, *=, %=, /=, &=, |=, ^=,
+	* ~= if not, then its a notmatched case */
+	if ((asgn_char[i] != '=') &&
+		(asgn_char[i] != '+') && 
+		(asgn_char[i] != '-') && 
+		(asgn_char[i] != '*') && 
+		(asgn_char[i] != '/') && 
+		(asgn_char[i] != '%') && 
+		(asgn_char[i] != '&') && 
+		(asgn_char[i] != '|') && 
+		(asgn_char[i] != '^') && 
+		(asgn_char[i] != '~')) {
+		return NO;
+	} else {
+		/* if the first found character is = and the
+		* next found character is also =, then this
+		* is not an assignment.  likewise if the
+		* first character is not = (i.e. one of the
+		* +,-,*,etc. chars and the next character is
+		* not =, then this is not an assignment */
+		if ((((asgn_char[i] == '=')
+			  && (asgn_char[i+1] == '='))) 
+			|| ((asgn_char[i] != '=')
+				&& (asgn_char[i+1] != '='))) {
+			return NO;
+		}
+		/* if we pass all these filters then this is
+		* an assignment */
+		return YES;
+	} /* else(operator char?) */
+}
+
+/* The actual routine that does the work for findsymbol() and
+* findassign() */
+static char *
+find_symbol_or_assignment(char *pattern, BOOL assign_flag)
 {
 	char	file[PATHLEN + 1];	/* source file name */
 	char	function[PATLEN + 1];	/* function name */
@@ -249,6 +322,14 @@ findsymbol(char *pattern)
 			if (matchrest()) {
 				s = NULL;
 		matched:
+				/* if the assignment flag is set then
+				 * we are looking for assignments and
+				 * some extra filtering is needed */
+				if(assign_flag == YES
+				  && ! check_for_assignment())
+				       goto notmatched;
+
+
 				/* output the file, function or macro, and source line */
 				if (strcmp(macro, global) && s != macro) {
 					putref(0, file, macro);
@@ -260,11 +341,12 @@ findsymbol(char *pattern)
 				else {
 					putref(0, file, global);
 				}
-				if (blockp == NULL) {
-					return NULL;
-				}
 			}
 		notmatched:
+			if (blockp == NULL) {
+				return NULL;
+			}
+			fcndef = NO;
 			cp = blockp;
 		}
 	}

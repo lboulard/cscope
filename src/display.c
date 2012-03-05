@@ -113,6 +113,7 @@ static	struct	{		/* text of input fields */
 	{"Find this", "file",				findfile},
 	{"Find", "files #including this file",		findinclude},
 	{"Find all", "function definitions",		findallfcns},	/* samuel only */
+	{"Find all", "symbol assignments",		findassign},
 };
 
 /* Internal prototypes: */
