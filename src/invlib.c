@@ -228,7 +228,7 @@ invmake(char *invname, char *invpost, FILE *infile)
 			num = BASE * num + *++s - '!';
 		} while (++i < PRECISION);
 		posting.lineoffset = num;
-		while (++fileindex < nsrcoffset && num > srcoffset[fileindex]) {
+		while (++fileindex < nsrcfiles && num > srcoffset[fileindex]) {
 			;
 		}
 		posting.fileindex = --fileindex;

@@ -1,3 +1,7 @@
+2012-03-12  Neil Horman	<nhorman@tuxdriver.com>
+	* src/invlib.c: Modified posting consturction code to properly limit
+	the fileindex value to avoid overflow
+
 2012-03-05  Neil Horman <nhorman@tuxdriver.com>
 	* global.h, constants.h, find.c, display.c: Add search for symbol
 	assignment feature.  Its been soaking in Fedora for years now, and I
