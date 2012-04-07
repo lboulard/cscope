@@ -1,7 +1,13 @@
 2012-04-07  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
+	* src/display.c (fields): Move "samuel" special function back to
+	end of list, where it won't show on display.  Fix incorrect
+	on-screen description of findassign function.
+
 	* src/constants.h (NUMLEN): Increase from 5 to 10 to be able to
 	handle source files with freaky large numbers of lines.
+	(FIELDS): Reduce by one to avoid showing "samuel" special mode,
+	which is quite unusable to the general public.
 
 	* src/command.c (countrefs): There was still one scanf not taking
 	into account limited buffer lengths.
