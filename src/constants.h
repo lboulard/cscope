@@ -65,7 +65,7 @@
 #define	DEL	'\177'		/* delete character */
 #define	DUMMYCHAR	' '	/* use space as a dummy character */
 #define	MSGLEN	((PATLEN) + 80)	/* displayed message length */
-#define	NUMLEN	5		/* line number length */
+#define	NUMLEN	10		/* line number length */
 #define	PATHLEN	250		/* file pathname length */
 #define	PATLEN	250		/* symbol pattern length */
 #define TEMPSTRING_LEN 8191     /* max strlen() of the global temp string */
