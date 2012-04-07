@@ -890,12 +890,20 @@ countrefs(void)
     filelen = 4;		/* strlen("File") */
     fcnlen = 8;		/* strlen("Function") */
     numlen = 0;
-    while ((i = fscanf(refsfound, "%250s%250s%5s %5000[^\n]", file,
-		       function, linenum, tempstring)) != EOF) {
-	if (i != 4 ||
-	    !isgraph((unsigned char) *file) ||
-	    !isgraph((unsigned char) *function) ||
-	    !isdigit((unsigned char) *linenum)) {
+    /* HBB NOTE 2012-04-07: it may look like we shouldn't assing tempstring here,
+     * since it's not used.  But it has to be assigned just so the return value
+     * of fscanf will actually reach 4. */
+    while (EOF != (i = fscanf(refsfound, 
+			      "%" PATHLEN_STR "s%" PATLEN_STR "s%" NUMLEN_STR "s %" TEMPSTRING_LEN_STR "[^\n]",
+			      file, function, linenum, tempstring
+			     )
+	          )
+	  ) {
+	if (   (i != 4)
+	    || !isgraph((unsigned char) *file)
+	    || !isgraph((unsigned char) *function)
+	    || !isdigit((unsigned char) *linenum)
+	   ) {
 	    postmsg("File does not have expected format");
 	    totallines = 0;
 	    disprefs = 0;
