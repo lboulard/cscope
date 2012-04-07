@@ -90,14 +90,14 @@ static	void	putsource(int seemore, FILE *output);
 char *
 findsymbol(char *pattern)
 {
-	return find_symbol_or_assignment(pattern, NO);
+    return find_symbol_or_assignment(pattern, NO);
 }
 
 /* find the symbol in the cross-reference, and look for assignments */
 char *
 findassign(char *pattern)
 {
-	return find_symbol_or_assignment(pattern, YES);
+    return find_symbol_or_assignment(pattern, YES);
 }
 
 /* Test reference whether it's an assignment to the symbol found at
@@ -105,55 +105,51 @@ findassign(char *pattern)
 static BOOL
 check_for_assignment(void) 
 {
-	/* Do the extra work here to determine if this is an
-	* assignment or not Do this by examining the next character
-	* or two in blockp */
-	char *asgn_char = blockp;
-	unsigned int i = 0;
+    /* Do the extra work here to determine if this is an
+     * assignment or not.  Do this by examining the next character
+     * or two in blockp */
+    char *asgn_char = blockp;
 
-	while (isspace((unsigned char) asgn_char[i])) {
-		/* skip any whitespace or \n */
-		i++;
+    while (isspace((unsigned char) asgn_char[0])) {
+	/* skip any whitespace or \n */
+	asgn_char++;
+	if (asgn_char[0] == '\0') {
+	    /* get the next block when we reach the end of
+	     * the current block */
+	    if (NULL == (asgn_char = read_block()))
+		return NO;
 	}
-	if (asgn_char[i] == '\0') {
-		/* get the next block when we reach the end of
-		 * the current block */
-		asgn_char = read_block();
-		if (asgn_char == NULL) return NO;
-		i=0;
     }
 
-	/* this next character better be one of the assignment
-	* characters, ie: =, +=, -=, *=, %=, /=, &=, |=, ^=,
-	* ~= if not, then its a notmatched case */
-	if ((asgn_char[i] != '=') &&
-		(asgn_char[i] != '+') && 
-		(asgn_char[i] != '-') && 
-		(asgn_char[i] != '*') && 
-		(asgn_char[i] != '/') && 
-		(asgn_char[i] != '%') && 
-		(asgn_char[i] != '&') && 
-		(asgn_char[i] != '|') && 
-		(asgn_char[i] != '^') && 
-		(asgn_char[i] != '~')) {
-		return NO;
-	} else {
-		/* if the first found character is = and the
-		* next found character is also =, then this
-		* is not an assignment.  likewise if the
-		* first character is not = (i.e. one of the
-		* +,-,*,etc. chars and the next character is
-		* not =, then this is not an assignment */
-		if ((((asgn_char[i] == '=')
-			  && (asgn_char[i+1] == '='))) 
-			|| ((asgn_char[i] != '=')
-				&& (asgn_char[i+1] != '='))) {
-			return NO;
-		}
-		/* if we pass all these filters then this is
-		* an assignment */
-		return YES;
-	} /* else(operator char?) */
+    /* check for plain '=', not '==' */
+    if ((asgn_char[0] == '=') && (asgn_char[1] != '=')) {
+	return YES;
+    }
+
+    /* check for operator assignments: +=, ... ^= ? */
+    if (   (   (asgn_char[0] == '+') 
+	    || (asgn_char[0] == '-')
+	    || (asgn_char[0] == '*') 
+	    || (asgn_char[0] == '/') 
+	    || (asgn_char[0] == '%') 
+	    || (asgn_char[0] == '&') 
+	    || (asgn_char[0] == '|') 
+	    || (asgn_char[0] == '^') 
+	   )
+	&& (asgn_char[1] == '=')
+       ) {
+	return YES;
+    }
+
+    /* check for two-letter operator assignments: <<= or >>= ? */
+    if (   (   (asgn_char[0] == '<') 
+            || (asgn_char[0] == '>')
+           )
+	&& (asgn_char[1] == asgn_char[0])
+	&& (asgn_char[2] == '=')
+       )
+	return YES;
+    return NO;
 }
 
 /* The actual routine that does the work for findsymbol() and
