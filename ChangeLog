@@ -1,26 +1,43 @@
+2012-04-07  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	* src/constants.h (NUMLEN): Increase from 5 to 10 to be able to
+	handle source files with freaky large numbers of lines.
+
+	* src/command.c (countrefs): There was still one scanf not taking
+	into account limited buffer lengths.
+
+	* src/find.c (check_for_assignment): Search for assignment failed
+	to recognize >>= and <<=, incorrectly recognized ~=, and was
+	implemented somewhat clumsily.
+
 2012-03-12  Neil Horman	<nhorman@tuxdriver.com>
-	* src/invlib.c: Modified posting consturction code to properly limit
-	the fileindex value to avoid overflow
+
+	* src/invlib.c: Modified posting construction code to properly limit
+	the fileindex value to avoid overflow.
 
 2012-03-05  Neil Horman <nhorman@tuxdriver.com>
+
 	* global.h, constants.h, find.c, display.c: Add search for symbol
 	assignment feature.  Its been soaking in Fedora for years now, and I
-	think it gets enough use that its time we put it upstream
+	think it gets enough use that its time we put it upstream.
 
 2011-07-04  Neil Horman <nhorman@tuxdriver.com>
+
 	* configure.in, config.h.in, configure, src/main.c: Modified autoconf
 	files to support checking for getopt_long function and changed
 	_GNU_SOURCE macro test to HAVE_GETOPT_LONG test.  This should support
-	using getopt_long on all platoforms automatically rather than have the
+	using getopt_long on all platforms automatically rather than have the
 	admin define it at build time.
 
 2011-07-04  Neil Horman <nhorman@tuxdriver.com>
-	* src/main.c: Remove unneeded if statement that checked for proper use
-	of s, f, i and p options (sf bug 2912347)
+
+	* src/main.c: Remove unneeded if statement that checked for proper
+	use of s, f, i and p options (sf bug 2912347).
 
 2011-06-29  Neil Horman <nhorman@tuxdriver.com>
-	* src/fscanner.l, src/scanner.l: Add NULL check to strpbrk call to 
-	avoid cscope crashes when reading garbage files
+
+	* src/fscanner.l, src/scanner.l: Add NULL check to strpbrk call to
+	avoid cscope crashes when reading garbage files.
 
 2011-06-12  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
