@@ -1,5 +1,8 @@
 2012-05-20  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
+	* src/command.c (command): Allow usage of function keys ctrl-f and
+	ctrl-b even from result pane.
+
 	* src/display.c (display): More informative display of position in
 	a multi-screenful result set.
 

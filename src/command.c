@@ -449,8 +449,9 @@ cscope: cannot open pipe to shell command: %s\n", newpat);
 
     case ctrl('B'):		/* cmd history back */
     case ctrl('F'):		/* cmd history fwd */
-	if (selecting)
-	    return(NO);
+	if (selecting) {
+	    selecting = 0;
+	}
 
 	curritem = currentcmd();
 	item = (commandc == ctrl('F')) ? nextcmd() : prevcmd();
@@ -502,7 +503,7 @@ cscope: cannot open pipe to shell command: %s\n", newpat);
 	/* FALLTHROUGH */
     default:
 	if (selecting && !mouse) {
-	    char		*c;
+	    char *c;
 
 	    if ((c = strchr(dispchars, commandc)))
 		editref(c - dispchars);
