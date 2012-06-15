@@ -1,6 +1,8 @@
 2012-06-15  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
-	* configure.in: added AM_PROC_CC_C_O, needed for upgrade of
+	* src/gscope.c: Added placeholder file, needed for distcheck.
+
+	* configure.in: Added AM_PROC_CC_C_O, needed for upgrade of
 	automake.
 
 	* compile, config.guess, config.sub, install-sh, missing, depcomp,
