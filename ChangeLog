@@ -1,3 +1,7 @@
+2012-06-15  Neil Horman  <nhorman@tuxdriver.com>
+	* src/find.c: Add check to make sure that second '=' on assignment
+	search isn't part of a digraph
+
 2012-05-20  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	* src/command.c (command): Allow usage of function keys ctrl-f and
