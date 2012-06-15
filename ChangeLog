@@ -1,4 +1,7 @@
 2012-06-15  Neil Horman  <nhorman@tuxdriver.com>
+	* configure.in: Update version in configure.in in prep for new release
+
+2012-06-15  Neil Horman  <nhorman@tuxdriver.com>
 	* src/find.c: Add check to make sure that second '=' on assignment
 	search isn't part of a digraph
 
