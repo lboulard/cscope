@@ -1,3 +1,8 @@
+2012-06-10 Neil Horman <nhorman@tuxdriver.com>
+	* src/invlib.c: Corrected some sizing of amtused in invlib.c. 
+	sizeof(long) is dead reckoned to be 4 bytes, which is wrong
+	on x86_64.  Reported by Paul Bolle
+
 2012-06-15  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	* src/gscope.c: Added placeholder file, needed for distcheck.

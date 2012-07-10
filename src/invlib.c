@@ -169,8 +169,8 @@ invmake(char *invname, char *invpost, FILE *infile)
 	numpost = 1;
 
 	/* set up as though a block had come and gone, i.e., set up for new block  */
-	/* FIXME HBB: magic number alert (16) */
-	amtused = 16; /* leave no space - init 3 words + one for luck */
+	/* 3 longs needed for: numinvitems, next block, and previous block */
+	amtused = 3 * sizeof(long);
 	numinvitems = 0;
 	numlogblk = 0;
 	lastinblk = sizeof(t_logicalblk);
@@ -371,8 +371,10 @@ invnewterm(void)
 	zipf[0]++;
 #endif
     len = strlen(thisterm);
+    /* length of term rounded up to long boundary */
     wdlen = (len + (sizeof(long) - 1)) / sizeof(long);
-    /* HBB FIXME 20060419: magic number: 3 */
+    /* each term needs 2 longs for its iteminfo and
+     * 1 long for its offset */
     numwilluse = (wdlen + 3) * sizeof(long);
     /* new block if at least 1 item in block */
     if (numinvitems && numwilluse + amtused > sizeof(t_logicalblk)) {
@@ -435,7 +437,8 @@ invnewterm(void)
 	    invcannotwrite(indexfile);
 	    return(0);
 	}
-	amtused = 16;
+	/* 3 longs needed for: numinvitems, next block, and previous block */
+	amtused = 3 * sizeof(long);
 	numlogblk++;
 	/* check if had to back up, if so do it */
 	if (backupflag) {
@@ -468,7 +471,7 @@ invnewterm(void)
 	    while (tptr3 > tptr)
 		*--tptr2 = *--tptr3;
 	    lastinblk -= j;
-	    amtused += (8 * backupflag + j);
+	    amtused += ((2 * sizeof(long)) * backupflag + j);
 	    for (i = 3; i < (backupflag * 2 + 2); i += 2) {
 		iteminfo.packword[0] = logicalblk.invblk[i];
 		iteminfo.e.offset += (tptr2 - tptr3);
