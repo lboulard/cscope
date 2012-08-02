@@ -471,7 +471,13 @@ wsnl		[ \t\r\v\f\n]|{comment}
 			goto definition;
 			/* NOTREACHED */
 		}
-<IN_PREPROC>.|\n			|
+<IN_PREPROC>\n	{   /* unknown preprocessor line */
+			BEGIN(INITIAL);
+                        ++myylineno;
+			goto more;
+			/* NOTREACHED */
+		}
+<IN_PREPROC>.		 |
 <IN_PREPROC>{identifier}	{   /* unknown preprocessor line */
 			BEGIN(INITIAL);
 			goto more;
