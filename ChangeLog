@@ -1,3 +1,29 @@
+2012-08-04  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
+
+	Make an update release 15.8a
+
+	* configure: Regenerated.
+
+	* contrib/Makefile.in: Regenerated.
+
+	* doc/Makefile.in: Regenerated.
+
+	* Makefile.in: Regenerated.
+
+	* doc/Makefile.am (EXTRA_DIST): xcscope.1 was missing from the
+	distribution.
+
+	* Makefile.am (EXTRA_DIST): Include INSTALL.gnu
+	(dist-hook): Directories without Makefile.am in them cause
+	unwanted CVS files to be included.  Remove them from the tarball.
+
+	* contrib/Makefile.am (EXTRA_DIST): cctree was missing from the
+	distribution.
+
+	* configure.in: Update version to 15.8a
+
+	* src/version.h (FIXVERSION): Update to 8a.
+
 2012-08-02  Hans-Bernhard Broeker  <broeker@physik.rwth-aachen.de>
 
 	* src/version.h (FIXVERSION): Update missed.

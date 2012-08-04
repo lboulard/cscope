@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT
 AC_CONFIG_SRCDIR([src/crossref.c])
-AM_INIT_AUTOMAKE(cscope, 15.8)
+AM_INIT_AUTOMAKE(cscope, 15.8a)
 AC_CONFIG_HEADERS([config.h:config.h.in])
 AC_PREREQ(2.59)
 AC_CANONICAL_HOST
