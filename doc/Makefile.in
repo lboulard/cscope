@@ -182,7 +182,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 man_MANS = cscope.1
-EXTRA_DIST = $(man_MANS)
+EXTRA_DIST = $(man_MANS) xcscope.1
 all: all-am
 
 .SUFFIXES:
